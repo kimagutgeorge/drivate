@@ -1,0 +1,293 @@
+<template>
+  <div class="w-full flex flex-wrap justify-center">
+    <!-- <div v-if="has_top_bar" class="w-full h-[6vh] overflow-hidden">
+      <router-link to="/all-cars">
+        <img src="/images/advert-image.jpg" class="w-full h-auto" />
+      </router-link>
+    </div> -->
+    <div
+      class="w-full flex justify-end bg-white bg-theme-gray text-white px-[5%] py-1"
+    >
+      <!-- <div class="w-1/2 flex justify-end"> -->
+      <span class="mr-8 text-sm"
+        ><span class="text-bold mr-2">Currency</span>
+        <select class="bg-theme-gray border border-white">
+          <option>USD</option>
+          <option>KES</option>
+        </select></span
+      >
+      <a
+        v-for="(contact, index) in contacts"
+        :key="index"
+        :href="
+          contact.is_phone
+            ? `tel:${contact.contact}`
+            : contact.is_email
+            ? `mailto:${contact.contact}`
+              ? contact.is_handle
+              : contact.contact
+            : ''
+        "
+        :target="contact.is_handle ? '_blank' : ''"
+      >
+        <!-- <div
+            class="w-[30px] h-[30px] rounded-full flex justify-center bg-black ml-1 overflow-hidden"
+          > -->
+        <!-- <div class="h-full flex flex-col justify-center roll-over"> -->
+        <i
+          :class="
+            contact.icon
+              ? contact.icon
+              : contact.is_email
+              ? 'fa-regular fa-envelope'
+              : contact.is_phone
+              ? 'fa-solid fa-phone'
+              : ''
+          "
+          class="theme-black ml-2 cursor-pointer text-sm icon text-[#E6B800] hover:text-[#0066ff] transition 0.3s ease-in-out"
+        ></i>
+        <!-- </div> -->
+        <!-- </div> -->
+      </a>
+      <!-- </div> -->
+    </div>
+  </div>
+  <div
+    class="w-full flex flex-wrap sticky top-0 z-[1000] bg-white big-navigation"
+  >
+    <div class="w-full h-full flex justify-center mt-4 pt-2">
+      <div class="w-[90%] flex py-2">
+        <div class="w-fit">
+          <router-link to="/"
+            ><img :src="logo" class="w-[150px]"
+          /></router-link>
+        </div>
+        <div class="w-full flex justify-center">
+          <div
+            @mouseenter="is_available = true"
+            @mouseleave="is_available = false"
+            class="py-2 px-4 cursor-pointer hover:bg-[#f4f5f4] hover:text-[#0066ff] h-full text-lg font-bold"
+            :class="is_available ? 'bg-[#f4f5f4] text-[#0066ff]' : ''"
+          >
+            <router-link to="/all-cars" active-class="text-[#0066ff] "
+              >Available Cars <i class="fa-solid fa-angle-down"></i
+            ></router-link>
+          </div>
+          <div class="group cursor-pointer hover:bg-[#f4f5f4] h-full relative">
+            <div class="w-fit text-lg font-bold py-2 px-4 hover:text-[#0066ff]">
+              Quick Links <i class="fa-solid fa-angle-down"></i>
+            </div>
+
+            <!-- Show on hover -->
+            <div
+              class="w-full p-2 shadow-md hidden group-hover:block absolute bg-white"
+            >
+              <li class="list-none mb-2 hover:text-[#0066ff] hover:underline">
+                <router-link to="/blogs">Blogs</router-link>
+              </li>
+              <li class="list-none mb-2 hover:text-[#0066ff] hover:underline">
+                <router-link to="/reviews">Reviews</router-link>
+              </li>
+              <li class="list-none mb-2 hover:text-[#0066ff] hover:underline">
+                <router-link to="/faqs">FAQs</router-link>
+              </li>
+            </div>
+          </div>
+          <router-link
+            to="/contact-us"
+            class="py-2 px-4 cursor-pointer hover:bg-[#f4f5f4] hover:text-[#0066ff] h-full text-lg font-bold"
+            >Contact us</router-link
+          >
+          <router-link
+            to="/sell-car"
+            class="py-2 px-4 cursor-pointer hover:bg-[#f4f5f4] hover:text-[#0066ff] h-full text-lg font-bold"
+            >Sell Car</router-link
+          >
+        </div>
+      </div>
+      <!-- navigation bar -->
+    </div>
+
+    <!-- dropdowns -->
+    <div
+      v-if="is_available"
+      @mouseenter="is_available = true"
+      @mouseleave="is_available = false"
+      class="w-full flex justify-center relative mt-[-20px]"
+    >
+      <div class="w-[80%] bg-sec absolute flex z-50 p-4 shadow-md">
+        <div class="w-[25%]">
+          <router-link
+            to="/all-cars"
+            class="theme-blue font-semibold hover:text-[#0066ff] hover:underline"
+            >Search all from stock</router-link
+          >
+          <h4 class="mt-4 font-bold text-sm theme-blue">SHOP BY MAKE</h4>
+          <li v-for="(make, index) in makes" :key="index" class="list-none">
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:underline hover:text-[#0066ff]"
+              >{{ make.make }}</router-link
+            >
+          </li>
+        </div>
+        <!-- body type -->
+        <div class="w-[25%]">
+          <h4 class="font-bold text-sm theme-blue">SHOP BY TYPE</h4>
+          <li v-for="(type, index) in types" :key="index" class="list-none">
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              >{{ type.type }}</router-link
+            >
+          </li>
+        </div>
+        <!-- price -->
+        <div class="w-[25%]">
+          <h4 class="font-bold text-sm theme-blue">SHOP BY PRICE</h4>
+          <li v-for="(price, index) in prices" :key="index" class="list-none">
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              >{{ price.price }}</router-link
+            >
+          </li>
+        </div>
+        <div class="w-[25%]">
+          <h4 class="font-bold text-sm theme-blue">OTHER CATEGORIES</h4>
+          <li
+            v-for="(category, index) in categories"
+            :key="index"
+            class="list-none"
+          >
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              >{{ category.category }}</router-link
+            >
+          </li>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- phone navigation -->
+  <div
+    class="w-full flex-wrap sticky top-0 z-[1000] py-4 p-[5%] bg-white phone-navigation border-b border-[#eaeaea]"
+    :class="phone_navigation ? 'shadow-md' : ''"
+  >
+    <div class="w-1/2">
+      <div class="w-fit">
+        <router-link to="/"><img :src="logo" class="w-[150px]" /></router-link>
+      </div>
+    </div>
+    <div class="w-1/2 flex justify-end">
+      <div
+        @click="phone_navigation = !phone_navigation"
+        class="p-2 rounded-sm bg-theme-blue group cursor-pointer w-fit"
+      >
+        <!-- Top bar -->
+        <div
+          class="w-[25px] h-[3px] bg-white transition-transform duration-300 origin-center"
+          :class="phone_navigation ? 'rotate-45 translate-y-[11px]' : ''"
+        ></div>
+
+        <!-- Middle bar -->
+        <div
+          class="w-[25px] h-[3px] bg-white my-[6px] transition-opacity duration-300"
+          :class="phone_navigation ? 'opacity-0' : 'opacity-100'"
+        ></div>
+
+        <!-- Bottom bar -->
+        <div
+          class="w-[25px] h-[3px] bg-white transition-transform duration-300 origin-center"
+          :class="phone_navigation ? '-rotate-45 -translate-y-[11px]' : ''"
+        ></div>
+      </div>
+    </div>
+    <!-- main phone navigation -->
+    <div
+      v-if="phone_navigation"
+      class="w-full flex justify-end flex-wrap mt-4 border-t"
+    >
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/">Home</router-link>
+      </p>
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/all-cars">Available Cars</router-link>
+      </p>
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/blogs">Blogs</router-link>
+      </p>
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/reviews">Reviews</router-link>
+      </p>
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/faqs">FAQs</router-link>
+      </p>
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/contact-us">Contact us</router-link>
+      </p>
+      <p class="font-bold w-full text-end mt-2">
+        <router-link to="/sell-car">Sell car</router-link>
+      </p>
+    </div>
+  </div>
+</template>
+<script>
+export default {
+  name: "Navbar",
+  props: { categories: Array, contacts: Array, has_top_bar: Boolean },
+  data() {
+    return {
+      logo: "/logo.png",
+      is_available: false,
+      phone_navigation: false,
+
+      makes: [
+        { make: "Toyota" },
+        { make: "Suzuki" },
+        { make: "Honda" },
+        { make: "Nissan" },
+        { make: "Mazda" },
+        { make: "Mitsubishi" },
+        { make: "Subaru" },
+        { make: "Ford" },
+        { make: "Chevrolet" },
+        { make: "Volkswagen" },
+        { make: "Hyundai" },
+        { make: "Kia" },
+        { make: "Mercedes-Benz" },
+        { make: "BMW" },
+        { make: "Audi" },
+      ],
+      types: [
+        { type: "Coupe" },
+        { type: "Sedan" },
+        { type: "Hatchback" },
+        { type: "SUV" },
+        { type: "Crossover" },
+        { type: "Convertible" },
+        { type: "Pickup" },
+        { type: "Van" },
+        { type: "Minivan" },
+        { type: "Wagon" },
+        { type: "Truck" },
+        { type: "Electric" },
+      ],
+      prices: [
+        { price: "Less than 500,000" },
+        { price: "500,001 - 1,000,000" },
+        { price: "1,000,001 - 1,500,000" },
+        { price: "1,500,001 - 2,000,000" },
+        { price: "2,000,001 - 2,500,000" },
+        { price: "2,500,001 - 3,000,000" },
+        { price: "3,000,001 - 4,000,000" },
+        { price: "4,000,001 - 5,000,000" },
+        { price: "5,000,001 - 6,000,000" },
+        { price: "6,000,001 - 7,000,000" },
+        { price: "Above 7,000,000" },
+      ],
+    };
+  },
+};
+</script>

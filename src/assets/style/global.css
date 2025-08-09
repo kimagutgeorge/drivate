@@ -1,0 +1,291 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+  }
+  .no-scrollbar {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+  }
+}
+
+* {
+  @apply p-0 m-0;
+  font-family: "Roboto", sans-serif;
+  word-break: break-word;
+}
+body {
+  @apply bg-[#f4f5f4];
+}
+html {
+  scroll-behavior: smooth;
+}
+.phone-navigation {
+  display: none;
+}
+.bg-sec {
+  @apply bg-[#f4f5f4];
+}
+.bg-third {
+  @apply bg-[#eaeaea];
+}
+.bg-theme-blue {
+  @apply bg-[#0066ff];
+}
+.theme-blue {
+  @apply text-[#0066ff];
+}
+.bg-theme-yellow {
+  @apply bg-[#ffcd00];
+}
+.theme-yellow {
+  @apply text-[#ffcd00];
+}
+.bg-theme-gray {
+  @apply bg-[#4d4d4d];
+}
+.theme-third {
+  @apply text-[#4d4d4d];
+}
+.roll-over:hover .icon {
+  animation-name: goDown;
+  animation-duration: 0.3s;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+}
+
+@keyframes goDown {
+  0% {
+    @apply mt-[30px];
+    opacity: 0;
+  }
+  50% {
+    @apply mt-[-30px];
+    opacity: 0;
+  }
+  100% {
+    @apply mt-0;
+    opacity: 1;
+  }
+}
+
+/* phone responsiveness */
+@media only screen and (max-width: 1100px) {
+  .to-wrap {
+    @apply flex-wrap mt-0;
+  }
+  .to-full {
+    @apply w-full;
+  }
+  /* .to-wrap .filter.to-full .heading h4 {
+    @apply uppercase bg-transparent theme-yellow text-lg;
+  } */
+  .to-wrap .filter.to-full {
+    @apply bg-transparent;
+  }
+  .to-wrap .filter.to-full .to-flex {
+    @apply flex flex-wrap;
+  }
+  .to-wrap .filter.to-full .category {
+    @apply w-[23%] border border-[#eaeaea] m-[1%];
+  }
+  .to-wrap .filter.to-full .category.to-third {
+    @apply bg-[#eaeaea];
+  }
+  .to-hide {
+    @apply hidden;
+  }
+  .hero-section h1,
+  .hero-section h2 {
+    @apply bg-transparent theme-yellow;
+  }
+  .search {
+    @apply mt-4;
+  }
+  .middle-part {
+    @apply ml-0;
+  }
+}
+@media only screen and (max-width: 950px) {
+  .search .to-flex {
+    @apply flex-wrap gap-[1%];
+  }
+  .search .to-flex .search-inner {
+    @apply w-[48%];
+  }
+  .search .to-flex .search-2-inner {
+    @apply w-[48%] mb-2;
+  }
+  .view-car .half-to-full {
+    @apply w-full mb-2;
+  }
+  .view-car .to-flex {
+    @apply flex-wrap;
+  }
+}
+@media only screen and (max-width: 900px) {
+  .to-hide-smaller {
+    @apply hidden;
+  }
+  .to-full-smaller {
+    @apply w-full;
+  }
+}
+@media only screen and (max-width: 850px) {
+  .about .flex-col,
+  .about .relative {
+    @apply h-auto w-full p-4;
+  }
+  .about .relative {
+    @apply max-w-[60vh] overflow-hidden;
+  }
+  .why-us .why-inner {
+    @apply w-[48%];
+  }
+  /* phone navigation */
+  .big-navigation,
+  .hide-footer {
+    @apply hidden;
+  }
+  .phone-navigation {
+    @apply flex;
+  }
+  .footer .inner-footer {
+    @apply w-full;
+  }
+}
+@media only screen and (max-width: 750px) {
+  .to-wrap .filter.to-full .category {
+    @apply w-[48%];
+  }
+  .blog-holder {
+    @apply flex-nowrap overflow-scroll snap-x snap-mandatory;
+  }
+  .blog-holder .blog-card {
+    @apply w-[50%] flex-shrink-0 snap-center;
+  }
+  .content {
+    @apply flex-wrap;
+  }
+  .content .self-start,
+  .content .view-car {
+    @apply w-full;
+  }
+  .sell .content .self-start {
+    @apply justify-start;
+  }
+
+  .content .self-start {
+    @apply flex flex-nowrap overflow-x-scroll no-scrollbar snap-x snap-mandatory top-0;
+  }
+  .content .self-start p {
+    @apply flex-shrink-0 w-[24%] mx-[1%];
+  }
+  .review-search {
+    @apply flex-wrap;
+  }
+  .review-search .search-inner {
+    @apply w-full;
+  }
+}
+@media only screen and (max-width: 650px) {
+  .content .self-start p {
+    @apply w-[48%] mx-[1%];
+  }
+}
+@media only screen and (max-width: 600px) {
+  .search .to-flex .search-2-inner {
+    @apply flex-wrap;
+  }
+  .why-us .why-inner {
+    @apply w-full mt-4;
+  }
+  .why-us .why-inner .to-flex {
+    @apply flex-wrap h-auto gap-0;
+  }
+  .why-us .why-inner .to-flex .h-full {
+    @apply block pl-0;
+  }
+  .car-holder .car-card .to-flex,
+  .shop-car-holder .car-card .to-flex {
+    @apply flex-wrap;
+  }
+  .car-holder .car-card .to-full:last-child,
+  .shop-car-holder .car-card .to-full:last-child {
+    @apply justify-start mt-2;
+  }
+  .review-card-holder .review-card {
+    @apply flex-wrap;
+  }
+  .review-card-holder .review-card .img-holder {
+    @apply w-full;
+  }
+  .review-card-holder .review-card .img-holder img {
+    @apply w-auto;
+  }
+  .review-card-holder .review-card .content-holder {
+    @apply w-full;
+  }
+}
+@media only screen and (max-width: 500px) {
+  .search .to-flex .search-inner,
+  .search .to-flex .search-2-inner {
+    @apply w-full;
+  }
+  .shop-car-holder,
+  .car-holder {
+    @apply gap-[1%];
+  }
+  .car-holder .car-card,
+  .shop-car-holder .car-card {
+    @apply w-[49%];
+  }
+  .footer .inner-footer {
+    @apply flex-wrap;
+  }
+  .footer .inner-footer .full-footer {
+    @apply w-full p-0;
+  }
+  .review-search .search-inner:last-child {
+    @apply flex-wrap;
+  }
+  .review-search .to-full {
+    @apply w-full;
+  }
+}
+@media only screen and (max-width: 350px) {
+  .blog-holder .blog-card {
+    @apply w-full;
+  }
+  .car-holder {
+    @apply flex-nowrap overflow-scroll no-scrollbar snap-x snap-mandatory;
+  }
+  .car-holder .car-card,
+  .shop-car-holder .car-card {
+    @apply w-full flex-shrink-0 snap-center;
+  }
+  .to-wrap .filter.to-full .category {
+    @apply w-3/4 snap-center flex-shrink-0 flex-col justify-center flex-wrap;
+  }
+  .to-wrap .filter.to-full .category img {
+    @apply min-w-[60px];
+  }
+
+  .to-wrap .filter.to-full .to-flex {
+    @apply flex-nowrap w-full overflow-scroll no-scrollbar snap-x snap-mandatory
+    /* @apply flex-nowrap overscroll-scroll no-scrollbar snap-x snap-mandatory; */;
+  }
+  .content .self-start p {
+    @apply w-[80%] mx-[1%];
+  }
+  .search .buttons {
+    @apply flex-wrap;
+  }
+  .search .buttons .rounded-sm {
+    @apply w-[100%];
+  }
+}
