@@ -339,10 +339,10 @@ export default {
       /* data */
       carousel: [
         {
-          image: "/images/hero-video.mp4",
+          image: "/images/car-6.jpg",
           heading_1: "TRUSTED BY CLIENTS",
           heading_2: "ALL OVER EAST AFRICA!",
-          is_pic: false,
+          is_pic: true,
         },
         {
           image: "/images/bg-1.jpg",
