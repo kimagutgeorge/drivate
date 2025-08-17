@@ -4,7 +4,6 @@
     <Navbar :categories="categories" :contacts="contacts" has_top_bar />
     <!-- hero section -->
     <div class="w-full h-[45vh] relative overflow-hidden">
-      <!-- <div class="w-full absolute h-full bg-black opacity-50 z-10"></div> -->
       <div class="w-full absolute top-0 h-full">
         <!-- carousel -->
         <div
@@ -17,6 +16,9 @@
             class="w-full min-w-full relative"
           >
             <div class="w-full h-full">
+              <div
+                class="w-full absolute h-full bg-black opacity-50 z-10"
+              ></div>
               <img
                 v-if="carousel_item.is_pic === true"
                 :src="carousel_item.image"
