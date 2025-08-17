@@ -27,8 +27,12 @@
           class="w-full h-auto max-h-none min-h-full object-cover hover:scale-110 duration-300 ease-in-out"
         />
       </div>
-      <div class="w-full p-2 mt-2 mb-2">
-        <h1 class="font-semibold text-gray-600">{{ car_name }}</h1>
+      <div class="w-full p-2 mt-2 mb-2 group">
+        <h1
+          class="font-semibold text-xl text-gray-600 hover:text-[#0066ff] hover:underline"
+        >
+          {{ car_name }}
+        </h1>
         <div class="w-full">
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
             <i class="fa-solid fa-location-pin"></i> {{ location }}
@@ -37,8 +41,8 @@
             {{ price }} kes
           </p>
         </div>
-        <div class="w-full flex mt-2 to-flex">
-          <div class="w-1/2 to-full">
+        <div class="w-full flex flex-wrap mt-2 to-flex">
+          <div class="w-1/2 w-full to-full">
             <i
               class="fa-solid fa-phone hover:text-[#0066ff] cursor-pointer"
             ></i>
@@ -49,8 +53,9 @@
               class="fa-regular fa-envelope ml-2 hover:text-[#0066ff] cursor-pointer"
             ></i>
           </div>
-          <div class="w-1/2 flex justify-end to-full">
-            <Link link_text="Enquire" link_to="#" />
+          <div class="w-1/2 w-full to-full mt-2">
+            <!-- <Link link_text="Enquire" link_to="#" /> -->
+            <!-- <IconButton button_text="View Details" /> -->
           </div>
         </div>
       </div>
@@ -181,6 +186,7 @@
 </template>
 <script>
 import Link from "./text/Link.vue";
+import IconButton from "./buttons/IconButton.vue";
 export default {
   name: "Card",
   props: {
@@ -204,6 +210,6 @@ export default {
     fuel: String,
     transmission: String,
   },
-  components: { Link },
+  components: { Link, IconButton },
 };
 </script>

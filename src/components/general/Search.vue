@@ -1,6 +1,15 @@
 <template>
   <div class="w-full p-4 bg-third h-fit bg-[#E6B800] search">
-    <h4 class="font-bold text-xl theme-blue">Quick search</h4>
+    <h4
+      @click="search_is_visible = !search_is_visible"
+      class="font-bold text-xl theme-blue cursor-pointer"
+    >
+      Advanced Search
+      <i
+        class="fa-solid fa-angle-down ml-2 transition-all duration-300"
+        :class="search_is_visible ? 'rotate-180' : ''"
+      ></i>
+    </h4>
     <div class="w-full flex flex-nowrap mt-4">
       <input
         type="text"
@@ -11,7 +20,10 @@
         <i class="fa-solid fa-search"></i>
       </button>
     </div>
-    <div class="w-full flex flex-nowrap mt-2 gap-2 mt-2 to-flex">
+    <div
+      v-if="search_is_visible"
+      class="w-full flex flex-nowrap mt-2 gap-2 mt-2 to-flex"
+    >
       <div class="w-[25%] search-inner">
         <label class="font-semibold">Make</label><br />
         <select class="py-1 rounded-0 bg-white w-full mt-1">
@@ -44,7 +56,7 @@
       </div>
     </div>
     <!-- row 2 -->
-    <div class="w-full py-1 bg-third mt-2 search-2">
+    <div v-if="search_is_visible" class="w-full py-1 bg-third mt-2 search-2">
       <div class="w-full flex flex-nowrap gap-2 to-flex">
         <div class="w-[25%] flex flex-nowrap gap-1 search-2-inner">
           <select class="py-1 h-fit rounded-0 bg-white w-full">
@@ -92,7 +104,10 @@
       </div>
     </div>
     <!-- third row -->
-    <div class="w-full flex justify-end gap-4 mt-2 buttons">
+    <div
+      v-if="search_is_visible"
+      class="w-full flex justify-end gap-4 mt-2 buttons"
+    >
       <button class="bg-[#E6B800] w-[150px] font-bold py-1 px-4 rounded-sm">
         Search
       </button>
@@ -226,6 +241,7 @@ export default {
         { price: "6,000,001 - 7,000,000" },
         { price: "Above 7,000,000" },
       ],
+      search_is_visible: false,
     };
   },
 };

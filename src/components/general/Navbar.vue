@@ -204,32 +204,100 @@
         ></div>
       </div>
     </div>
-    <!-- main phone navigation -->
-    <div
-      v-if="phone_navigation"
-      class="w-full flex justify-end flex-wrap mt-4 border-t"
-    >
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/">Home</router-link>
-      </p>
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/all-cars">Available Cars</router-link>
-      </p>
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/blogs">Blogs</router-link>
-      </p>
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/reviews">Reviews</router-link>
-      </p>
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/faqs">FAQs</router-link>
-      </p>
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/contact-us">Contact us</router-link>
-      </p>
-      <p class="font-bold w-full text-end mt-2">
-        <router-link to="/sell-car">Sell car</router-link>
-      </p>
+  </div>
+  <!-- main phone navigation -->
+  <div
+    v-if="phone_navigation"
+    class="w-full h-[100vh] sticky top-0 mt-[-20vh] z-[1100]"
+  >
+    <div class="w-full h-full relative ">
+      <div
+        @click="phone_navigation = !phone_navigation"
+        class="w-full h-full bg-black opacity-50 transition-all duration-300 ease-in-out absolute z-10"
+      >
+        <!-- dark background -->
+      </div>
+      <!-- content -->
+      <div
+        class="w-[80%] h-full max-w-[450px] bg-white absolute p-4 z-20 transition-all duration-300 ease-in-out move-in-animation"
+      >
+      <div class="w-full max-h-full overflow-y-scroll custom-scrollbar pr-[3px]">
+        <p class="font-bold w-full mt-2 py-2 border-b">
+          <router-link to="/">Home</router-link>
+        </p>
+        <p class="w-full mt-2 border-b py-2">
+          <a @click="filter_is_hidden = ! filter_is_hidden" href="#" class="w-full font-bold" >Available Cars <i class="fa-solid " :class="filter_is_hidden ? 'fa-angle-up' : 'fa-angle-down'"></i></a>
+          <div v-if="filter_is_hidden" class="w-full mt-4">
+            <div class="w-full mt-2">
+          <router-link
+            to="/all-cars"
+            class="theme-blue font-semibold hover:text-[#0066ff] hover:underline"
+            >Search all from stock</router-link
+          >
+          <h4 class="mt-4 font-bold text-sm theme-blue">SHOP BY MAKE</h4>
+          <li v-for="(make, index) in makes" :key="index" class="list-none">
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:underline hover:text-[#0066ff]"
+              >{{ make.make }}</router-link
+            >
+          </li>
+        </div>
+        <!-- body type -->
+        <div class="w-full mt-2">
+          <h4 class="font-bold text-sm theme-blue">SHOP BY TYPE</h4>
+          <li v-for="(type, index) in types" :key="index" class="list-none">
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              >{{ type.type }}</router-link
+            >
+          </li>
+        </div>
+        <!-- price -->
+        <div class="w-full mt-2">
+          <h4 class="font-bold text-sm theme-blue">SHOP BY PRICE</h4>
+          <li v-for="(price, index) in prices" :key="index" class="list-none">
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              >{{ price.price }}</router-link
+            >
+          </li>
+        </div>
+        <div class="w-full mt-2">
+          <h4 class="font-bold text-sm theme-blue">OTHER CATEGORIES</h4>
+          <li
+            v-for="(category, index) in categories"
+            :key="index"
+            class="list-none"
+          >
+            <router-link
+              to=""
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              >{{ category.category }}</router-link
+            >
+          </li>
+        </div>
+          </div>
+        </p>
+        <p class="font-bold w-full mt-2 border-b py-2">
+          <router-link to="/blogs">Blogs</router-link>
+        </p>
+        <p class="font-bold w-full mt-2 border-b py-2">
+          <router-link to="/reviews">Reviews</router-link>
+        </p>
+        <p class="font-bold w-full mt-2 border-b py-2">
+          <router-link to="/faqs">FAQs</router-link>
+        </p>
+        <p class="font-bold w-full mt-2 border-b py-2">
+          <router-link to="/contact-us">Contact us</router-link>
+        </p>
+        <p class="font-bold w-full mt-2 border-b py-2">
+          <router-link to="/sell-car">Sell car</router-link>
+        </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -242,6 +310,7 @@ export default {
       logo: "/logo.png",
       is_available: false,
       phone_navigation: false,
+      filter_is_hidden: false,
 
       makes: [
         { make: "Toyota" },

@@ -81,7 +81,7 @@
     <!-- home body -->
     <div class="w-[90%] flex flex-nowrap mt-10 to-wrap">
       <!-- left -->
-      <div class="w-1/4 bg-third shadow-sm p-2 h-fit filter to-full">
+      <div class="w-1/4 bg-third shadow-sm p-2 h-fit filter to-full to-second">
         <div class="w-full heading">
           <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
             Search by make
@@ -93,11 +93,12 @@
               class="p-2 hover:bg-white category"
               style="border-bottom: 1px solid #f4f5f4"
             >
-              <router-link to="/all-cars" class="w-full flex gap-2 flex-nowrap">
+              <router-link
+                to="/all-cars"
+                class="w-full flex gap-2 flex-nowrap inner-cat"
+              >
                 <img :src="make.icon" class="w-[30px] min-w-[30px] h-fit" />
-                <span class="font-semibold cursor-pointer">{{
-                  make.make
-                }}</span>
+                <p class="font-semibold cursor-pointer">{{ make.make }}</p>
               </router-link>
             </div>
           </div>
@@ -113,14 +114,15 @@
               class="p-2 hover:bg-white category"
               style="border-bottom: 1px solid #f4f5f4"
             >
-              <router-link to="/all-cars" class="w-full flex gap-2 flex-nowrap">
+              <router-link
+                to="/all-cars"
+                class="w-full flex gap-2 flex-nowrap inner-cat"
+              >
                 <img
                   :src="type.icon"
                   class="w-[30px] min-w-[30px] filter grayscale h-fit"
                 />
-                <span class="font-semibold cursor-pointer">{{
-                  type.type
-                }}</span>
+                <p class="font-semibold cursor-pointer">{{ type.type }}</p>
               </router-link>
             </div>
           </div>
@@ -136,22 +138,26 @@
               class="p-2 hover:bg-white category to-third"
               style="border-bottom: 1px solid #f4f5f4"
             >
-              <router-link to="/all-cars" class="w-full flex gap-2 flex-nowrap">
+              <router-link
+                to="/all-cars"
+                class="w-full flex gap-2 flex-nowrap inner-cat"
+              >
                 <img
                   src="/icons/coin.png"
                   class="w-[27px] min-w-[15px] h-fit to-hide"
                 />
-                <span
+                <p
                   class="font-semibold text-sm cursor-pointer hover:underline ml-2"
-                  >{{ price.price }}</span
                 >
+                  {{ price.price }}
+                </p>
               </router-link>
             </div>
           </div>
         </div>
       </div>
       <!-- middle -->
-      <div class="w-full ml-4 middle-part">
+      <div class="w-full ml-4 middle-part to-first">
         <!-- search -->
         <Search />
         <!-- New Arrivals -->

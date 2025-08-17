@@ -11,6 +11,12 @@
     scrollbar-width: none; /* Firefox */
     -ms-overflow-style: none; /* IE and Edge */
   }
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-[4px];
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply w-full bg-[#ffcd00] rounded-full;
+  }
 }
 
 * {
@@ -57,6 +63,23 @@ html {
   animation-direction: alternate;
   animation-iteration-count: 1;
 }
+.move-in-animation {
+  animation: moveIn;
+  animation-duration: 0.3s;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+}
+@keyframes moveIn {
+  0% {
+    @apply opacity-0 ml-[-10%];
+  }
+  70% {
+    @apply opacity-100;
+  }
+  100% {
+    @apply ml-0;
+  }
+}
 
 @keyframes goDown {
   0% {
@@ -75,6 +98,12 @@ html {
 
 /* phone responsiveness */
 @media only screen and (max-width: 1100px) {
+  .to-second {
+    @apply order-2;
+  }
+  .to-first {
+    @apply order-1;
+  }
   .to-wrap {
     @apply flex-wrap mt-0;
   }
@@ -194,7 +223,7 @@ html {
 }
 @media only screen and (max-width: 650px) {
   .content .self-start p {
-    @apply w-[48%] mx-[1%];
+    @apply min-w-fit;
   }
 }
 @media only screen and (max-width: 600px) {
@@ -268,19 +297,22 @@ html {
   .shop-car-holder .car-card {
     @apply w-full flex-shrink-0 snap-center;
   }
-  .to-wrap .filter.to-full .category {
-    @apply w-3/4 snap-center flex-shrink-0 flex-col justify-center flex-wrap;
+  .to-wrap .filter.to-full .category .inner-cat {
+    @apply !flex-wrap justify-center;
   }
   .to-wrap .filter.to-full .category img {
-    @apply min-w-[60px];
+    @apply max-w-[20px];
+  }
+  .to-wrap .filter.to-full .category p {
+    @apply w-full text-center;
   }
 
-  .to-wrap .filter.to-full .to-flex {
+  /* .to-wrap .filter.to-full .to-flex {
     @apply flex-nowrap w-full overflow-scroll no-scrollbar snap-x snap-mandatory
-    /* @apply flex-nowrap overscroll-scroll no-scrollbar snap-x snap-mandatory; */;
-  }
+    /* @apply flex-nowrap overscroll-scroll no-scrollbar snap-x snap-mandatory; /;
+  } */
   .content .self-start p {
-    @apply w-[80%] mx-[1%];
+    @apply min-w-fit;
   }
   .search .buttons {
     @apply flex-wrap;
