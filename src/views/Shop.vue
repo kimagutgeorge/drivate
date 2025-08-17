@@ -5,7 +5,7 @@
     <div class="w-[90%] flex flex-wrap mt-6">
       <div class="w-full flex to-wrap">
         <!-- left -->
-        <div class="w-[20%] px-2 filter to-full to-hide">
+        <div class="w-[20%] px-2 filter to-full to-second">
           <div class="w-full heading">
             <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
               Search by make
@@ -91,7 +91,7 @@
           </div>
         </div>
         <!-- shop panel -->
-        <div class="w-[80%] to-full">
+        <div class="w-[80%] to-full to-first">
           <!-- search panel -->
           <div class="w-full p-4 bg-third h-fit">
             <Search />
@@ -199,6 +199,7 @@
         </div>
       </div>
     </div>
+    <!--  -->
     <!-- footer -->
     <Footer
       :makes="makes"

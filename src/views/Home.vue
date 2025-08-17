@@ -21,7 +21,7 @@
                 v-if="carousel_item.is_pic === true"
                 :src="carousel_item.image"
                 :alt="carousel_item.image"
-                class="w-full h-auto max-h-none max-w-none object-cover"
+                class="w-full h-auto max-h-none min-h-full max-w-none object-cover"
               />
               <video
                 v-else

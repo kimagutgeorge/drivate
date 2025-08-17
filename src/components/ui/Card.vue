@@ -29,7 +29,7 @@
       </div>
       <div class="w-full p-2 mt-2 mb-2 group">
         <h1
-          class="font-semibold text-xl text-gray-600 hover:text-[#0066ff] hover:underline"
+          class="font-semibold text-gray-600 hover:text-[#0066ff] hover:underline"
         >
           {{ car_name }}
         </h1>

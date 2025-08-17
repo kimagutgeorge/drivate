@@ -226,7 +226,7 @@
           <router-link to="/">Home</router-link>
         </p>
         <p class="w-full mt-2 border-b py-2">
-          <a @click="filter_is_hidden = ! filter_is_hidden" href="#" class="w-full font-bold" >Available Cars <i class="fa-solid " :class="filter_is_hidden ? 'fa-angle-up' : 'fa-angle-down'"></i></a>
+          <p @click="filter_is_hidden = ! filter_is_hidden"  class="w-full font-bold" >Available Cars <i class="fa-solid " :class="filter_is_hidden ? 'fa-angle-up' : 'fa-angle-down'"></i></p>
           <div v-if="filter_is_hidden" class="w-full mt-4">
             <div class="w-full mt-2">
           <router-link

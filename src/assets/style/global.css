@@ -99,7 +99,7 @@ html {
 /* phone responsiveness */
 @media only screen and (max-width: 1100px) {
   .to-second {
-    @apply order-2;
+    @apply order-2 mt-4;
   }
   .to-first {
     @apply order-1;
@@ -162,6 +162,9 @@ html {
   }
   .to-full-smaller {
     @apply w-full;
+  }
+  .shop-car-holder .car-card {
+    @apply w-[32%];
   }
 }
 @media only screen and (max-width: 850px) {
