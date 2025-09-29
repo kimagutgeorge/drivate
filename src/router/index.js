@@ -11,8 +11,10 @@ import ViewBlog from "../views/dynamic/ViewBlog.vue";
 import Reviews from "../views/Reviews.vue";
 import TermsOfUse from "../views/TermsOfUse.vue";
 import PrivacyPolicy from "../views/PrivacyPolicy.vue";
+import NotFound from "../views/NotFound.vue";
 
 const routes = [
+  { path: "/:pathMatch(.*)*", name: "Not Found", component: NotFound },
   {
     path: "/",
     name: "Home",

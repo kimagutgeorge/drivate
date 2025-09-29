@@ -13,7 +13,9 @@
               v-for="(make, index) in makes"
               :key="index"
             >
-              {{ make.make }}
+              <router-link :to="`/all-cars/${slugify(make.id)}`">
+                {{ make.name }}
+              </router-link>
             </p>
           </div>
           <div class="w-[33%] p-2">
@@ -154,6 +156,7 @@
 </template>
 
 <script>
+import { slugify } from "../../utils/store";
 export default {
   name: "Footer",
   props: {
@@ -178,6 +181,7 @@ export default {
   },
   /* methods */
   methods: {
+    slugify,
     back_to_top() {
       window.scrollTo(0, 0);
     },

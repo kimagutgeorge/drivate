@@ -1,14 +1,12 @@
 <template>
   <div class="w-full p-4 bg-third h-fit bg-[#E6B800] search">
-    <h4
-      @click="search_is_visible = !search_is_visible"
-      class="font-bold text-xl theme-blue cursor-pointer"
-    >
+    <h4 class="font-bold text-xl theme-blue">
       Advanced Search
-      <i
+      <!-- <i
+       @click="search_is_visible = !search_is_visible"
         class="fa-solid fa-angle-down ml-2 transition-all duration-300"
         :class="search_is_visible ? 'rotate-180' : ''"
-      ></i>
+      ></i> -->
     </h4>
     <div class="w-full flex flex-nowrap mt-4">
       <input
@@ -22,13 +20,17 @@
     </div>
     <div
       v-if="search_is_visible"
-      class="w-full flex flex-nowrap mt-2 gap-2 mt-2 to-flex"
+      class="w-full flex flex-nowrap mt-2 gap-2 to-flex"
     >
       <div class="w-[25%] search-inner">
         <label class="font-semibold">Make</label><br />
-        <select class="py-1 rounded-0 bg-white w-full mt-1">
-          <option v-for="(make, index) in makes" :key="index">
-            {{ make.make }}
+        <select
+          @change="filterModels()"
+          v-model="selected_make"
+          class="py-1 rounded-0 bg-white w-full mt-1"
+        >
+          <option v-for="(make, index) in makes" :key="index" :value="make.id">
+            {{ make.name }}
           </option>
         </select>
       </div>
@@ -36,6 +38,9 @@
         <label class="font-semibold">Model</label><br />
         <select class="py-1 rounded-0 bg-white w-full mt-1">
           <option>Any Model</option>
+          <option v-for="(model, index) in models" :key="index">
+            {{ model.model_name }}
+          </option>
         </select>
       </div>
       <div class="w-[25%] search-inner">
@@ -89,8 +94,8 @@
         <div class="w-[25%] flex flex-nowrap gap-1 search-2-inner">
           <select class="py-1 h-fit rounded-0 bg-white w-full">
             <option disabled selected>Body Type</option>
-            <option v-for="(type, index) in types" :key="index">
-              {{ type.type }}
+            <option v-for="(type, index) in body_styles" :key="index">
+              {{ type.name }}
             </option>
           </select>
         </div>
@@ -122,25 +127,21 @@
 <script>
 export default {
   name: "Search",
+  props: {
+    makes: Array,
+    fetched_models: Array,
+    body_styles: Array,
+  },
   data() {
     return {
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
+      selected_make: "Any Make",
+      // makes: [],
+      // all_makes_tracker: [],
+      // filtered_makes: [],
+      //models
+      models: [],
+      all_models_tracker: [],
+      filtered_models: [],
       years: [
         { year: 2000 },
         { year: 2001 },
@@ -192,22 +193,7 @@ export default {
         { category: "Electric" },
         { category: "Hybrid" },
       ],
-      makes: [
-        { make: "Toyota", icon: "/static/toyota.png" },
-        { make: "Honda", icon: "/static/honda.png" },
-        { make: "Nissan", icon: "/static/mazda.png" },
-        { make: "Mazda", icon: "/static/mazda.png" },
-        { make: "Subaru", icon: "/static/subaru.png" },
-        { make: "Ford", icon: "/static/ford.png" },
-        { make: "Chevrolet", icon: "/static/chevy.png" },
-        { make: "Volkswagen", icon: "/static/vw.png" },
-        { make: "Kia", icon: "/static/kia.png" },
-        { make: "Mercedes-Benz", icon: "/static/mercedes.png" },
-        {
-          make: "BMW",
-          icon: "/static/bmw.png",
-        },
-      ],
+
       categories: [
         { category: "Manual" },
         { category: "Automatic" },
@@ -241,8 +227,29 @@ export default {
         { price: "6,000,001 - 7,000,000" },
         { price: "Above 7,000,000" },
       ],
-      search_is_visible: false,
+      search_is_visible: true,
     };
+  },
+  /* mounted */
+  mounted() {
+    this.models = this.fetched_models;
+    this.all_models_tracker = this.fetched_models;
+  },
+  /* methods */
+  methods: {
+    filterModels() {
+      //filter brands
+      this.models = [];
+
+      this.filtered_models = this.all_models_tracker.filter(
+        (item) => item.make_id === parseInt(this.selected_make)
+      );
+
+      //map item
+      this.models = this.filtered_models.map((item) => ({
+        ...item,
+      }));
+    },
   },
 };
 </script>

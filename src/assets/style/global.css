@@ -19,6 +19,42 @@
   }
 }
 
+/*******
+admin css
+********/
+/* * {
+  @apply p-0 m-0;
+  font-family: "Ubuntu", sans-serif;
+}
+body {
+  @apply bg-gray-100;
+} */
+.custom-scrollbar::-webkit-scrollbar {
+  @apply w-[5px];
+}
+.no-scrollbar::-webkit-scrollbar {
+  @apply hidden;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb,
+.custom-scrollbar::-webkit-scrollbar-button {
+  @apply bg-transparent w-full;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-[#2A9B63] rounded-full;
+}
+table thead {
+  @apply border-b border-black;
+}
+table tbody tr {
+  @apply border-b;
+}
+table tbody tr:last-child {
+  @apply border-b border-black;
+}
+table tboy tr td {
+  @apply text-sm;
+}
+
 * {
   @apply p-0 m-0;
   font-family: "Roboto", sans-serif;
@@ -69,6 +105,7 @@ html {
   animation-direction: alternate;
   animation-iteration-count: 1;
 }
+
 @keyframes moveIn {
   0% {
     @apply opacity-0 ml-[-10%];

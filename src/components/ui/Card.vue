@@ -2,10 +2,12 @@
   <!-- grid card -->
   <div
     v-if="car_card"
+    v-for="(car, index) in vehicles"
+    :key="index"
     class="border border-[#eaeaea] hover:shadow-md duration-300 ease-in-out car-card"
     :class="class"
   >
-    <router-link to="/toyota mark x" class="w-full">
+    <router-link :to="`vehicles/view/${slugify(car.name)}`" class="w-full">
       <div class="w-full h-[20vh] overflow-hidden relative">
         <div
           class="w-[30px] h-[30px] absolute z-10 cursor-pointer hover:bg-[#ffcd00]"
@@ -23,7 +25,7 @@
         </div>
 
         <img
-          :src="`/images/${car_pic}`"
+          :src="car.primary_image_url"
           class="w-full h-auto max-h-none min-h-full object-cover hover:scale-110 duration-300 ease-in-out"
         />
       </div>
@@ -31,14 +33,15 @@
         <h1
           class="font-semibold text-gray-600 hover:text-[#0066ff] hover:underline"
         >
-          {{ car_name }}
+          {{ car.name }}
         </h1>
         <div class="w-full">
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
-            <i class="fa-solid fa-location-pin"></i> {{ location }}
+            <i class="fa-solid fa-location-pin"></i>
+            {{ car.location.location_name }}
           </p>
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
-            {{ price }} kes
+            {{ car.price.toLocaleString() }} kes
           </p>
         </div>
         <div class="w-full flex flex-wrap mt-2 to-flex">
@@ -64,16 +67,22 @@
   <!-- blog card -->
   <div
     v-if="blog_card"
+    v-for="(blog, index) in blogs"
+    :key="index"
     class="border-b border-gray-300 py-4 transition-all duration-300 hover:border-[#ffcd00] blog-card"
     :class="class"
   >
-    <router-link to="read-blog" class="w-full">
+    <router-link :to="`/blog/${slugify(blog.title)}`" class="w-full">
       <div class="w-full max-h-[25vh] overflow-hidden">
-        <img :src="`/images/${car_pic}`" class="w-full h-auto" />
+        <img
+          :src="blog.image_url"
+          :alt="blog.image_alt"
+          class="w-full h-auto"
+        />
       </div>
       <div class="w-full mt-4">
         <h1 class="font-semibold text-xxl">
-          {{ blog_title }}
+          {{ blog.title }}
         </h1>
       </div>
     </router-link>
@@ -187,6 +196,7 @@
 <script>
 import Link from "./text/Link.vue";
 import IconButton from "./buttons/IconButton.vue";
+import { slugify } from "../../utils/store";
 export default {
   name: "Card",
   props: {
@@ -209,7 +219,16 @@ export default {
     steering: String,
     fuel: String,
     transmission: String,
+
+    // arrray data
+    blogs: Array,
+    vehicles: Array,
   },
   components: { Link, IconButton },
+
+  /* methods */
+  methods: {
+    slugify,
+  },
 };
 </script>

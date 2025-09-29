@@ -11,7 +11,7 @@
           :style="{ transform: `translateX(-${current_slide * 100}%)` }"
         >
           <div
-            v-for="(carousel_item, index) in carousel"
+            v-for="(carousel_item, index) in carousels"
             :key="index"
             class="w-full min-w-full relative"
           >
@@ -20,22 +20,10 @@
                 class="w-full absolute h-full bg-black opacity-50 z-10"
               ></div>
               <img
-                v-if="carousel_item.is_pic === true"
-                :src="carousel_item.image"
-                :alt="carousel_item.image"
+                :src="carousel_item.image_url"
+                :alt="carousel_item.image_alt"
                 class="w-full h-auto max-h-none min-h-full max-w-none object-cover"
               />
-              <video
-                v-else
-                autoplay
-                muted
-                loop
-                playsinline
-                class="w-full h-auto min-h-full max-w-none object-cover"
-              >
-                <source :src="carousel_item.image" type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
             </div>
             <!-- content side -->
             <div
@@ -44,12 +32,12 @@
               <div class="w-[90%] h-full flex py-2">
                 <div class="h-full flex flex-col justify-center">
                   <h1
-                    class="text-4xl font-extrabold bg-theme-yellow w-fit px-4"
+                    class="text-4xl font-extrabold uppercase bg-theme-yellow w-fit px-4"
                   >
                     {{ carousel_item.heading_1 }}
                   </h1>
                   <h2
-                    class="text-3xl font-extrabold bg-theme-yellow w-fit px-4 mt-2"
+                    class="text-3xl font-extrabold uppercase bg-theme-yellow w-fit px-4 mt-2"
                   >
                     {{ carousel_item.heading_2 }}
                   </h2>
@@ -90,17 +78,20 @@
           </h4>
           <div class="w-full to-flex">
             <div
-              v-for="(make, index) in makes"
+              v-for="(make, index) in brands"
               :key="index"
               class="p-2 hover:bg-white category"
               style="border-bottom: 1px solid #f4f5f4"
             >
               <router-link
-                to="/all-cars"
+                :to="`/vehicles/${is_make}/${slugify(make.name)}`"
                 class="w-full flex gap-2 flex-nowrap inner-cat"
               >
-                <img :src="make.icon" class="w-[30px] min-w-[30px] h-fit" />
-                <p class="font-semibold cursor-pointer">{{ make.make }}</p>
+                <img
+                  :src="make.image_url"
+                  class="w-[30px] min-w-[30px] h-fit"
+                />
+                <p class="font-semibold cursor-pointer">{{ make.name }}</p>
               </router-link>
             </div>
           </div>
@@ -111,20 +102,20 @@
           </h4>
           <div class="w-full to-flex">
             <div
-              v-for="(type, index) in types"
+              v-for="(type, index) in body_styles"
               :key="index"
               class="p-2 hover:bg-white category"
               style="border-bottom: 1px solid #f4f5f4"
             >
               <router-link
-                to="/all-cars"
+                :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
                 class="w-full flex gap-2 flex-nowrap inner-cat"
               >
                 <img
-                  :src="type.icon"
+                  :src="type.image_url"
                   class="w-[30px] min-w-[30px] filter grayscale h-fit"
                 />
-                <p class="font-semibold cursor-pointer">{{ type.type }}</p>
+                <p class="font-semibold cursor-pointer">{{ type.name }}</p>
               </router-link>
             </div>
           </div>
@@ -141,7 +132,7 @@
               style="border-bottom: 1px solid #f4f5f4"
             >
               <router-link
-                to="/all-cars"
+                to="/vehicles"
                 class="w-full flex gap-2 flex-nowrap inner-cat"
               >
                 <img
@@ -161,14 +152,18 @@
       <!-- middle -->
       <div class="w-full ml-4 middle-part to-first">
         <!-- search -->
-        <Search />
+        <Search
+          :makes="brands"
+          :fetched_models="models"
+          :body_styles="body_styles"
+        />
         <!-- New Arrivals -->
         <div class="w-full flex flex-wrap gap-2 p-2 mt-8">
           <div class="w-full">
             <h4 class="font-bold text-lg theme-blue">New Arrivals</h4>
           </div>
           <div class="w-full flex flex-wrap gap-2 mt-4 car-holder">
-            <Card
+            <!-- <Card
               car_card
               v-for="(car, index) in cars.slice(0, 6)"
               :key="index"
@@ -177,7 +172,8 @@
               :price="car.price"
               :car_pic="car.pic"
               class="w-[32%] mb-2"
-            />
+            /> -->
+            <Card car_card :vehicles="all_vehicles" class="w-[32%] mb-2" />
           </div>
         </div>
         <!-- most popular -->
@@ -203,19 +199,21 @@
       <div class="w-1/4 bg-third shadow-sm p-2 h-fit ml-4 to-hide">
         <div class="w-full">
           <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
-            Top 10 Locations
+            Search by Models
           </h4>
           <div
-            v-for="(location, index) in locations"
+            v-for="(model, index) in models"
             :key="index"
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
           >
-            <router-link to="/all-cars">
+            <router-link
+              :to="`/vehicles/${is_model}/${slugify(model.model_name)}`"
+            >
               <span
                 class="font-semibold cursor-pointer hover:underline text-sm"
               >
-                {{ location.name }}
+                {{ model.make_name }} {{ model.model_name }}
               </span>
             </router-link>
           </div>
@@ -230,7 +228,7 @@
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
           >
-            <router-link to="/all-cars">
+            <router-link to="/vehicles">
               <span
                 class="font-semibold cursor-pointer hover:underline text-sm"
                 >{{ searched.name }}</span
@@ -248,20 +246,9 @@
       <div class="w-[90%] flex flex-wrap py-10">
         <div class="w-1/2 p-4 h-[70vh] flex flex-col justify-center">
           <h1 class="font-extrabold text-2xl">About us</h1>
+          <!-- {{ about_us }} -->
           <p class="mt-4">
-            Welcome to Drivate, your trusted partner in finding quality cars at
-            the best prices. We’re committed to making car buying simple,
-            transparent, and stress-free. Whether you're looking for a reliable
-            family car, a rugged 4x4, or a sleek executive ride, our platform
-            connects you with a wide range of vehicles to match your needs and
-            budget.
-          </p>
-          <p class="mt-4">
-            We carefully vet each listing to ensure authenticity and value. With
-            years of experience in the automotive industry, our team is
-            passionate about helping you make confident, informed decisions. At
-            Drivate, we don't just sell cars — we help you drive away with peace
-            of mind.
+            {{ about_us.statement }}
           </p>
         </div>
         <div class="w-1/2 h-[70vh] p-4 flex justify-center relative">
@@ -270,17 +257,17 @@
               class="mt-10 ml-[-15%] h-full bg-transparent w-[80%] absolute flex flex-col justify-end overflow-hidden"
             >
               <div class="h-[60%] bg-[#fffadd] p-[15px]">
-                <img src="/static/about-us2.jpg" class="w-full h-auto" />
+                <img :src="about_us.image_1" class="w-full h-auto" />
               </div>
             </div>
             <!-- 2nd image -->
-            <img src="/static/about-us1.jpg" class="w-auto h-full" />
+            <img :src="about_us.image_2" class="w-auto h-full" />
           </div>
         </div>
         <div class="w-full p-4 flex gap-[1%] flex-wrap mb-4 mt-[15vh] why-us">
           <h1 class="font-extrabold text-2xl w-full mb-8">Why Choose Us?</h1>
           <div
-            v-for="(why, index) in why_choose_us"
+            v-for="(why, index) in about_us.why_choose_us"
             :key="index"
             class="w-[31%] mt-4 why-inner"
           >
@@ -293,7 +280,7 @@
               </div>
 
               <div class="w-full h-full flex flex-col justify-end">
-                <h2 class="text-xl font-bold">{{ why.title }}</h2>
+                <h2 class="text-xl font-bold">{{ why.heading }}</h2>
               </div>
             </div>
 
@@ -307,19 +294,21 @@
     <div class="w-[90%] mt-24">
       <h4 class="font-bold text-3xl theme-blue">Latest News & Reviews</h4>
       <div class="w-full flex flex-wrap gap-2 mt-8 blog-holder no-scrollbar">
-        <Card
+        <!-- {{ blogs }} -->
+        <!-- <Card
           v-for="(blog, index) in blogs.slice(0, 4)"
           :key="index"
           blog_card
           class="w-[24%]"
           :blog_title="blog.title"
           :car_pic="blog.pic"
-        />
+        /> -->
+        <Card blog_card class="w-[24%]" :blogs="blogs" />
       </div>
     </div>
     <!-- footer -->
     <Footer
-      :makes="makes"
+      :makes="brands"
       :prices="price_ranges"
       :body_styles="types"
       :categories="categories"
@@ -334,6 +323,8 @@ import Navbar from "../components/general/Navbar.vue";
 import Search from "../components/general/Search.vue";
 import Spinner from "../components/general/Spinner.vue";
 import Card from "../components/ui/Card.vue";
+import { api, slugify } from "../utils/store";
+import axios from "axios";
 
 export default {
   name: "Home",
@@ -342,8 +333,18 @@ export default {
     return {
       /* variables */
       current_slide: 0,
-      total_slides: 3, // Number of slides
+      total_slides: "",
       page_is_loading: true,
+      all_vehicles: [],
+      carousels: [],
+      brands: [],
+      body_styles: [],
+      about_us: null,
+      blogs: [],
+      is_make: "make",
+      is_brand: "brand",
+      is_body_type: "body",
+      is_model: "model",
       /* data */
       carousel: [
         {
@@ -380,23 +381,23 @@ export default {
           icon: "fa-brands fa-instagram",
         },
       ],
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
+      // makes: [
+      //   { make: "Toyota" },
+      //   { make: "Suzuki" },
+      //   { make: "Honda" },
+      //   { make: "Nissan" },
+      //   { make: "Mazda" },
+      //   { make: "Mitsubishi" },
+      //   { make: "Subaru" },
+      //   { make: "Ford" },
+      //   { make: "Chevrolet" },
+      //   { make: "Volkswagen" },
+      //   { make: "Hyundai" },
+      //   { make: "Kia" },
+      //   { make: "Mercedes-Benz" },
+      //   { make: "BMW" },
+      //   { make: "Audi" },
+      // ],
       years: [
         { year: 2000 },
         { year: 2001 },
@@ -681,152 +682,39 @@ export default {
           pic: "car-10.jpg",
         },
       ],
-      blogs: [
-        {
-          title: "Choosing the Right Family Car: Practical Tips",
-          pic: "car-10.jpg",
-          content: `
-      <div style="border: 2px solid #e2e8f0; border-radius: 12px; padding: 20px; background: linear-gradient(180deg,#ffffff,#f7fafc); box-shadow: 0 6px 18px rgba(20,20,40,0.06);">
-        <h2 style="margin-top:0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Choosing the Right Family Car: Practical Tips</h2>
-        <p style="line-height:1.6; margin-bottom: 12px;">
-          Buying a family car is more than just choosing a brand — it's about matching your daily life to a vehicle that brings safety, comfort, and value. Start by listing priorities: <strong>space</strong>, <strong>fuel economy</strong>, and <strong>safety features</strong>. If you often drive with a child seat, check ISOFIX points and rear-door opening width.
-        </p>
-
-        <div style="border:1px dashed #cbd5e1; padding:12px; border-radius:8px; background:#f8fafc; margin-bottom:12px;">
-          <h3 style="margin:0 0 8px 0;">Quick checklist</h3>
-          <ul style="margin:0 0 0 18px; line-height:1.6;">
-            <li>Passenger & boot space</li>
-            <li>Safety ratings and airbags</li>
-            <li>Running costs: fuel, servicing</li>
-            <li>Resale value and parts availability</li>
-          </ul>
-        </div>
-
-        <p style="margin-bottom:0;">
-          For many Kenyan families, compact SUVs and reliable hatchbacks strike the balance between economy and practicality. Book a test drive, check tyres and suspension on uneven roads, and always negotiate on warranty and servicing packages.
-        </p>
-      </div>
-    `,
-        },
-
-        {
-          title: "Keeping Your Used Car Healthy: Maintenance Guide",
-          pic: "car-5.jpg",
-          content: `
-      <div style="border-radius:14px; overflow:hidden; box-shadow: 0 10px 24px rgba(8, 35, 64, 0.06);">
-        <div style="background:#0ea5a4; color:white; padding:14px 20px;">
-          <h2 style="margin:0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Keeping Your Used Car Healthy: Maintenance Guide</h2>
-        </div>
-
-        <div style="padding:18px; background:linear-gradient(180deg,#ffffff,#fbfdfe); border:2px solid #e6f3f2;">
-          <p style="line-height:1.6;">
-            A well-maintained used car can run reliably for years. Follow a simple routine: check oil and coolant levels monthly, inspect tyre pressure and tread depth, and replace brake pads before they wear through. Keep a service log — it helps with diagnostics and improves resale trust.
-          </p>
-
-          <div style="margin:12px 0; padding:12px; border-left:4px solid #0ea5a4; background:#f0fdfa;">
-            <strong>DIY tip:</strong> Keep a small kit in the boot — tyre inflator, basic tools, coolant, and a portable jump-starter. It saves time when small issues arise on the road.
-          </div>
-
-          <p style="margin:0;">
-            For engine health, follow manufacturer service intervals. If a check-engine light appears, get it scanned early — small sensors are cheap to fix, while ignored problems can become costly.
-          </p>
-        </div>
-      </div>
-    `,
-        },
-
-        {
-          title: "Top 5 Budget Cars in 2024 — Value & Reliability",
-          pic: "car-7.jpg",
-          content: `
-      <div style="padding:18px; border-radius:10px; border:1px solid #f1f5f9; background:linear-gradient(90deg,#ffffff,#fcfcff);">
-        <h2 style="margin-top:0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Top 5 Budget Cars in 2024 — Value & Reliability</h2>
-        <p style="line-height:1.6;">
-          If you're shopping on a budget, aim for cars with proven reliability and cheap spare parts. Popular choices include small hatchbacks and compact sedans that balance fuel efficiency with low maintenance costs.
-        </p>
-
-        <ol style="margin-left:18px; line-height:1.6;">
-          <li><strong>Compact hatchbacks:</strong> Great for city use and parking.</li>
-          <li><strong>Small sedans:</strong> Comfortable for longer trips and family use.</li>
-          <li><strong>Older but well-serviced SUVs:</strong> If you need ground clearance for rural roads.</li>
-        </ol>
-
-        <div style="margin-top:12px; padding:12px; border-radius:8px; border:1px solid #e6e9f2; background:#ffffff;">
-          <p style="margin:0;">
-            When buying, insist on a pre-purchase inspection and check service history. A few extra thousands spent on a certified service now can save you tens later.
-          </p>
-        </div>
-      </div>
-    `,
-        },
-
-        {
-          title: "Preparing Your Car for Long Road Trips",
-          pic: "car-1.jpeg",
-          content: `
-      <div style="border: 1px solid #fde68a; border-radius:12px; background: linear-gradient(180deg,#fffef6,#fff7e6); padding:18px; box-shadow:0 8px 20px rgba(250,200,30,0.06);">
-        <h2 style="margin-top:0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Preparing Your Car for Long Road Trips</h2>
-        <p style="line-height:1.6;">
-          Long drives across the country are rewarding — when your car is prepared. Start with a full service: oil, filters, brakes and suspension check. Inspect tyres for cuts and even wear; consider replacing tyres with under 3mm tread.
-        </p>
-
-        <div style="display:flex; gap:12px; margin:12px 0;">
-          <div style="flex:1; border:1px solid #f3e8ff; padding:10px; border-radius:8px; background:#fff7ff;">
-            <h4 style="margin:0 0 8px 0;">Pre-trip checklist</h4>
-            <ul style="margin:0 0 0 18px; line-height:1.6;">
-              <li>Engine oil & coolant levels</li>
-              <li>Spare tyre & jack</li>
-              <li>Lights & indicators</li>
-              <li>Emergency kit & water</li>
-            </ul>
-          </div>
-
-          <div style="flex:1; border:1px solid #eef2ff; padding:10px; border-radius:8px; background:#f8fbff;">
-            <h4 style="margin:0 0 8px 0;">On the road</h4>
-            <p style="margin:0; line-height:1.5;">Drive within speed limits, take breaks every 2–3 hours, and keep an eye on dashboard alerts. If a new sound appears, stop and inspect — small issues often reveal themselves early.</p>
-          </div>
-        </div>
-
-        <p style="margin:0;">With preparation and sensible driving, your trip will be safer and more enjoyable. Safe travels!</p>
-      </div>
-    `,
-        },
-        {
-          title: "Preparing Your Car for Long Road Trips",
-          pic: "car-9.jpg",
-          content: `
-      <div style="border: 1px solid #fde68a; border-radius:12px; background: linear-gradient(180deg,#fffef6,#fff7e6); padding:18px; box-shadow:0 8px 20px rgba(250,200,30,0.06);">
-        <h2 style="margin-top:0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Preparing Your Car for Long Road Trips</h2>
-        <p style="line-height:1.6;">
-          Long drives across the country are rewarding — when your car is prepared. Start with a full service: oil, filters, brakes and suspension check. Inspect tyres for cuts and even wear; consider replacing tyres with under 3mm tread.
-        </p>
-
-        <div style="display:flex; gap:12px; margin:12px 0;">
-          <div style="flex:1; border:1px solid #f3e8ff; padding:10px; border-radius:8px; background:#fff7ff;">
-            <h4 style="margin:0 0 8px 0;">Pre-trip checklist</h4>
-            <ul style="margin:0 0 0 18px; line-height:1.6;">
-              <li>Engine oil & coolant levels</li>
-              <li>Spare tyre & jack</li>
-              <li>Lights & indicators</li>
-              <li>Emergency kit & water</li>
-            </ul>
-          </div>
-
-          <div style="flex:1; border:1px solid #eef2ff; padding:10px; border-radius:8px; background:#f8fbff;">
-            <h4 style="margin:0 0 8px 0;">On the road</h4>
-            <p style="margin:0; line-height:1.5;">Drive within speed limits, take breaks every 2–3 hours, and keep an eye on dashboard alerts. If a new sound appears, stop and inspect — small issues often reveal themselves early.</p>
-          </div>
-        </div>
-
-        <p style="margin:0;">With preparation and sensible driving, your trip will be safer and more enjoyable. Safe travels!</p>
-      </div>
-    `,
-        },
-      ],
+      blogs: [],
     };
+  },
+  /* mounted */
+  async mounted() {
+    document.title = "Drivate - Drive Dreams";
+    try {
+      await Promise.race([
+        Promise.all([
+          this.getCarousels(),
+          this.getMakes(),
+          this.fetchVehicles(),
+          this.getBodyStyles(),
+          this.getModels(),
+          this.get_about_us(),
+          this.getBlogs(),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
+      this.page_is_loading = false;
+    }
+    // setTimeout(() => {
+    //   this.page_is_loading = false;
+    // }, 1500);
   },
   /* methods */
   methods: {
+    slugify,
     next_slide() {
       if (this.current_slide < this.total_slides - 1) {
         this.current_slide++;
@@ -840,13 +728,141 @@ export default {
         this.current_slide--;
       }
     },
-  },
-  /* mounted */
-  mounted() {
-    document.title = "Drivate - Drive Dreams";
-    setTimeout(() => {
-      this.page_is_loading = false;
-    }, 1500);
+    async fetchVehicles() {
+      try {
+        const response = await axios.get(`${api}/get-vehicles`);
+
+        const data = response.data;
+
+        // Check if the request was successful
+        if (data.success) {
+          this.all_vehicles = data.vehicles;
+
+          // this.all_loan_tracker = data.vehicles;
+
+          // Hide message after 3 seconds
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch vehicles");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        // Initialize empty array on error
+        this.all_vehicles = [];
+      }
+    },
+    //get carousels
+    async getCarousels() {
+      try {
+        const response = await axios.get(`${api}/get-carousels`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success && data.carousels) {
+          this.carousels = data.carousels; // Extract the array
+          this.total_slides = this.carousels.length;
+        } else {
+          this.carousels = []; // Fallback to empty array
+          console.warn("No carousels found in response");
+        }
+
+        console.log("Carousels array:", this.carousels); // Debug log
+      } catch (error) {
+        console.error("Error fetching carousels:", error);
+      }
+    },
+
+    // get makes
+    async getMakes() {
+      try {
+        const response = await axios.get(`${api}/get-makes`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.brands = data.brands;
+        } else {
+          console.log("Error fetching brands");
+        }
+
+        console.log("brands array:", this.brands); // Debug log
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    },
+    //get body styles
+    async getBodyStyles() {
+      try {
+        const response = await axios.get(`${api}/get-body-styles`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.body_styles = data.body_styles; // Extract the array
+        } else {
+          this.body_styles = []; // Fallback to empty array
+        }
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+      }
+    },
+    async getModels() {
+      try {
+        const response = await axios.get(`${api}/get-models`);
+        const data = response.data;
+
+        if (data.success) {
+          this.models = data.models; // Extract the array
+        } else {
+          this.models = []; // Fallback to empty array
+          console.warn("No models found in response");
+        }
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    },
+    // get about us
+    async get_about_us() {
+      try {
+        const response = await axios.get(`${api}/get-about-us`);
+        const data = response.data;
+
+        this.about_us = data.about_us;
+        console.log("About us: ", data);
+
+        if (!data.success) {
+          console.log(data.error);
+        }
+      } catch (error) {
+        console.log("Error: ", error);
+      }
+    },
+    async getBlogs() {
+      try {
+        const response = await axios.get(`${api}/get-blogs`);
+        const data = response.data;
+        if (data.success) {
+          this.blogs = data.blogs;
+
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch blogs");
+        }
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+
+        this.blogs = [];
+      }
+    },
   },
 };
 </script>
