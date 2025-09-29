@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex justify-center flex-wrap">
-    <Navbar :categories="categories" :contacts="contacts" has_top_bar />
+    <Navbar
+      :makes="brands"
+      :body_types="body_styles"
+      :categories="categories"
+      :contacts="contacts"
+      has_top_bar
+    />
     <!-- body page -->
     <div class="w-[90%] flex flex-wrap justify-center mt-10 view-car">
       <div class="w-1/2 half-to-full">
@@ -284,9 +290,9 @@
     </div>
     <!-- footer -->
     <Footer
-      :makes="makes"
+      :makes="brands"
       :prices="price_ranges"
-      :body_styles="types"
+      :body_styles="body_styles"
       :categories="categories"
       :locations="locations"
       :contacts="contacts"
@@ -298,15 +304,50 @@ import Footer from "../../components/general/Footer.vue";
 import Navbar from "../../components/general/Navbar.vue";
 import Spinner from "../../components/general/Spinner.vue";
 import Card from "../../components/ui/Card.vue";
+import { api, slugify } from "../../utils/store";
+import axios from "axios";
 
 export default {
   name: "View Car",
+  props: ["id", "title"],
   components: { Spinner, Footer, Navbar, Card },
   data() {
     return {
       page_is_loading: true,
       current_image: 0,
       total_images: 7,
+      // data arrays
+      brands: [],
+      body_styles: [],
+      models: [],
+      all_vehicles: [],
+      is_make: "make",
+      is_body_type: "body",
+      is_brand: "brand",
+      is_model: "model",
+
+      // fetched vehicle
+      name: "",
+      price: "",
+      mileage: "",
+      engine_size: "",
+      location: "",
+      ref_number: "",
+      model_code: "",
+      steering_wheel: "",
+      exterior_color: "",
+      fuel_type: "",
+      seats: "",
+      drive_type: "",
+      transmission: "",
+      registration_year: "",
+      weight: "",
+      condition: "",
+      make_id: "",
+      model_id: "",
+      body_id: "",
+      fetched_images: [],
+
       makes: [
         { make: "Toyota" },
         { make: "Suzuki" },
@@ -540,10 +581,25 @@ export default {
     };
   },
   /*mounted */
-  mounted() {
-    setTimeout(() => {
+  async mounted() {
+    document.title = `Drivate - ${this.title}`;
+    try {
+      await Promise.race([
+        Promise.all([
+          this.getMakes(),
+          this.fetchVehicle(),
+          this.getBodyStyles(),
+          this.getModels(),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
       this.page_is_loading = false;
-    }, 1500);
+    }
   },
   /* methods */
   methods: {
@@ -555,6 +611,112 @@ export default {
     view_previous_image() {
       if (this.current_image > 0) {
         this.current_image--;
+      }
+    },
+    slugify,
+    async fetchVehicle() {
+      try {
+        const response = await axios.get(`${api}/get-vehicle/${this.id}`);
+
+        const data = response.data;
+        // Check if the request was successful
+        if (data.success) {
+          this.vehicle = data.vehicle;
+
+          //map data
+          this.name = this.vehicle.name;
+          this.price = this.vehicle.price;
+          this.mileage = this.vehicle.mileage;
+          this.engine_size = this.vehicle.engine;
+          this.location = this.vehicle.location.location_name;
+          this.ref_number = this.vehicle.ref_no;
+          this.model_code = this.vehicle.model_code;
+          this.steering_wheel = this.vehicle.steering;
+          this.exterior_color = this.vehicle.exterior_color;
+          this.fuel_type = this.vehicle.fuel;
+          this.seats = this.vehicle.seats;
+          this.drive_type = this.vehicle.drive;
+          this.transmission = this.vehicle.transmission;
+          this.registration_year = this.vehicle.year;
+          this.weight = this.vehicle.weight;
+          this.condition = this.vehicle.condition;
+          this.make_id = this.vehicle.make.make_id;
+          this.model_id = this.vehicle.model.model_id;
+          this.body_id = this.vehicle.body_style.body_id;
+          //brands, body, models
+          // this.bodySearchQuery = this.vehicle.body_style.name;
+          // this.brandSearchQuery = this.vehicle.make.name;
+          // this.modelSearchQuery = this.vehicle.model.model_name;
+          this.fetched_images = this.vehicle.images;
+
+          // Hide message after 3 seconds
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch vehicles");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+
+        this.response_is_visible = true;
+        this.alert_status = false;
+        this.response_message = "Failed. Check  your connection";
+
+        // Initialize empty array on error
+        this.all_vehicles = [];
+      }
+    },
+    // get makes
+    async getMakes() {
+      try {
+        const response = await axios.get(`${api}/get-makes`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.brands = data.brands;
+        } else {
+          console.log("Error fetching brands");
+        }
+
+        console.log("brands array:", this.brands); // Debug log
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    },
+    //get body styles
+    async getBodyStyles() {
+      try {
+        const response = await axios.get(`${api}/get-body-styles`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.body_styles = data.body_styles; // Extract the array
+        } else {
+          this.body_styles = []; // Fallback to empty array
+        }
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+      }
+    },
+    async getModels() {
+      try {
+        const response = await axios.get(`${api}/get-models`);
+        const data = response.data;
+
+        if (data.success) {
+          this.models = data.models; // Extract the array
+        } else {
+          this.models = []; // Fallback to empty array
+          console.warn("No models found in response");
+        }
+      } catch (error) {
+        console.error("Error fetching models:", error);
       }
     },
   },

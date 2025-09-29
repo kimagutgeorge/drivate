@@ -21,12 +21,13 @@ const routes = [
     component: Home,
   },
   {
-    path: "/all-cars",
+    path: "/vehicles",
     name: "Shop",
     component: Shop,
   },
   {
     path: "/:id",
+    path: "/vehicles/view/:id/:title",
     name: "View Car",
     component: ViewCar,
     props: true,

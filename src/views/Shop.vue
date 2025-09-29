@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex justify-center flex-wrap">
-    <Navbar :categories="categories" :contacts="contacts" has_top_bar />
+    <Navbar
+      :makes="brands"
+      :body_types="body_styles"
+      :categories="categories"
+      :contacts="contacts"
+      has_top_bar
+    />
     <div class="w-[90%] flex flex-wrap mt-6">
       <div class="w-full flex to-wrap">
         <!-- left -->
@@ -12,16 +18,43 @@
             </h4>
             <div class="w-full to-flex">
               <div
-                v-for="(make, index) in makes"
+                v-for="(make, index) in brands"
                 :key="index"
                 class="flex flex-nowrap gap-2 p-2 hover:bg-white category"
                 style="border-bottom: 1px solid #f4f5f4"
               >
-                <img :src="make.icon" class="w-[30px] min-w-[30px] h-fit" />
-                <span class="font-semibold cursor-pointer">{{
-                  make.make
-                }}</span>
+                <router-link
+                  :to="`/vehicles/${is_make}/${slugify(make.name)}`"
+                  class="w-full flex gap-2 flex-nowrap inner-cat"
+                >
+                  <img
+                    :src="make.image_url"
+                    class="w-[30px] min-w-[30px] h-fit"
+                  />
+                  <p class="font-semibold cursor-pointer">{{ make.name }}</p>
+                </router-link>
               </div>
+            </div>
+          </div>
+          <div class="w-full mt-8 heading">
+            <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
+              Search by Models
+            </h4>
+            <div
+              v-for="(model, index) in models"
+              :key="index"
+              class="flex flex-nowrap gap-2 py-2"
+              style="border-bottom: 1px solid #f4f5f4"
+            >
+              <router-link
+                :to="`/vehicles/${is_model}/${slugify(model.model_name)}`"
+              >
+                <span
+                  class="font-semibold cursor-pointer hover:underline text-sm"
+                >
+                  {{ model.make_name }} {{ model.model_name }}
+                </span>
+              </router-link>
             </div>
           </div>
           <div class="w-full mt-8 heading">
@@ -30,18 +63,21 @@
             </h4>
             <div class="w-full to-flex">
               <div
-                v-for="(type, index) in types"
+                v-for="(type, index) in body_styles"
                 :key="index"
                 class="flex flex-nowrap gap-2 p-2 hover:bg-white category"
                 style="border-bottom: 1px solid #f4f5f4"
               >
-                <img
-                  :src="type.icon"
-                  class="w-[30px] min-w-[30px] filter grayscale h-fit"
-                />
-                <span class="font-semibold cursor-pointer">{{
-                  type.type
-                }}</span>
+                <router-link
+                  :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
+                  class="w-full flex gap-2 flex-nowrap inner-cat"
+                >
+                  <img
+                    :src="type.image_url"
+                    class="w-[30px] min-w-[30px] filter grayscale h-fit"
+                  />
+                  <p class="font-semibold cursor-pointer">{{ type.name }}</p>
+                </router-link>
               </div>
             </div>
           </div>
@@ -94,7 +130,11 @@
         <div class="w-[80%] to-full to-first">
           <!-- search panel -->
           <div class="w-full p-4 bg-third h-fit">
-            <Search />
+            <Search
+              :makes="brands"
+              :fetched_models="models"
+              :body_styles="body_styles"
+            />
             <!-- sort -->
             <div class="w-full bg-third p-4 flex flex-nowrap">
               <p class="text-sm font-semibold">Sort By:</p>
@@ -133,30 +173,11 @@
             v-if="is_grid_view"
             class="w-full flex flex-wrap mt-6 gap-2 shop-car-holder"
           >
-            <Card
-              car_card
-              v-for="(car, index) in cars"
-              :key="index"
-              :car_name="car.name"
-              :location="car.location"
-              :price="car.price"
-              :car_pic="car.pic"
-              class="w-[19%] mb-2"
-            />
-            <Card
-              car_card
-              v-for="(car, index) in cars"
-              :key="index"
-              :car_name="car.name"
-              :location="car.location"
-              :price="car.price"
-              :car_pic="car.pic"
-              class="w-[19%] mb-2"
-            />
+            <Card car_card :vehicles="all_vehicles" class="w-[32%] mb-2" />
           </div>
           <!-- list view -->
           <div v-if="!is_grid_view" class="w-full flex flex-wrap mt-6 gap-2">
-            <Card
+            <!-- <Card
               list_card
               v-for="(car, index) in cars"
               :key="index"
@@ -171,7 +192,8 @@
               :fuel="car.fuel"
               :transmission="car.transmission"
               class="w-full mb-2"
-            />
+            /> -->
+            <Card list_card :vehicles="all_vehicles" class="w-full mb-2" />
           </div>
           <!-- pagination -->
           <div class="w-full flex justify-center mt-10 gap-1 h-fit">
@@ -202,9 +224,9 @@
     <!--  -->
     <!-- footer -->
     <Footer
-      :makes="makes"
+      :makes="brands"
       :prices="price_ranges"
-      :body_styles="types"
+      :body_styles="body_styles"
       :categories="categories"
       :locations="locations"
       :contacts="contacts"
@@ -217,6 +239,8 @@ import Card from "../components/ui/Card.vue";
 import Spinner from "../components/general/Spinner.vue";
 import Footer from "../components/general/Footer.vue";
 import Search from "../components/general/Search.vue";
+import { api, slugify } from "../utils/store";
+import axios from "axios";
 export default {
   name: "Shop",
   components: { Navbar, Card, Spinner, Footer, Search },
@@ -224,6 +248,15 @@ export default {
     return {
       page_is_loading: true,
       is_grid_view: true,
+      // data arrays
+      brands: [],
+      body_styles: [],
+      models: [],
+      all_vehicles: [],
+      is_make: "make",
+      is_body_type: "body",
+      is_brand: "brand",
+      is_model: "model",
       contacts: [
         { contact: "0759200998", is_phone: true },
         { contact: "info@drivate.co.ke", is_email: true },
@@ -519,14 +552,107 @@ export default {
       ],
     };
   },
-  /* methods */
-  methods: {},
   /* mounted */
-  mounted() {
-    document.title = "Drivate - All cars";
-    setTimeout(() => {
+  async mounted() {
+    document.title = "Drivate - All vehicles";
+    try {
+      await Promise.race([
+        Promise.all([
+          this.getMakes(),
+          this.fetchVehicles(),
+          this.getBodyStyles(),
+          this.getModels(),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
       this.page_is_loading = false;
-    }, 1500);
+    }
+  },
+  /* methods */
+  methods: {
+    slugify,
+    async fetchVehicles() {
+      try {
+        const response = await axios.get(`${api}/get-vehicles`);
+
+        const data = response.data;
+
+        // Check if the request was successful
+        if (data.success) {
+          this.all_vehicles = data.vehicles;
+
+          // this.all_loan_tracker = data.vehicles;
+
+          // Hide message after 3 seconds
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch vehicles");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        // Initialize empty array on error
+        this.all_vehicles = [];
+      }
+    },
+    // get makes
+    async getMakes() {
+      try {
+        const response = await axios.get(`${api}/get-makes`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.brands = data.brands;
+        } else {
+          console.log("Error fetching brands");
+        }
+
+        console.log("brands array:", this.brands); // Debug log
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    },
+    //get body styles
+    async getBodyStyles() {
+      try {
+        const response = await axios.get(`${api}/get-body-styles`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.body_styles = data.body_styles; // Extract the array
+        } else {
+          this.body_styles = []; // Fallback to empty array
+        }
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+      }
+    },
+    async getModels() {
+      try {
+        const response = await axios.get(`${api}/get-models`);
+        const data = response.data;
+
+        if (data.success) {
+          this.models = data.models; // Extract the array
+        } else {
+          this.models = []; // Fallback to empty array
+          console.warn("No models found in response");
+        }
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    },
   },
 };
 </script>

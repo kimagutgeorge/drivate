@@ -1,7 +1,7 @@
 <template>
   <div class="w-full flex flex-wrap justify-center">
     <!-- <div v-if="has_top_bar" class="w-full h-[6vh] overflow-hidden">
-      <router-link to="/all-cars">
+      <router-link to="/vehicles">
         <img src="/images/advert-image.jpg" class="w-full h-auto" />
       </router-link>
     </div> -->
@@ -69,7 +69,7 @@
             class="py-2 px-4 cursor-pointer hover:bg-[#f4f5f4] hover:text-[#0066ff] h-full text-lg font-bold"
             :class="is_available ? 'bg-[#f4f5f4] text-[#0066ff]' : ''"
           >
-            <router-link to="/all-cars" active-class="text-[#0066ff] "
+            <router-link to="/vehicles" active-class="text-[#0066ff] "
               >Available Cars <i class="fa-solid fa-angle-down"></i
             ></router-link>
           </div>
@@ -118,27 +118,31 @@
       <div class="w-[80%] bg-sec absolute flex z-50 p-4 shadow-md">
         <div class="w-[25%]">
           <router-link
-            to="/all-cars"
+            to="/vehicles"
             class="theme-blue font-semibold hover:text-[#0066ff] hover:underline"
             >Search all from stock</router-link
           >
           <h4 class="mt-4 font-bold text-sm theme-blue">SHOP BY MAKE</h4>
           <li v-for="(make, index) in makes" :key="index" class="list-none">
             <router-link
-              to=""
+              :to="`/vehicles/${is_make}/${slugify(make.name)}`"
               class="text-sm font-semibold hover:underline hover:text-[#0066ff]"
-              >{{ make.make }}</router-link
+              >{{ make.name }}</router-link
             >
           </li>
         </div>
         <!-- body type -->
         <div class="w-[25%]">
           <h4 class="font-bold text-sm theme-blue">SHOP BY TYPE</h4>
-          <li v-for="(type, index) in types" :key="index" class="list-none">
+          <li
+            v-for="(type, index) in body_types"
+            :key="index"
+            class="list-none"
+          >
             <router-link
-              to=""
+              :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
               class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-              >{{ type.type }}</router-link
+              >{{ type.name }}</router-link
             >
           </li>
         </div>
@@ -241,7 +245,7 @@
             <div v-if="filter_is_hidden" class="w-full mt-4">
               <div class="w-full mt-2">
                 <router-link
-                  to="/all-cars"
+                  to="/vehicles"
                   class="theme-blue font-semibold hover:text-[#0066ff] hover:underline"
                   >Search all from stock</router-link
                 >
@@ -325,33 +329,25 @@
   </div>
 </template>
 <script>
+import { slugify } from "../../utils/store";
 export default {
   name: "Navbar",
-  props: { categories: Array, contacts: Array, has_top_bar: Boolean },
+  props: {
+    categories: Array,
+    contacts: Array,
+    has_top_bar: Boolean,
+    makes: Array,
+    body_types: Array,
+  },
   data() {
     return {
       logo: "/logo.png",
       is_available: false,
       phone_navigation: false,
       filter_is_hidden: false,
+      is_make: "make",
+      is_body_type: "type",
 
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
       types: [
         { type: "Coupe" },
         { type: "Sedan" },
@@ -380,6 +376,10 @@ export default {
         { price: "Above 7,000,000" },
       ],
     };
+  },
+  /* methods */
+  methods: {
+    slugify,
   },
 };
 </script>

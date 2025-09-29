@@ -10,7 +10,8 @@
     </h2>
     <p class="mt-4 text-center">
       We cannot find the page you are looking for...
-      <span class="font-semibold"
+      <span
+        class="font-semibold transition-all duration-300 hover:text-[#0066ff]"
         ><router-link to="/"
           ><i class="fa-solid fa-arrow-right"></i> Take me home
         </router-link></span

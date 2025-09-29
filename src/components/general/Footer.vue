@@ -13,7 +13,7 @@
               v-for="(make, index) in makes"
               :key="index"
             >
-              <router-link :to="`/all-cars/${slugify(make.id)}`">
+              <router-link :to="`/vehicles/${is_make}/${slugify(make.name)}`">
                 {{ make.name }}
               </router-link>
             </p>
@@ -33,7 +33,11 @@
               :key="index"
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
             >
-              {{ type.type }}
+              <router-link
+                :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
+              >
+                {{ type.name }}
+              </router-link>
             </p>
           </div>
           <div class="w-[33%] p-2">
@@ -170,6 +174,8 @@ export default {
   data() {
     return {
       logo: "/logo.png",
+      is_body_type: "body",
+      is_make: "make",
       help_pages: [{ page: "Contact us", page_link: "/contact-us" }],
       other_pages: [
         { page: "Reviews", page_link: "/reviews" },
