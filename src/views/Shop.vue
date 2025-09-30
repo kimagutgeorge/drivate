@@ -1,13 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex justify-center flex-wrap">
-    <Navbar
+    <!-- <Navbar
       :makes="brands"
       :body_types="body_styles"
       :categories="categories"
       :contacts="contacts"
       has_top_bar
-    />
+    /> -->
     <div class="w-[90%] flex flex-wrap mt-6">
       <div class="w-full flex to-wrap">
         <!-- left -->

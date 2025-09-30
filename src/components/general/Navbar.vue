@@ -20,15 +20,23 @@
         v-for="(contact, index) in contacts"
         :key="index"
         :href="
-          contact.is_phone
-            ? `tel:${contact.contact}`
-            : contact.is_email
-            ? `mailto:${contact.contact}`
-              ? contact.is_handle
-              : contact.contact
+          contact.type === 'phone'
+            ? `tel:${contact.value}`
+            : contact.type === 'email'
+            ? `mailto:${contact.value}`
+            : contact.type === 'whatsapp'
+            ? `https://wa.me/${contact.value}`
+              ? contact.type === 'social'
+              : contact.value
+            : contact.social_link
+        "
+        :target="
+          contact.type === 'social'
+            ? '_blank'
+            : contact.type === 'whatsapp'
+            ? '_blank'
             : ''
         "
-        :target="contact.is_handle ? '_blank' : ''"
       >
         <!-- <div
             class="w-[30px] h-[30px] rounded-full flex justify-center bg-black ml-1 overflow-hidden"
@@ -38,10 +46,12 @@
           :class="
             contact.icon
               ? contact.icon
-              : contact.is_email
+              : contact.type === 'email'
               ? 'fa-regular fa-envelope'
-              : contact.is_phone
+              : contact.type === 'phone'
               ? 'fa-solid fa-phone'
+              : contact.type === 'whatsapp'
+              ? 'fa-brands fa-whatsapp'
               : ''
           "
           class="theme-black ml-2 cursor-pointer text-sm icon text-[#E6B800] hover:text-[#0066ff] transition 0.3s ease-in-out"
@@ -135,7 +145,7 @@
         <div class="w-[25%]">
           <h4 class="font-bold text-sm theme-blue">SHOP BY TYPE</h4>
           <li
-            v-for="(type, index) in body_types"
+            v-for="(type, index) in body_styles"
             :key="index"
             class="list-none"
           >
@@ -265,8 +275,9 @@
               <!-- body type -->
               <div class="w-full mt-2">
                 <h4 class="font-bold text-sm theme-blue">SHOP BY TYPE</h4>
+                {{ body_styles }}
                 <li
-                  v-for="(type, index) in types"
+                  v-for="(type, index) in body_styles"
                   :key="index"
                   class="list-none"
                 >
@@ -329,15 +340,16 @@
   </div>
 </template>
 <script>
-import { slugify } from "../../utils/store";
+import { slugify, api } from "../../utils/store";
+import axios from "axios";
 export default {
   name: "Navbar",
   props: {
     categories: Array,
-    contacts: Array,
+    // contacts: Array,
     has_top_bar: Boolean,
-    makes: Array,
-    body_types: Array,
+    // makes: Array,
+    // body_types: Array,
   },
   data() {
     return {
@@ -347,6 +359,9 @@ export default {
       filter_is_hidden: false,
       is_make: "make",
       is_body_type: "type",
+      contacts: [],
+      makes: [],
+      body_styles: [],
 
       types: [
         { type: "Coupe" },
@@ -377,9 +392,80 @@ export default {
       ],
     };
   },
+
+  async mounted() {
+    try {
+      await Promise.race([
+        Promise.all([
+          this.getContacts(),
+          this.getMakes(),
+          this.getBodyStyles(),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
+    }
+  },
+
   /* methods */
   methods: {
     slugify,
+    async getContacts() {
+      try {
+        const response = await axios.get(`${api}/get-contacts`);
+        const data = response.data;
+
+        console.log("contacts response:", data);
+
+        if (data.success && data.contacts) {
+          this.contacts = data.contacts;
+        } else {
+          this.contacts = [];
+        }
+      } catch (error) {
+        console.error("Error fetching contacts:", error);
+      }
+    },
+    // get makes
+    async getMakes() {
+      try {
+        const response = await axios.get(`${api}/get-makes`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.makes = data.brands;
+        } else {
+          console.log("Error fetching brands");
+        }
+
+        console.log("brands array:", this.brands); // Debug log
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    },
+    //get body styles
+    async getBodyStyles() {
+      try {
+        const response = await axios.get(`${api}/get-body-styles`);
+        const data = response.data;
+
+        console.log("Full response:", data); // Debug log
+
+        if (data.success) {
+          this.body_styles = data.body_styles; // Extract the array
+        } else {
+          this.body_styles = []; // Fallback to empty array
+        }
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+      }
+    },
   },
 };
 </script>

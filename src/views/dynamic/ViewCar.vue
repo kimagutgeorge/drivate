@@ -1,13 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex justify-center flex-wrap">
-    <Navbar
+    <!-- <Navbar
       :makes="brands"
       :body_types="body_styles"
       :categories="categories"
       :contacts="contacts"
       has_top_bar
-    />
+    /> -->
     <!-- body page -->
     <div class="w-[90%] flex flex-wrap justify-center mt-10 view-car">
       <div class="w-1/2 half-to-full">
@@ -39,14 +39,14 @@
               class="w-full h-fit flex overflow-x-scroll snap-x snap-mandatory no-scrollbar"
             >
               <div
-                v-for="(img, index) in car_images"
+                v-for="(img, index) in fetched_images"
                 :key="index"
                 class="w-full h-fit transition-transform duration-500 ease-in-out snap-center flex-shrink-0"
                 :style="{ transform: `translateX(-${current_image * 100}%)` }"
               >
                 <img
-                  :src="img.image"
-                  class="w-full h-auto max-h-none object-cover"
+                  :src="img.image_url"
+                  class="w-full h-auto max-h-[60vh] object-cover"
                 />
               </div>
             </div>
@@ -54,10 +54,10 @@
           <!-- small images -->
           <div class="w-full flex flex-wrap gap-2 mt-4">
             <img
-              v-for="(img, index) in car_images"
+              v-for="(img, index) in fetched_images"
               :key="index"
               @click="current_image = index"
-              :src="img.image"
+              :src="img.image_url"
               class="w-[19%] h-auto object-cover cursor-pointer"
               :class="
                 current_image === index ? 'border-2 border-[#E6B800]' : ''
@@ -67,15 +67,15 @@
         </div>
       </div>
       <div class="w-1/2 half-to-full">
-        <h1 class="font-bold text-2xl">
-          TOYOTA CORONA PREMIO PREMIO E L PACKAGE
+        <h1 class="font-bold text-2xl uppercase">
+          {{ name }}
         </h1>
         <div
           class="w-full flex flex-nowrap to-flex border-b-2 border-[#E6B800] p-2 pb-6 mt-4"
         >
           <div class="w-1/2 half-to-full">Price</div>
           <div class="w-1/2 font-semibold text-2xl theme-blue half-to-full">
-            Ksh. 5,064,774
+            Ksh. {{ price.toLocaleString() }}
           </div>
           <div class="w-1/2">
             <a href="#enquire"
@@ -93,101 +93,102 @@
         <div class="w-full flex mt-4 to-flex">
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
             <p class="w-full text-gray-500">Mileage</p>
-            <p class="w-full font-semibold">233, 3438 km</p>
+            <p class="w-full font-semibold">
+              {{ mileage.toLocaleString() }} km
+            </p>
           </div>
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
             <p class="w-full text-gray-500">Year</p>
-            <p class="w-full font-semibold">2015</p>
+            <p class="w-full font-semibold">{{ registration_year }}</p>
           </div>
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
             <p class="w-full text-gray-500">Engine</p>
-            <p class="w-full font-semibold">2,000 cc</p>
+            <p class="w-full font-semibold">
+              {{ engine_size.toLocaleString() }} cc
+            </p>
           </div>
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
             <p class="w-full text-gray-500">Location</p>
-            <p class="w-full font-semibold">Kenya</p>
+            <p class="w-full font-semibold">{{ location }}</p>
           </div>
         </div>
         <!-- car specifications -->
         <div class="w-full flex flex-wrap mt-10 text-sm">
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Ref.No</div>
-            <div class="w-1/2 p-1 py-2">JKSIJ2347OIJX</div>
+            <div class="w-1/2 p-1 py-2">{{ ref_number }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Model Code</div>
-            <div class="w-1/2 p-1 py-2">SKHS93S</div>
+            <div class="w-1/2 p-1 py-2">{{ model_code }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
-            <div class="w-1/2 bg-gray-200 p-1 py-2">Model Code</div>
-            <div class="w-1/2 p-1 py-2">SKHS93S</div>
+            <div class="w-1/2 bg-gray-200 p-1 py-2">Make</div>
+            <div class="w-1/2 p-1 py-2">{{ make_name }}</div>
+          </div>
+          <!-- end of row -->
+          <div class="w-1/2 flex flex-nowrap border border-gray-300">
+            <div class="w-1/2 bg-gray-200 p-1 py-2">Model</div>
+            <div class="w-1/2 p-1 py-2">{{ model_name }}</div>
+          </div>
+          <!-- end of row -->
+          <div class="w-1/2 flex flex-nowrap border border-gray-300">
+            <div class="w-1/2 bg-gray-200 p-1 py-2">Body</div>
+            <div class="w-1/2 p-1 py-2">{{ body_style }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Steering</div>
-            <div class="w-1/2 p-1 py-2">Left</div>
+            <div class="w-1/2 p-1 py-2">{{ steering_wheel }}</div>
           </div>
-          <!-- end of row -->
-          <div class="w-1/2 flex flex-nowrap border border-gray-300">
-            <div class="w-1/2 bg-gray-200 p-1 py-2">Engine Size</div>
-            <div class="w-1/2 p-1 py-2">2, 000 cc</div>
-          </div>
+
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Ext. Color</div>
-            <div class="w-1/2 p-1 py-2">Gray</div>
+            <div class="w-1/2 p-1 py-2">{{ exterior_color }}</div>
           </div>
-          <!-- end of row -->
-          <div class="w-1/2 flex flex-nowrap border border-gray-300">
-            <div class="w-1/2 bg-gray-200 p-1 py-2">Location</div>
-            <div class="w-1/2 p-1 py-2">Mombasa</div>
-          </div>
-          <!-- end of row -->
-          <div class="w-1/2 flex flex-nowrap border border-gray-300">
-            <div class="w-1/2 bg-gray-200 p-1 py-2">Location</div>
-            <div class="w-1/2 p-1 py-2">Mombasa</div>
-          </div>
+
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Fuel</div>
-            <div class="w-1/2 p-1 py-2">Petrol</div>
+            <div class="w-1/2 p-1 py-2">{{ fuel_type }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Seats</div>
-            <div class="w-1/2 p-1 py-2">5</div>
+            <div class="w-1/2 p-1 py-2">{{ seats }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Drive</div>
-            <div class="w-1/2 p-1 py-2">2 Wheel</div>
-          </div>
-          <!-- end of row -->
-          <div class="w-1/2 flex flex-nowrap border border-gray-300">
-            <div class="w-1/2 bg-gray-200 p-1 py-2">Drive</div>
-            <div class="w-1/2 p-1 py-2">2 Wheel drive</div>
-          </div>
-          <!-- end of row -->
-          <div class="w-1/2 flex flex-nowrap border border-gray-300">
-            <div class="w-1/2 bg-gray-200 p-1 py-2">Doors</div>
-            <div class="w-1/2 p-1 py-2">4</div>
+            <div class="w-1/2 p-1 py-2">{{ drive_type }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Transmission</div>
-            <div class="w-1/2 p-1 py-2">Automatic</div>
+            <div class="w-1/2 p-1 py-2">{{ transmission }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Reg. Year/month</div>
-            <div class="w-1/2 p-1 py-2">205/3</div>
+            <div class="w-1/2 p-1 py-2">{{ registration_year }}</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Weight</div>
-            <div class="w-1/2 p-1 py-2">1,150 kg</div>
+            <div class="w-1/2 p-1 py-2">{{ weight.toLocaleString() }} kg</div>
+          </div>
+          <!-- end of row -->
+          <div class="w-1/2 flex flex-nowrap border border-gray-300">
+            <div class="w-1/2 bg-gray-200 p-1 py-2">Condition</div>
+            <div class="w-1/2 p-1 py-2">{{ condition }}</div>
+          </div>
+          <!-- end of row -->
+          <div class="w-1/2 flex flex-nowrap border border-gray-300">
+            <div class="w-1/2 bg-gray-200 p-1 py-2">Seats color</div>
+            <div class="w-1/2 p-1 py-2">{{ seats_color }}</div>
           </div>
           <!-- end of row -->
         </div>
@@ -197,11 +198,11 @@
         >
           <p class="text-sm mb-2 font-bold w-full mt-2">FEATURES</p>
           <div
-            v-for="(feature, index) in features"
+            v-for="(feature, index) in generated_features"
             :key="index"
             class="w-[24%] p-1 text-sm border rounded-sm text-center"
             :class="
-              feature.selected === true
+              feature.exists === true
                 ? 'bg-[#FFF199] border-[#FFF199] font-semibold'
                 : 'border-gray-300 text-gray-300'
             "
@@ -315,7 +316,7 @@ export default {
     return {
       page_is_loading: true,
       current_image: 0,
-      total_images: 7,
+      total_images: "",
       // data arrays
       brands: [],
       body_styles: [],
@@ -325,6 +326,9 @@ export default {
       is_body_type: "body",
       is_brand: "brand",
       is_model: "model",
+      featuers: [],
+      generated_features: [],
+      car_features: [],
 
       // fetched vehicle
       name: "",
@@ -346,7 +350,9 @@ export default {
       make_id: "",
       model_id: "",
       body_id: "",
+      seats_color: "",
       fetched_images: [],
+      features: [],
 
       makes: [
         { make: "Toyota" },
@@ -424,28 +430,6 @@ export default {
         { name: "Bura" },
         { name: "Kiambu" },
         { name: "Changamwe" },
-      ],
-      features: [
-        { name: "Sunroof", selected: true },
-        { name: "CD Player", selected: false },
-        { name: "Power Steering", selected: true },
-        { name: "Air Conditioning", selected: true },
-        { name: "Leather Seats", selected: false },
-        { name: "Bluetooth", selected: true },
-        { name: "Backup Camera", selected: false },
-        { name: "Cruise Control", selected: true },
-        { name: "Navigation System", selected: false },
-        { name: "Heated Seats", selected: true },
-        { name: "Keyless Entry", selected: false },
-        { name: "Alloy Wheels", selected: true },
-        { name: "Anti-lock Braking System (ABS)", selected: true },
-        { name: "Parking Sensors", selected: false },
-        { name: "Apple CarPlay", selected: false },
-        { name: "Android Auto", selected: true },
-        { name: "Fog Lights", selected: true },
-        { name: "Power Windows", selected: true },
-        { name: "Tinted Windows", selected: false },
-        { name: "Traction Control", selected: true },
       ],
       car_images: [
         { image: "/images/bg-2.jpg" },
@@ -587,6 +571,7 @@ export default {
       await Promise.race([
         Promise.all([
           this.getMakes(),
+          this.getFeatures(),
           this.fetchVehicle(),
           this.getBodyStyles(),
           this.getModels(),
@@ -598,6 +583,7 @@ export default {
     } catch (error) {
       console.error("Loading failed:", error);
     } finally {
+      this.generate_features();
       this.page_is_loading = false;
     }
   },
@@ -640,14 +626,19 @@ export default {
           this.registration_year = this.vehicle.year;
           this.weight = this.vehicle.weight;
           this.condition = this.vehicle.condition;
-          this.make_id = this.vehicle.make.make_id;
-          this.model_id = this.vehicle.model.model_id;
-          this.body_id = this.vehicle.body_style.body_id;
+          this.make_name = this.vehicle.make.name;
+          this.model_name = this.vehicle.model.model_name;
+          this.body_style = this.vehicle.body_style.name;
+          this.seats_color = this.vehicle.seats_color;
+          this.car_features = this.vehicle.features;
+
           //brands, body, models
           // this.bodySearchQuery = this.vehicle.body_style.name;
           // this.brandSearchQuery = this.vehicle.make.name;
           // this.modelSearchQuery = this.vehicle.model.model_name;
           this.fetched_images = this.vehicle.images;
+
+          this.total_images = this.fetched_images.length;
 
           // Hide message after 3 seconds
           setTimeout(() => {
@@ -718,6 +709,39 @@ export default {
       } catch (error) {
         console.error("Error fetching models:", error);
       }
+    },
+    // get featues
+    async getFeatures() {
+      try {
+        const response = await axios.get(`${api}/get-features`);
+        const data = response.data;
+
+        console.log("features response:", data); // Debug log
+
+        if (data.success && data.features) {
+          this.features = data.features; // Extract the array
+          console.log("Feature zimekam ni: ", this.features);
+        } else {
+          this.features = []; // Fallback to empty array
+          console.warn("No features found in response");
+        }
+      } catch (error) {
+        this.show_error(error);
+        this.features = []; // Set to empty array on error
+      }
+    },
+    /* generate features */
+    generate_features() {
+      const features_ids = new Set(
+        this.car_features.map((item) => item.feature_id)
+      );
+      console.log("Featured ids: ", features_ids);
+      this.generated_features = this.features.map((item) => ({
+        ...item,
+        exists: features_ids.has(item.feature_id),
+      }));
+
+      console.log("Features ni: ", this.generated_features);
     },
   },
 };

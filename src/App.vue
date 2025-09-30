@@ -1,6 +1,18 @@
 <template>
-  <router-view />
+  <div class="w-full bg-white">
+    <Navbar />
+    <router-view />
+    <!-- <Footer /> -->
+  </div>
 </template>
+<script>
+import Navbar from "./components/general/Navbar.vue";
+import Footer from "./components/general/Footer.vue";
+export default {
+  name: "App",
+  components: { Navbar, Footer },
+};
+</script>
 
 <style scoped>
 .logo {

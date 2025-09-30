@@ -1,13 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <Navbar
+    <!-- <Navbar
       :makes="brands"
       :body_types="body_styles"
       :categories="categories"
       :contacts="contacts"
       has_top_bar
-    />
+    /> -->
     <!-- hero section -->
     <div class="w-full h-[45vh] relative overflow-hidden">
       <div class="w-full absolute top-0 h-full">
