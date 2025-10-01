@@ -16,7 +16,7 @@
           class="w-[85%] font-semibold transition-all duration-300 ease-in-out"
           :class="faq.accordion_is_hidden ? 'theme-blue' : ''"
         >
-          {{ faq.title }}
+          {{ faq.faq_question }}
         </div>
         <div class="w-[15%] flex justify-center">
           <div class="h-full flex-col justify-center">
@@ -32,11 +32,8 @@
         v-if="faq.accordion_is_hidden"
         class="accordion-body w-full flex flex-nowrap gap-2 justify-center"
       >
-        <!-- <div class="w-[10%] mt-4 mb-4">
-          <span class="bg-theme-gray text-xl p-1 px-2 font-bold">A</span>
-        </div> -->
         <div class="w-full pt-4 pb-4">
-          {{ faq.content }}
+          {{ faq.faq_answer }}
         </div>
       </div>
     </div>

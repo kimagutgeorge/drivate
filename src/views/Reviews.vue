@@ -164,14 +164,14 @@
       </div>
     </div>
     <!-- footer -->
-    <Footer
+    <!-- <Footer
       :makes="makes"
       :prices="price_ranges"
       :body_styles="types"
       :categories="categories"
       :locations="locations"
       :contacts="contacts"
-    />
+    /> -->
   </div>
 </template>
 <script>

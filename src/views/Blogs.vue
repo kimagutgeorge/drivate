@@ -34,17 +34,17 @@
       <div class="w-full flex mt-20 gap-4 content">
         <div class="w-[40%] flex flex-wrap sticky top-[15vh] self-start">
           <p
-            v-for="(category, index) in blog_categories"
+            v-for="(category, index) in categories"
             :key="index"
             class="w-[60%] px-4 bg-third transition-all duration-300 ease-in-out hover:text-[#0066ff] py-2 cursor-pointer text-gray-700 border-b border-gray-300"
           >
-            {{ category.name }}
+            {{ category.category_name }}
           </p>
           <!-- top stories -->
         </div>
         <div class="w-[60%] view-car">
           <div
-            v-for="(blog, index) in blogs"
+            v-for="(blog, index) in paginated_blogs"
             :key="index"
             class="w-full border-b border-gray-300 py-4 transition-all duration-300 hover:border-[#ffcd00]"
           >
@@ -56,10 +56,19 @@
                 <img :src="blog.image_url" class="w-full h-auto" />
               </div>
               <div class="w-full mt-4">
-                <div class="w-ful0 flex justify-end gap-2 theme-yellow">
-                  <i class="fa-brands fa-facebook-f"></i>
-                  <i class="fa-brands fa-instagram"></i>
-                  <i class="fa-brands fa-x-twitter"></i>
+                <div class="w-ful0 flex theme-yellow">
+                  <div class="w-1/2">
+                    <p
+                      class="text-sm text-[#0166ff] p-2 py-0 w-fit rounded border border-[#0166ff]"
+                    >
+                      {{ blog.category }}
+                    </p>
+                  </div>
+                  <div class="w-1/2 flex justify-end gap-2">
+                    <i class="fa-brands fa-facebook-f"></i>
+                    <i class="fa-brands fa-instagram"></i>
+                    <i class="fa-brands fa-x-twitter"></i>
+                  </div>
                 </div>
                 <h1 class="font-extrabold text-3xl">
                   {{ blog.title }}
@@ -67,6 +76,43 @@
                 <p class="text-[#333333] mt-4">{{ blog.excerpt }}</p>
               </div>
             </router-link>
+          </div>
+          <!-- pagination -->
+          <div class="w-full flex py-2 to-wrap mt-8">
+            <div class="w-1/2 to-w-full">
+              <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+            </div>
+            <div class="w-1/2 flex justify-end gap-1 to-w-full">
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 0"
+                class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+              >
+                <i class="fa-solid fa-angle-left"></i>
+                Prev
+              </button>
+              <!-- numbering pages -->
+              <button
+                v-for="index in totalPages"
+                :key="index"
+                @click="select_specific_page(index)"
+                class="px-3 py-1 border border-[#4d4d4d]"
+                :class="
+                  currentPage + 1 === index ? 'bg-[#4d4d4d] text-white' : ''
+                "
+              >
+                {{ index }}
+              </button>
+              <!-- end of numbering -->
+              <button
+                @click="nextPage"
+                :disabled="currentPage >= totalPages - 1"
+                class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+              >
+                Next
+                <i class="fa-solid fa-angle-right"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -177,16 +223,7 @@ export default {
         { price: "6,000,000" },
         { price: "7,000,000" },
       ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
+      categories: [],
       makes: [
         { make: "Toyota", icon: "/static/toyota.png" },
         { make: "Honda", icon: "/static/honda.png" },
@@ -203,16 +240,7 @@ export default {
           icon: "/static/bmw.png",
         },
       ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
+
       types: [
         { type: "Coupe", icon: "static/bodies/coupe.png" },
         { type: "Sedan", icon: "static/bodies/sedan.png" },
@@ -260,24 +288,28 @@ export default {
         { name: "Nissan X-Trail" },
         { name: "Mahindra Bolero Pickup" },
       ],
-      blog_categories: [
-        { name: "Car Reviews" },
-        { name: "Car Maintenance Tips" },
-        { name: "Electric & Hybrid Vehicles" },
-        { name: "Car Buying Guides" },
-        { name: "Motorsport News" },
-        { name: "Classic & Vintage Cars" },
-        { name: "Auto Industry Trends" },
-      ],
+
       blogs: [],
+
+      //pagination
+      currentPage: 0, // start on first page
+      pageSize: 7, // rows per page
     };
   },
-
+  computed: {
+    totalPages() {
+      return Math.ceil(this.blogs.length / this.pageSize);
+    },
+    paginated_blogs() {
+      const start = this.currentPage * this.pageSize;
+      return this.blogs.slice(start, start + this.pageSize);
+    },
+  },
   async mounted() {
     document.title = "Drivate - Blogs";
     try {
       await Promise.race([
-        Promise.all([this.getBlogs()]),
+        Promise.all([this.getBlogs(), this.getCategories()]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
         ),
@@ -287,12 +319,24 @@ export default {
     } finally {
       this.page_is_loading = false;
     }
-    // setTimeout(() => {
-    //   this.page_is_loading = false;
-    // }, 1500);
   },
   methods: {
     slugify,
+    async getCategories() {
+      try {
+        const response = await axios.get(`${api}/get-categories`);
+        const data = response.data;
+        if (data.success) {
+          this.categories = data.categories; // Extract the array
+        } else {
+          this.categories = []; // Fallback to empty array
+          this.show_error(data.error);
+        }
+      } catch (error) {
+        this.show_error(error);
+        this.categories = []; // Set to empty array on error
+      }
+    },
     async getBlogs() {
       try {
         const response = await axios.get(`${api}/get-blogs`);
@@ -312,6 +356,20 @@ export default {
 
         this.blogs = [];
       }
+    },
+    //pagination methods
+    nextPage() {
+      if (this.currentPage < this.totalPages - 1) {
+        this.currentPage++;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 0) {
+        this.currentPage--;
+      }
+    },
+    select_specific_page(index) {
+      this.currentPage = index - 1;
     },
   },
 };

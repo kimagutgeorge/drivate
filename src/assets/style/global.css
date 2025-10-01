@@ -66,6 +66,12 @@ body {
 html {
   scroll-behavior: smooth;
 }
+.blog-content-holder {
+  overflow-wrap: break-word !important; /* modern */
+  word-wrap: break-word !important ; /* legacy alias */
+  word-break: break-all !important; /* aggressively break long words */
+}
+
 .phone-navigation {
   display: none;
 }

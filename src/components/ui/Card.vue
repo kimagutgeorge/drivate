@@ -8,7 +8,7 @@
     :class="class"
   >
     <router-link
-      :to="`/vehicles/view/${car.car_id}/${slugify(car.name)}`"
+      :to="`/vehicles/view/${car?.car_id}/${slugify(car?.name)}`"
       class="w-full"
     >
       <div class="w-full h-[20vh] overflow-hidden relative">
@@ -28,7 +28,7 @@
         </div>
 
         <img
-          :src="car.primary_image_url"
+          :src="car?.primary_image_url"
           class="w-full h-auto max-h-none min-h-full object-cover hover:scale-110 duration-300 ease-in-out"
         />
       </div>
@@ -36,15 +36,15 @@
         <h1
           class="font-semibold text-gray-600 hover:text-[#0066ff] hover:underline"
         >
-          {{ car.name }}
+          {{ car?.name }}
         </h1>
         <div class="w-full">
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
             <i class="fa-solid fa-location-pin"></i>
-            {{ car.location.location_name }}
+            {{ car?.location?.location_name }}
           </p>
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
-            {{ car.price.toLocaleString() }} kes
+            {{ car?.price?.toLocaleString() }} kes
           </p>
         </div>
         <div class="w-full flex flex-wrap mt-2 to-flex">
@@ -100,52 +100,54 @@
     :class="class"
   >
     <router-link
-      :to="`vehicles/view/${car.car_id}/${slugify(car.name)}`"
+      :to="`vehicles/view/${car?.car_id}/${slugify(car?.name)}`"
       class="w-full flex flex-nowrap"
     >
       <div class="w-[30%] h-full overflow-hidden">
         <img
-          :src="car.primary_image_url"
+          :src="car?.primary_image_url"
           class="h-full w-auto max-w-none object-cover"
         />
       </div>
       <div class="w-[70%] h-full ml-2 flex">
         <div class="w-[80%] flex flex-wrap">
           <h2 class="w-full text-gray-800 text-2xl font-bold mb-4">
-            {{ car.name }}
+            {{ car?.name }}
           </h2>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Mileage</p>
             <p class="w-full font-semibold">
-              {{ car.mileage.toLocaleString() }} km
+              {{ car?.mileage?.toLocaleString() }} km
             </p>
           </div>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Year</p>
-            <p class="w-full font-semibold">{{ car.year }}</p>
+            <p class="w-full font-semibold">{{ car?.year }}</p>
           </div>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Engine</p>
             <p class="w-full font-semibold">
-              {{ car.engine.toLocaleString() }} cc
+              {{ car?.engine?.toLocaleString() }} cc
             </p>
           </div>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Location</p>
-            <p class="w-full font-semibold">{{ car.location.location_name }}</p>
+            <p class="w-full font-semibold">
+              {{ car?.location?.location_name }}
+            </p>
           </div>
           <!-- second row -->
           <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Steering</p>
-            <p class="w-full font-semibold">{{ car.steering }}</p>
+            <p class="w-full font-semibold">{{ car?.steering }}</p>
           </div>
           <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Fuel</p>
-            <p class="w-full font-semibold">{{ car.fuel }}</p>
+            <p class="w-full font-semibold">{{ car?.fuel }}</p>
           </div>
           <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Transmission</p>
-            <p class="w-full font-semibold">{{ car.transmission }}</p>
+            <p class="w-full font-semibold">{{ car?.transmission }}</p>
           </div>
           <!-- <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Engine</p>
@@ -155,7 +157,7 @@
         <!-- pricing -->
         <div class="w-[20%]">
           <p class="text-xl font-bold theme-blue">
-            Ksh. {{ car.price.toLocaleString() }}
+            Ksh. {{ car?.price.toLocaleString() }}
           </p>
           <button class="py-1 px-4 bg-[#E6B800] rounded-sm mt-4 w-full">
             ENQUIRE <i class="fa-regular fa-envelope"></i>

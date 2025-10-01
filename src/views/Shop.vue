@@ -8,6 +8,7 @@
       :contacts="contacts"
       has_top_bar
     /> -->
+    <Navbar :categories="categories" :contacts="contacts" has_top_bar />
     <div class="w-[90%] flex flex-wrap mt-6">
       <div class="w-full flex to-wrap">
         <!-- left -->
@@ -103,6 +104,27 @@
               </div>
             </div>
           </div>
+
+          <div class="w-full mt-8 heading">
+            <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
+              Search by Location
+            </h4>
+            <div class="w-full to-flex">
+              <div
+                v-for="(location, index) in locations"
+                :key="index"
+                class="flex flex-nowrap gap-2 py-2 category"
+                style="border-bottom: 1px solid #f4f5f4"
+              >
+                <i class="fa-solid fa-location-dot text-gray-600"></i>
+                <span
+                  class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
+                  >{{ location.location_name }}</span
+                >
+              </div>
+            </div>
+          </div>
+
           <div class="w-full mt-8 heading">
             <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
               Other Categories
@@ -173,50 +195,105 @@
             v-if="is_grid_view"
             class="w-full flex flex-wrap mt-6 gap-2 shop-car-holder"
           >
-            <Card car_card :vehicles="all_vehicles" class="w-[32%] mb-2" />
+            <Card
+              car_card
+              :vehicles="paginated_grid_vehicles"
+              class="w-[32%] mb-2"
+            />
+
+            <!-- pagination -->
+            <div class="w-full flex py-2 to-wrap mt-8">
+              <div class="w-1/2 to-w-full">
+                <span
+                  >Page {{ current_grid_page + 1 }} of
+                  {{ total_grid_pages }}</span
+                >
+              </div>
+              <div class="w-1/2 flex justify-end gap-1 to-w-full">
+                <button
+                  @click="prev_grid_page"
+                  :disabled="current_grid_page === 0"
+                  class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+                >
+                  <i class="fa-solid fa-angle-left"></i>
+                  Prev
+                </button>
+                <!-- numbering pages -->
+                <button
+                  v-for="index in total_grid_pages"
+                  :key="index"
+                  @click="select_specific_grid_page(index)"
+                  class="px-3 py-1 border border-[#4d4d4d]"
+                  :class="
+                    current_grid_page + 1 === index
+                      ? 'bg-[#4d4d4d] text-white'
+                      : ''
+                  "
+                >
+                  {{ index }}
+                </button>
+                <!-- end of numbering -->
+                <button
+                  @click="next_grid_page"
+                  :disabled="current_grid_page >= total_grid_pages - 1"
+                  class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+                >
+                  Next
+                  <i class="fa-solid fa-angle-right"></i>
+                </button>
+              </div>
+            </div>
           </div>
           <!-- list view -->
           <div v-if="!is_grid_view" class="w-full flex flex-wrap mt-6 gap-2">
-            <!-- <Card
+            <Card
               list_card
-              v-for="(car, index) in cars"
-              :key="index"
-              :car_name="car.name"
-              :location="car.location"
-              :price="car.price"
-              :car_pic="car.pic"
-              :mileage="car.mileage"
-              :car_year="car.year"
-              :engine="car.engine"
-              :steering="car.steering"
-              :fuel="car.fuel"
-              :transmission="car.transmission"
+              :vehicles="paginated_list_vehicles"
               class="w-full mb-2"
-            /> -->
-            <Card list_card :vehicles="all_vehicles" class="w-full mb-2" />
-          </div>
-          <!-- pagination -->
-          <div class="w-full flex justify-center mt-10 gap-1 h-fit">
-            <button
-              class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3"
-              disabled
-            >
-              <i class="fa-solid fa-angle-left"></i>
-            </button>
-            <button
-              class="text-white bg-theme-gray py-1 px-3 border border-[#4d4d4d]"
-            >
-              1
-            </button>
-            <button class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3">
-              2
-            </button>
-            <button class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3">
-              ...
-            </button>
-            <button class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3">
-              <i class="fa-solid fa-angle-right"></i>
-            </button>
+            />
+
+            <!-- pagination -->
+            <div class="w-full flex py-2 to-wrap mt-8">
+              <div class="w-1/2 to-w-full">
+                <span
+                  >Page {{ current_list_page + 1 }} of
+                  {{ current_list_page }}</span
+                >
+              </div>
+              <div class="w-1/2 flex justify-end gap-1 to-w-full">
+                <button
+                  @click="prev_list_page"
+                  :disabled="current_list_page === 0"
+                  class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+                >
+                  <i class="fa-solid fa-angle-left"></i>
+                  Prev
+                </button>
+                <!-- numbering pages -->
+                <button
+                  v-for="index in total_list_pages"
+                  :key="index"
+                  @click="select_specific_list_page(index)"
+                  class="px-3 py-1 border border-[#4d4d4d]"
+                  :class="
+                    current_list_page + 1 === index
+                      ? 'bg-[#4d4d4d] text-white'
+                      : ''
+                  "
+                >
+                  {{ index }}
+                </button>
+                <!-- end of numbering -->
+                <button
+                  @click="next_list_page"
+                  :disabled="current_list_page >= total_list_pages - 1"
+                  class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+                >
+                  Next
+                  <i class="fa-solid fa-angle-right"></i>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -253,6 +330,7 @@ export default {
       body_styles: [],
       models: [],
       all_vehicles: [],
+      locations: [],
       is_make: "make",
       is_body_type: "body",
       is_brand: "brand",
@@ -428,128 +506,14 @@ export default {
           icon: "fa-brands fa-instagram",
         },
       ],
-      cars: [
-        {
-          name: "Toyota Auris 2017",
-          location: "Mombasa",
-          mileage: "102,300",
-          year: "2017",
-          engine: "2000 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "4, 000, 000",
-          transmission: "Automatic",
-          pic: "car-1.jpeg",
-        },
-        {
-          name: "Nissan X-Trail 2018",
-          location: "Nairobi",
-          mileage: "89,500",
-          year: "2018",
-          engine: "2500 cc",
-          steering: "Right",
-          fuel: "Diesel",
-          price: "3, 500, 000",
-          transmission: "Manual",
-          pic: "car-2.webp",
-        },
-        {
-          name: "Mazda CX-5 2019",
-          location: "Kisumu",
-          mileage: "54,800",
-          year: "2019",
-          engine: "2200 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "7, 700, 000",
-          transmission: "Automatic",
-          pic: "car-3.webp",
-        },
-        {
-          name: "Subaru Forester 2020",
-          location: "Nakuru",
-          mileage: "33,900",
-          year: "2020",
-          engine: "2000 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 000, 000",
-          transmission: "Automatic",
-          pic: "car-4.jpg",
-        },
-        {
-          name: "Mitsubishi Outlander 2016",
-          location: "Eldoret",
-          mileage: "140,200",
-          year: "2016",
-          engine: "2400 cc",
-          steering: "Left",
-          fuel: "Hybrid",
-          price: "1, 800, 000",
-          transmission: "Automatic",
-          pic: "car-5.jpg",
-        },
-        {
-          name: "Honda CR-V 2015",
-          location: "Mombasa",
-          mileage: "156,700",
-          year: "2015",
-          engine: "2000 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 200, 000",
-          transmission: "Manual",
-          pic: "car-6.jpg",
-        },
-        {
-          name: "Toyota Land Cruiser Prado 2018",
-          location: "Nairobi",
-          mileage: "68,900",
-          year: "2018",
-          engine: "3000 cc",
-          steering: "Left",
-          fuel: "Diesel",
-          price: "900, 000",
-          transmission: "Automatic",
-          pic: "car-7.jpg",
-        },
-        {
-          name: "Suzuki Swift 2021",
-          location: "Kisumu",
-          mileage: "15,200",
-          year: "2021",
-          engine: "1200 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 500, 000",
-          transmission: "Automatic",
-          pic: "car-8.jpg",
-        },
-        {
-          name: "Ford Ranger 2019",
-          location: "Nakuru",
-          mileage: "72,500",
-          year: "2019",
-          engine: "3200 cc",
-          steering: "Left",
-          fuel: "Diesel",
-          price: "2, 000, 000",
-          transmission: "Manual",
-          pic: "car-9.jpg",
-        },
-        {
-          name: "Mercedes-Benz GLC 2022",
-          location: "Nairobi",
-          mileage: "8,900",
-          year: "2022",
-          engine: "2000 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "2, 000, 000",
-          transmission: "Automatic",
-          pic: "car-10.jpg",
-        },
-      ],
+
+      // pagination
+      grid_page_size: 30,
+      current_grid_page: 0,
+
+      //list style
+      list_page_size: 20,
+      current_list_page: 0,
     };
   },
   /* mounted */
@@ -562,6 +526,7 @@ export default {
           this.fetchVehicles(),
           this.getBodyStyles(),
           this.getModels(),
+          this.getLocations(),
         ]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
@@ -573,9 +538,45 @@ export default {
       this.page_is_loading = false;
     }
   },
+  computed: {
+    total_grid_pages() {
+      return Math.ceil(this.all_vehicles.length / this.grid_page_size);
+    },
+    paginated_grid_vehicles() {
+      const start = this.current_grid_page * this.grid_page_size;
+      return this.all_vehicles.slice(start, start + this.grid_page_size);
+    },
+
+    // computed grid
+    total_list_pages() {
+      return Math.ceil(this.all_vehicles.length / this.list_page_size);
+    },
+    paginated_list_vehicles() {
+      const start = this.current_list_page * this.list_page_size;
+      return this.all_vehicles.slice(start, start + this.list_page_size);
+    },
+  },
   /* methods */
   methods: {
     slugify,
+    async getLocations() {
+      try {
+        const response = await axios.get(`${api}/get-locations`);
+        const data = response.data;
+
+        console.log("locations response:", data); // Debug log
+
+        if (data.success) {
+          this.locations = data.locations; // Extract the array
+        } else {
+          this.locations = []; // Fallback to empty array
+          this.show_error(data.error);
+        }
+      } catch (error) {
+        this.show_error(error);
+        this.locations = []; // Set to empty array on error
+      }
+    },
     async fetchVehicles() {
       try {
         const response = await axios.get(`${api}/get-vehicles`);
@@ -652,6 +653,36 @@ export default {
       } catch (error) {
         console.error("Error fetching models:", error);
       }
+    },
+
+    //pagination methods
+    next_grid_page() {
+      if (this.current_grid_page < this.total_grid_pages - 1) {
+        this.current_grid_page++;
+      }
+    },
+    prev_grid_page() {
+      if (this.current_grid_page > 0) {
+        this.current_grid_page--;
+      }
+    },
+    select_specific_grid_page(index) {
+      this.current_grid_page = index - 1;
+    },
+
+    //list pagination
+    next_list_page() {
+      if (this.current_list_page < this.total_list_pages - 1) {
+        this.current_list_page++;
+      }
+    },
+    prev_list_page() {
+      if (this.current_list_page > 0) {
+        this.current_list_page--;
+      }
+    },
+    select_specific_list_page(index) {
+      this.current_list_page = index - 1;
     },
   },
 };

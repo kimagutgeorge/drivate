@@ -58,9 +58,10 @@ const routes = [
     component: Blogs,
   },
   {
-    path: "/read-blog",
+    path: "/blogs/view/:id/:title",
     name: "Read Blog",
     component: ViewBlog,
+    props: true,
   },
   {
     path: "/reviews",

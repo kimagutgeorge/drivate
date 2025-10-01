@@ -653,6 +653,7 @@ export default {
         const response = await axios.get(`${api}/get-vehicle/${this.id}`);
 
         const data = response.data;
+        console.log("Vehicle details: ", data);
         // Check if the request was successful
         if (data.success) {
           this.vehicle = data.vehicle;

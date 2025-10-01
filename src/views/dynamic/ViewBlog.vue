@@ -10,21 +10,19 @@
         >
           <!-- top stories -->
           <div class="w-[60%] p-4 bg-third mt-8">
-            <h2 class="text-2xl font-bold theme-yellow">Related Stories</h2>
+            <h2 class="text-2xl font-bold theme-yellow">Other Stories</h2>
             <ul class="mt-4">
               <li
-                v-for="(story, index) in top_stories"
+                v-for="(blog, index) in blogs"
                 :key="index"
                 class="group py-2 cursor-pointer text-gray-700 border-b border-gray-300"
               >
                 <p
                   class="group-hover:text-[#0066ff] transition-all duration-300 ease-in-out"
                 >
-                  {{ story.title }}
+                  {{ blog?.title }}
                 </p>
-                <p class="mt-2 text-sm">
-                  {{ story.date }}
-                </p>
+                <p class="mt-2 text-sm">{{ format_date(blog?.created_at) }}</p>
               </li>
             </ul>
           </div>
@@ -32,7 +30,7 @@
         <div class="w-[60%] to-full-smaller">
           <div class="w-full border-b border-gray-300 py-4">
             <div class="w-full max-h-[50vh] overflow-hidden">
-              <img :src="`/images/${blog[0]?.pic}`" class="w-full h-auto" />
+              <img :src="blog?.image_url" class="w-full h-auto" />
             </div>
             <div class="w-full mt-4">
               <div class="w-ful0 flex justify-end gap-2 theme-yellow">
@@ -41,33 +39,39 @@
                 <i class="fa-brands fa-x-twitter"></i>
               </div>
               <h1 class="font-extrabold text-3xl">
-                {{ blog[0]?.title }}
+                {{ blog?.title }}
               </h1>
-              <div class="w-full mt-2" v-html="blog[0]?.content"></div>
+              <div
+                class="w-full mt-2 blog-content-holder overflow-x-hidden"
+                v-html="blog?.content"
+              ></div>
             </div>
           </div>
         </div>
       </div>
     </div>
     <!-- footer -->
-    <Footer
+    <!-- <Footer
       :makes="makes"
       :prices="price_ranges"
       :body_styles="types"
       :categories="categories"
       :locations="locations"
       :contacts="contacts"
-    />
+    /> -->
   </div>
 </template>
 <script>
 import Footer from "../../components/general/Footer.vue";
 import Navbar from "../../components/general/Navbar.vue";
 import Spinner from "../../components/general/Spinner.vue";
+import { api } from "../../utils/store";
+import axios from "axios";
 
 export default {
   name: "Blogs",
   components: { Navbar, Spinner, Footer },
+  props: ["id", "title"],
   data() {
     return {
       page_is_loading: true,
@@ -259,56 +263,82 @@ export default {
         { name: "Classic & Vintage Cars" },
         { name: "Auto Industry Trends" },
       ],
-      blog: [
-        {
-          title: "Keeping Your Used Car Healthy: Maintenance Guide",
-          pic: "car-5.jpg",
-          content: `
-      <div style="border-radius:14px; overflow:hidden; box-shadow: 0 10px 24px rgba(8, 35, 64, 0.06);">
-        <div style="background:#0ea5a4; color:white; padding:14px 20px;">
-          <h2 style="margin:0; font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;">Keeping Your Used Car Healthy: Maintenance Guide</h2>
-        </div>
 
-        <div style="padding:18px; background:linear-gradient(180deg,#ffffff,#fbfdfe); border:2px solid #e6f3f2;">
-          <p style="line-height:1.6;">
-            A well-maintained used car can run reliably for years. Follow a simple routine: check oil and coolant levels monthly, inspect tyre pressure and tread depth, and replace brake pads before they wear through. Keep a service log — it helps with diagnostics and improves resale trust.
-          </p>
-
-          <div style="margin:12px 0; padding:12px; border-left:4px solid #0ea5a4; background:#f0fdfa;">
-            <strong>DIY tip:</strong> Keep a small kit in the boot — tyre inflator, basic tools, coolant, and a portable jump-starter. It saves time when small issues arise on the road.
-          </div>
-
-          <p style="margin:0;">
-            For engine health, follow manufacturer service intervals. If a check-engine light appears, get it scanned early — small sensors are cheap to fix, while ignored problems can become costly.
-          </p>
-        </div>
-      </div>
-      <p style="line-height:1.6;margin-top:20px;">
-          If you're shopping on a budget, aim for cars with proven reliability and cheap spare parts. Popular choices include small hatchbacks and compact sedans that balance fuel efficiency with low maintenance costs.
-        </p>
-
-        <ol style="margin-left:18px; line-height:1.6;">
-          <li><strong>Compact hatchbacks:</strong> Great for city use and parking.</li>
-          <li><strong>Small sedans:</strong> Comfortable for longer trips and family use.</li>
-          <li><strong>Older but well-serviced SUVs:</strong> If you need ground clearance for rural roads.</li>
-        </ol>
-
-        <div style="margin-top:12px; padding:12px; border-radius:8px; border:1px solid #e6e9f2; background:#ffffff;">
-          <p style="margin:0;">
-            When buying, insist on a pre-purchase inspection and check service history. A few extra thousands spent on a certified service now can save you tens later.
-          </p>
-        </div>
-      </div>
-    `,
-        },
-      ],
+      // data arrays
+      blog: null,
+      blogs: [],
     };
   },
-  mounted() {
-    document.title = "Talkcoms - Blogs";
-    setTimeout(() => {
+  async mounted() {
+    try {
+      await Promise.race([
+        Promise.all([this.fetchBlogs(), this.getBlogs()]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
+      document.title = "Drivate - " + this.blog.title;
       this.page_is_loading = false;
-    }, 1500);
+    }
+  },
+
+  methods: {
+    async fetchBlogs() {
+      try {
+        const response = await axios.get(`${api}/get-blog/${this.id}`);
+
+        const data = response.data;
+
+        // Check if the request was successful
+        // console.log("Blogs is: ", this.blog);
+        if (data.success) {
+          this.blog = data.blog;
+          this.content = this.blog.content;
+
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch blog");
+        }
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+
+        this.response_is_visible = true;
+        this.alert_status = false;
+        this.response_message = "Failed. Check  your connection";
+      }
+    },
+    async getBlogs() {
+      try {
+        const response = await axios.get(`${api}/get-blogs`);
+        const data = response.data;
+        if (data.success) {
+          this.blogs = data.blogs;
+
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch blogs");
+        }
+      } catch (error) {
+        console.error("Error fetching blogs:", error);
+
+        this.blogs = [];
+      }
+    },
+    format_date(date_to_change) {
+      if (!date_to_change) return "";
+      const date = new Date(date_to_change);
+      const date_options = { month: "long", day: "numeric", year: "numeric" };
+      return date.toLocaleDateString("en-US", date_options);
+    },
   },
 };
 </script>
