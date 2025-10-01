@@ -1,6 +1,6 @@
 <template>
   <div class="w-full bg-white">
-    <Navbar />
+    <!-- <Navbar /> -->
     <router-view />
     <!-- <Footer /> -->
   </div>

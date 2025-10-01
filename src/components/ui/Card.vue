@@ -8,7 +8,7 @@
     :class="class"
   >
     <router-link
-      :to="`vehicles/view/${car.car_id}/${slugify(car.name)}`"
+      :to="`/vehicles/view/${car.car_id}/${slugify(car.name)}`"
       class="w-full"
     >
       <div class="w-full h-[20vh] overflow-hidden relative">
@@ -210,7 +210,7 @@
 <script>
 import Link from "./text/Link.vue";
 import IconButton from "./buttons/IconButton.vue";
-import { slugify } from "../../utils/store";
+import { slugify, base_url } from "../../utils/store";
 export default {
   name: "Card",
   props: {

@@ -221,6 +221,8 @@
               type="text"
               class="w-full border p-1 py-2 mt-2"
               placeholder="Full Name"
+              v-model="client_name"
+              required
             />
           </div>
           <div class="w-1/2 p-1 half-to-full">
@@ -229,6 +231,8 @@
               type="email"
               class="w-full border p-1 py-2 mt-2"
               placeholder="someone@example.com"
+              v-model="client_email"
+              required
             />
           </div>
           <div class="w-1/2 p-1 half-to-full">
@@ -237,14 +241,17 @@
               type="number"
               class="w-full border p-1 py-2 mt-2"
               placeholder="07 00 00 00 00"
+              v-model="client_phone"
+              required
             />
           </div>
           <div class="w-1/2 p-1 half-to-full">
             <label class="font-bold mt-4">Address</label>
             <input
-              type="number"
+              type="text"
               class="w-full border p-1 py-2 mt-2"
               placeholder="Address"
+              v-model="client_address"
             />
           </div>
           <label class="font-bold mt-4">Message (Optional)</label>
@@ -252,19 +259,44 @@
             type="number"
             class="w-full border p-1 py-2 mt-2 h-[20vh]"
             placeholder="Type your message"
+            v-model="client_message"
           ></textarea>
           <div class="w-full flex flex-nowrap gap-2 mt-4">
             <button
+              @click="
+                sendEmailEnquiry(
+                  client_name,
+                  client_email,
+                  name,
+                  client_phone,
+                  client_address,
+                  client_message
+                )
+              "
               class="w-1/2 bg-[#E6B800] shadow-sm p-2 font-bold rounded-sm"
             >
               <i class="fa-regular fa-envelope mr-4"></i>EMAIL
             </button>
+
             <button
               class="w-1/4 bg-[#E6B800] shadow-sm p-2 font-bold rounded-sm"
             >
-              <i class="fa-solid fa-phone mr-4"></i>
+              <a :href="`tel:${contact_phone}`">
+                <i class="fa-solid fa-phone mr-4"></i>
+              </a>
             </button>
+
             <button
+              @click="
+                sendWhatsAppEnquiry(
+                  client_name,
+                  client_email,
+                  name,
+                  client_phone,
+                  client_address,
+                  client_message
+                )
+              "
               class="w-1/4 bg-[#E6B800] shadow-sm p-2 font-bold rounded-sm"
             >
               <i class="fa-brands fa-whatsapp mr-4"></i>
@@ -275,17 +307,8 @@
       <!-- similar cars -->
       <div class="w-[90%] flex flex-wrap gap-4 mt-20">
         <h4 class="w-full font-bold text-lg theme-blue">Similar Cars</h4>
-        <div class="w-full flex flex-wrap car-holder">
-          <Card
-            car_card
-            v-for="(car, index) in cars.slice(0, 6)"
-            :key="index"
-            :car_name="car.name"
-            :location="car.location"
-            :price="car.price"
-            :car_pic="car.pic"
-            class="w-[32%] mb-2"
-          />
+        <div class="w-full flex flex-wrap mt-6 gap-2 shop-car-holder">
+          <Card car_card :vehicles="all_vehicles" class="w-[32%] mb-2" />
         </div>
       </div>
     </div>
@@ -353,6 +376,19 @@ export default {
       seats_color: "",
       fetched_images: [],
       features: [],
+      body_style: "",
+
+      //contact details
+      whatsapp_number: "",
+      contact_phone: "",
+      contact_email: "",
+
+      //form
+      client_name: "",
+      client_email: "",
+      client_phone: "",
+      client_address: "",
+      client_message: "",
 
       makes: [
         { make: "Toyota" },
@@ -404,21 +440,8 @@ export default {
         { type: "Pickup", icon: "static/bodies/pickup.png" },
         { type: "Van", icon: "static/bodies/van.png" },
       ],
-      contacts: [
-        { contact: "0759200998", is_phone: true },
-        { contact: "info@drivate.co.ke", is_email: true },
-        {
-          contact: "facebook.com",
-          is_handle: true,
-          icon: "fa-brands fa-facebook-f",
-        },
-        { contact: "tiktok.com", is_handle: true, icon: "fa-brands fa-tiktok" },
-        {
-          contact: "instagram.com",
-          is_handle: true,
-          icon: "fa-brands fa-instagram",
-        },
-      ],
+      contacts: [],
+      all_vehicles: [],
       locations: [
         { name: "Nairobi" },
         { name: "Mombasa" },
@@ -566,16 +589,9 @@ export default {
   },
   /*mounted */
   async mounted() {
-    document.title = `Drivate - ${this.title}`;
     try {
       await Promise.race([
-        Promise.all([
-          this.getMakes(),
-          this.getFeatures(),
-          this.fetchVehicle(),
-          this.getBodyStyles(),
-          this.getModels(),
-        ]),
+        Promise.all([this.getFeatures(), this.fetchVehicle()]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
         ),
@@ -583,9 +599,41 @@ export default {
     } catch (error) {
       console.error("Loading failed:", error);
     } finally {
+      document.title = `Drivate - ${this.name || "Loading vehicle..."} `;
       this.generate_features();
+      this.fetch_simillar_vehicles();
+      this.getContacts();
+      // this.getMakes();
+      // this.getModels();
+      // this.getBodyStyles();
       this.page_is_loading = false;
     }
+
+    this.$watch(
+      () => this.$route.params.id,
+      async (newId, oldId) => {
+        if (newId !== oldId) {
+          this.page_is_loading = true; // Add this to show loading state
+
+          try {
+            await Promise.race([
+              Promise.all([this.getFeatures(), this.fetchVehicle()]),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+              ),
+            ]);
+          } catch (error) {
+            console.error("Loading failed:", error);
+          } finally {
+            document.title = `Drivate - ${this.name}`;
+            this.generate_features();
+            this.fetch_simillar_vehicles();
+            this.getContacts();
+            this.page_is_loading = false;
+          }
+        }
+      }
+    );
   },
   /* methods */
   methods: {
@@ -631,6 +679,7 @@ export default {
           this.body_style = this.vehicle.body_style.name;
           this.seats_color = this.vehicle.seats_color;
           this.car_features = this.vehicle.features;
+          this.body_id = this.vehicle.body_style.style_id;
 
           //brands, body, models
           // this.bodySearchQuery = this.vehicle.body_style.name;
@@ -742,6 +791,171 @@ export default {
       }));
 
       console.log("Features ni: ", this.generated_features);
+    },
+    // get contacts
+    async getContacts() {
+      try {
+        const response = await axios.get(`${api}/get-contacts`);
+        const data = response.data;
+
+        console.log("contacts response:", data);
+
+        if (data.success && data.contacts) {
+          this.contacts = data.contacts;
+
+          //set phone number
+          const phone = this.contacts.find((item) => item.type === "phone");
+          this.contact_phone = phone.value;
+
+          // set email
+          const email = this.contacts.find((item) => item.type === "email");
+          this.contact_email = email.value;
+
+          const whatsapp = this.contacts.find(
+            (item) => item.type === "whatsapp"
+          );
+
+          if (whatsapp) {
+            // Remove all non-numeric characters
+            let cleanNumber = whatsapp.value.replace(/\D/g, "");
+
+            // Remove leading zero if present
+            if (cleanNumber.startsWith("0")) {
+              cleanNumber = cleanNumber.substring(1);
+            }
+
+            // Add 254 country code if not already present
+            if (!cleanNumber.startsWith("254")) {
+              cleanNumber = "254" + cleanNumber;
+            }
+
+            this.whatsapp_number = cleanNumber;
+          }
+        } else {
+          this.contacts = [];
+        }
+      } catch (error) {
+        console.error("Error fetching contacts:", error);
+      }
+    },
+    //send enquiry
+    sendWhatsAppEnquiry(
+      client_name,
+      client_email,
+      car_name,
+      client_phone,
+      client_address,
+      client_message
+    ) {
+      // Format the message
+      const message = `Hello, my name is ${client_name}.
+
+I am making an enquiry about ${car_name}
+
+*Message:* 
+${client_message}
+
+Email: ${client_email}
+Phone: ${client_phone}
+Address: ${client_address}`;
+      // Encode the message for URL
+      const encodedMessage = encodeURIComponent(message);
+      // Create WhatsApp URL
+      const whatsappUrl = `https://wa.me/${this.whatsapp_number}?text=${encodedMessage}`;
+
+      // Open WhatsApp in a new window/tab
+      window.open(whatsappUrl, "_blank");
+      this.clearForm();
+    },
+    //clear form
+    clearForm() {
+      this.client_name = "";
+      this.client_email = "";
+      this.client_phone = "";
+      this.client_address = "";
+      this.client_message = "";
+    },
+
+    //send mail
+    //send enquiry via email
+    sendEmailEnquiry(
+      client_name,
+      client_email,
+      car_name,
+      client_phone,
+      client_address,
+      client_message
+    ) {
+      // Email recipient
+      const recipientEmail = this.contact_email; // Replace with your email
+
+      // Email subject
+      const subject = `Vehicle Enquiry: ${car_name} - from ${client_name}`;
+
+      // Email body
+      const body = `Hello,
+
+My name is ${client_name}.
+
+I am making an enquiry about ${car_name}
+
+Message:
+${client_message}
+
+Contact Details:
+Email: ${client_email}
+Phone: ${client_phone}
+Address: ${client_address}`;
+
+      // Encode subject and body for mailto URL
+      const encodedSubject = encodeURIComponent(subject);
+      const encodedBody = encodeURIComponent(body);
+
+      // Create mailto URL
+      const mailtoUrl = `mailto:${recipientEmail}?subject=${encodedSubject}&body=${encodedBody}`;
+
+      // Open email client
+      window.location.href = mailtoUrl;
+
+      this.clearForm();
+    },
+
+    //clear form
+    clearForm() {
+      this.client_name = "";
+      this.client_email = "";
+      this.client_phone = "";
+      this.client_address = "";
+      this.client_message = "";
+    },
+    // fetch similar vehicles
+    async fetch_simillar_vehicles() {
+      try {
+        const response = await axios.get(
+          `${api}/get-similar-vehicles/${this.body_id}/${this.id}`
+        );
+
+        const data = response.data;
+
+        // Check if the request was successful
+        if (data.success) {
+          this.all_vehicles = data.vehicles;
+
+          // this.all_loan_tracker = data.vehicles;
+
+          // Hide message after 3 seconds
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch vehicles");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        // Initialize empty array on error
+        this.all_vehicles = [];
+      }
     },
   },
 };

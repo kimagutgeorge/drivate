@@ -1,13 +1,7 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <!-- <Navbar
-      :makes="brands"
-      :body_types="body_styles"
-      :categories="categories"
-      :contacts="contacts"
-      has_top_bar
-    /> -->
+    <Navbar />
     <!-- hero section -->
     <div class="w-full h-[45vh] relative overflow-hidden">
       <div class="w-full absolute top-0 h-full">
@@ -188,16 +182,7 @@
             <h4 class="font-bold text-lg theme-blue">Popular</h4>
           </div>
           <div class="w-full flex flex-wrap gap-2 mt-4 car-holder">
-            <Card
-              car_card
-              v-for="(car, index) in cars.slice(4, 10)"
-              :key="index"
-              :car_name="car.name"
-              :location="car.location"
-              :price="car.price"
-              :car_pic="car.pic"
-              class="w-[32%] mb-2"
-            />
+            <Card car_card :vehicles="popular_vehicles" class="w-[32%] mb-2" />
           </div>
         </div>
       </div>
@@ -342,6 +327,7 @@ export default {
       total_slides: "",
       page_is_loading: true,
       all_vehicles: [],
+      popular_vehicles: [],
       carousels: [],
       brands: [],
       body_styles: [],
@@ -700,6 +686,7 @@ export default {
           this.getCarousels(),
           this.getMakes(),
           this.fetchVehicles(),
+          this.fetch_popular_vehicles(),
           this.getBodyStyles(),
           this.getModels(),
           this.get_about_us(),
@@ -758,6 +745,33 @@ export default {
         console.error("Error fetching vehicles:", error);
         // Initialize empty array on error
         this.all_vehicles = [];
+      }
+    },
+    // get popular vehicles
+    async fetch_popular_vehicles() {
+      try {
+        const response = await axios.get(`${api}/get-popular-vehicles`);
+
+        const data = response.data;
+
+        // Check if the request was successful
+        if (data.success) {
+          this.popular_vehicles = data.vehicles;
+
+          // this.all_loan_tracker = data.vehicles;
+
+          // Hide message after 3 seconds
+          setTimeout(() => {
+            this.response_is_visible = false;
+          }, 3000);
+        } else {
+          // Handle API error response
+          throw new Error(data.error || "Failed to fetch vehicles");
+        }
+      } catch (error) {
+        console.error("Error fetching vehicles:", error);
+        // Initialize empty array on error
+        this.popular_vehicles = [];
       }
     },
     //get carousels
