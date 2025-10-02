@@ -84,9 +84,16 @@
                 <i v-for="i in 4" class="fa-solid fa-star theme-yellow"></i>
                 <i class="fa-solid fa-star text-gray-500"></i>
               </div>
-              <div class="w-full mt-[-5px]">
+              <div class="w-full mt-[-5px] flex flex-nowrap">
                 <h2 class="theme-blue text-xl font-bold">
                   <span class="underline">240</span> Reviews
+                </h2>
+                <h2
+                  class="ml-4 cursor-pointer font-bold transition-all duration-300 hover:underline"
+                >
+                  <router-link to="/leave-review">
+                    Leave us a review
+                  </router-link>
                 </h2>
               </div>
             </div>

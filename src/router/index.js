@@ -12,6 +12,7 @@ import Reviews from "../views/Reviews.vue";
 import TermsOfUse from "../views/TermsOfUse.vue";
 import PrivacyPolicy from "../views/PrivacyPolicy.vue";
 import NotFound from "../views/NotFound.vue";
+import LeaveReview from "../views/LeaveReview.vue";
 
 const routes = [
   { path: "/:pathMatch(.*)*", name: "Not Found", component: NotFound },
@@ -77,6 +78,11 @@ const routes = [
     path: "/privacy-policy",
     name: "Privacy Policy",
     component: PrivacyPolicy,
+  },
+  {
+    path: "/leave-review",
+    name: "Leave A Review",
+    component: LeaveReview,
   },
 ];
 
