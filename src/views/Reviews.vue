@@ -81,12 +81,21 @@
             </h1>
             <div class="w-full flex mt-2 flex-nowrap gap-2">
               <div class="flex flex-nowrap gap-[5px]">
-                <i v-for="i in 4" class="fa-solid fa-star theme-yellow"></i>
-                <i class="fa-solid fa-star text-gray-500"></i>
+                <i
+                  v-for="index in average_rating"
+                  :key="index"
+                  class="fa-solid fa-star theme-yellow"
+                ></i>
+                <i
+                  v-for="index in rating_balance"
+                  :key="index"
+                  class="fa-solid fa-star text-gray-500"
+                ></i>
               </div>
               <div class="w-full mt-[-5px] flex flex-nowrap">
                 <h2 class="theme-blue text-xl font-bold">
-                  <span class="underline">240</span> Reviews
+                  <span class="underline">{{ reviews.length }}</span>
+                  Review{{ reviews.length > 1 ? "s" : "" }}
                 </h2>
                 <h2
                   class="ml-4 cursor-pointer font-bold transition-all duration-300 hover:underline"
@@ -112,26 +121,164 @@
               </div>
               <div class="w-1/2 flex flex-nowrap gap-2 search-inner">
                 <div class="w-[25%] to-full">
-                  <select class="py-2 rounded-0 bg-white w-full mt-1 border">
-                    <option v-for="(make, index) in makes" :key="index">
-                      {{ make.make }}
-                    </option>
-                  </select>
+                  <div class="relative w-full">
+                    <!-- Search Input -->
+                    <input
+                      type="text"
+                      class="p-2 w-full border focus:outline-none"
+                      placeholder="Any brand"
+                      v-model="searchQuery"
+                      @focus="showDropdown = true"
+                      @blur="handleBlur"
+                      @keydown="handleKeydown"
+                      autocomplete="off"
+                    />
+
+                    <!-- Dropdown List -->
+                    <div
+                      v-if="showDropdown && filteredBrands.length > 0"
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                    >
+                      <div
+                        v-for="(brand, index) in filteredBrands"
+                        :key="brand?.make_id || brand?.id"
+                        :class="[
+                          'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                          selectedIndex === index ? 'bg-blue-100' : '',
+                        ]"
+                        @mousedown="selectBrand(brand)"
+                        @mouseenter="selectedIndex = index"
+                      >
+                        <div class="font-medium text-gray-900 flex flex-nowrap">
+                          {{ brand?.name }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- No results message -->
+                    <div
+                      v-if="
+                        showDropdown &&
+                        filteredBrands.length === 0 &&
+                        searchQuery
+                      "
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3 text-gray-500 text-center"
+                    >
+                      No brand found for "{{ searchQuery }}"
+                    </div>
+                  </div>
+
+                  <!-- Hidden input for form submission -->
+                  <input type="hidden" v-model="make_id" required />
                 </div>
                 <div class="w-[25%] to-full">
-                  <select class="p-2 rounded-0 bg-white w-full mt-1 border">
-                    <option>Any Model</option>
-                  </select>
+                  <div class="relative w-full">
+                    <!-- Model Search Input -->
+                    <input
+                      type="text"
+                      class="p-2 w-full border focus:outline-none"
+                      placeholder="Any Model"
+                      v-model="modelSearchQuery"
+                      @focus="modelShowDropdown = true"
+                      @blur="handleModelBlur"
+                      @keydown="handleModelKeydown"
+                      autocomplete="off"
+                      :disabled="!make_id"
+                    />
+
+                    <!-- Model Dropdown List -->
+                    <div
+                      v-if="modelShowDropdown && filteredModels.length > 0"
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                    >
+                      <div
+                        v-for="(model, index) in filteredModels"
+                        :key="model?.model_id || model?.id"
+                        :class="[
+                          'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                          modelSelectedIndex === index ? 'bg-blue-100' : '',
+                        ]"
+                        @mousedown="selectModel(model)"
+                        @mouseenter="modelSelectedIndex = index"
+                      >
+                        <div class="font-medium text-gray-900">
+                          {{ model?.model_name }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- No results message -->
+                    <div
+                      v-if="
+                        modelShowDropdown &&
+                        filteredModels.length === 0 &&
+                        modelSearchQuery &&
+                        make_id
+                      "
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3 text-gray-500 text-center"
+                    >
+                      No model found for "{{ modelSearchQuery }}"
+                    </div>
+                  </div>
+
+                  <!-- Hidden input for form submission -->
+                  <input type="hidden" v-model="model_id" />
                 </div>
                 <div class="w-[25%] to-full">
-                  <select class="p-2 rounded-0 bg-white w-full mt-1 border">
-                    <option>Any Body Type</option>
-                  </select>
+                  <div class="relative w-full">
+                    <!-- Body Style Search Input -->
+                    <input
+                      type="text"
+                      class="p-2 w-full border focus:outline-none"
+                      placeholder="Any Body Type"
+                      v-model="bodyStyleSearchQuery"
+                      @focus="bodyStyleShowDropdown = true"
+                      @blur="handleBodyStyleBlur"
+                      @keydown="handleBodyStyleKeydown"
+                      autocomplete="off"
+                    />
+
+                    <!-- Body Style Dropdown List -->
+                    <div
+                      v-if="
+                        bodyStyleShowDropdown && filteredBodyStyles.length > 0
+                      "
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                    >
+                      <div
+                        v-for="(style, index) in filteredBodyStyles"
+                        :key="style?.body_style_id || style?.id"
+                        :class="[
+                          'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                          bodyStyleSelectedIndex === index ? 'bg-blue-100' : '',
+                        ]"
+                        @mousedown="selectBodyStyle(style)"
+                        @mouseenter="bodyStyleSelectedIndex = index"
+                      >
+                        <div class="font-medium text-gray-900">
+                          {{ style?.name }}
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- No results message -->
+                    <div
+                      v-if="
+                        bodyStyleShowDropdown &&
+                        filteredBodyStyles.length === 0 &&
+                        bodyStyleSearchQuery
+                      "
+                      class="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg p-3 text-gray-500 text-center"
+                    >
+                      No body style found for "{{ bodyStyleSearchQuery }}"
+                    </div>
+                  </div>
+
+                  <!-- Hidden input for form submission -->
+                  <input type="hidden" v-model="body_style_id" />
                 </div>
                 <div class="w-[25%] to-full">
-                  <button
-                    class="bg-[#ffcd00] text-white h-full p-2 mt-1 w-full"
-                  >
+                  <button class="bg-[#ffcd00] text-white h-full p-2 w-full">
                     Search
                   </button>
                 </div>
@@ -142,30 +289,45 @@
 
           <!-- list view -->
           <div class="w-full flex flex-wrap mt-6 gap-2 review-card-holder">
-            <Card review_card v-for="i in 5" class="w-full" />
+            <Card review_card :reviews="paginated_reviews" class="w-full" />
           </div>
+
           <!-- pagination -->
-          <div class="w-full flex justify-center mt-10 gap-1 h-fit">
-            <button
-              class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3"
-              disabled
-            >
-              <i class="fa-solid fa-angle-left"></i>
-            </button>
-            <button
-              class="text-white bg-theme-gray py-1 px-3 border border-[#4d4d4d]"
-            >
-              1
-            </button>
-            <button class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3">
-              2
-            </button>
-            <button class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3">
-              ...
-            </button>
-            <button class="text-[#4d4d4d] border border-[#4d4d4d] py-1 px-3">
-              <i class="fa-solid fa-angle-right"></i>
-            </button>
+          <div class="w-full flex py-2 to-wrap mt-8">
+            <div class="w-1/2 to-w-full">
+              <span>Page {{ currentPage + 1 }} of {{ totalPages }}</span>
+            </div>
+            <div class="w-1/2 flex justify-end gap-1 to-w-full">
+              <button
+                @click="prevPage"
+                :disabled="currentPage === 0"
+                class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+              >
+                <i class="fa-solid fa-angle-left"></i>
+                Prev
+              </button>
+              <!-- numbering pages -->
+              <button
+                v-for="index in totalPages"
+                :key="index"
+                @click="select_specific_page(index)"
+                class="px-3 py-1 border border-[#4d4d4d]"
+                :class="
+                  currentPage + 1 === index ? 'bg-[#4d4d4d] text-white' : ''
+                "
+              >
+                {{ index }}
+              </button>
+              <!-- end of numbering -->
+              <button
+                @click="nextPage"
+                :disabled="currentPage >= totalPages - 1"
+                class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
+              >
+                Next
+                <i class="fa-solid fa-angle-right"></i>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -187,12 +349,46 @@ import Card from "../components/ui/Card.vue";
 import Spinner from "../components/general/Spinner.vue";
 import Footer from "../components/general/Footer.vue";
 import Search from "../components/general/Search.vue";
+import axios from "axios";
+import { api } from "../utils/store";
 export default {
   name: "Reviews",
   components: { Navbar, Card, Spinner, Footer, Search },
   data() {
     return {
       page_is_loading: true,
+      review_status: "Active",
+
+      // data arrays
+      reviews: [],
+      brands: [],
+      models: [],
+      body_styles: [],
+      average_rating: "",
+      rating_balance: "",
+
+      //pagination
+      currentPage: 0, // start on first page
+      pageSize: 10, // rows per page
+
+      // make search query
+      make_id: "",
+      searchQuery: "",
+      showDropdown: false,
+      selectedIndex: -1,
+
+      // model search query
+      model_id: "",
+      modelSearchQuery: "",
+      modelShowDropdown: false,
+      modelSelectedIndex: -1,
+
+      // body style search query
+      body_style_id: "",
+      bodyStyleSearchQuery: "",
+      bodyStyleShowDropdown: false,
+      bodyStyleSelectedIndex: -1,
+
       contacts: [
         { contact: "0759200998", is_phone: true },
         { contact: "info@drivate.co.ke", is_email: true },
@@ -366,14 +562,329 @@ export default {
       ],
     };
   },
-  /* methods */
-  methods: {},
+  computed: {
+    totalPages() {
+      return Math.ceil(this.reviews.length / this.pageSize);
+    },
+
+    paginated_reviews() {
+      const start = this.currentPage * this.pageSize;
+      return this.reviews.slice(start, start + this.pageSize);
+    },
+
+    filteredBrands() {
+      if (!this.searchQuery) {
+        return this.brands;
+      }
+      return this.brands.filter((brand) =>
+        brand.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+
+    filteredModels() {
+      if (!this.make_id) {
+        return [];
+      }
+
+      // Check both possible property names for the foreign key
+      let filtered = this.models.filter(
+        (model) =>
+          model.make_id === this.make_id || model.brand_id === this.make_id
+      );
+
+      // Further filter by search query if present
+      if (this.modelSearchQuery) {
+        filtered = filtered.filter((model) =>
+          model.model_name
+            .toLowerCase()
+            .includes(this.modelSearchQuery.toLowerCase())
+        );
+      }
+
+      return filtered;
+    },
+
+    filteredBodyStyles() {
+      if (!this.bodyStyleSearchQuery) {
+        return this.body_styles;
+      }
+      return this.body_styles.filter((style) =>
+        style.name
+          .toLowerCase()
+          .includes(this.bodyStyleSearchQuery.toLowerCase())
+      );
+    },
+  },
+
   /* mounted */
-  mounted() {
+  async mounted() {
     document.title = "Drivate - Reviews";
-    setTimeout(() => {
+    try {
+      await Promise.race([
+        Promise.all([
+          this.getReviews(),
+          this.getBrands(),
+          this.getModels(),
+          this.getBodyStyles(),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
       this.page_is_loading = false;
-    }, 1500);
+    }
+  },
+
+  /* methods */
+  methods: {
+    async getReviews() {
+      try {
+        const response = await axios.get(
+          `${api}/get-reviews/${this.review_status}`
+        );
+        const data = response.data;
+        console.log(data);
+        if (data.success) {
+          this.reviews = data.reviews; // Extract the array
+          this.average_rating = Math.round(data.average_rating);
+          this.rating_balance = 5 - this.average_rating;
+        } else {
+          this.reviews = []; // Fallback to empty array
+        }
+      } catch (error) {
+        console.error(error);
+        this.reviews = []; // Set to empty array on error
+      }
+    },
+
+    //pagination methods
+    nextPage() {
+      if (this.currentPage < this.totalPages - 1) {
+        this.currentPage++;
+      }
+    },
+    prevPage() {
+      if (this.currentPage > 0) {
+        this.currentPage--;
+      }
+    },
+    select_specific_page(index) {
+      this.currentPage = index - 1;
+    },
+
+    /// Brand search and selection logic
+    selectBrand(brand) {
+      this.make_id = brand.make_id || brand.id;
+      this.make = brand.name;
+      this.searchQuery = brand.name;
+      this.showDropdown = false;
+      this.selectedIndex = -1;
+
+      // Reset model selection when brand changes
+      this.model_id = "";
+      this.modelSearchQuery = "";
+    },
+
+    handleBlur() {
+      // Delay hiding dropdown to allow for selection
+      setTimeout(() => {
+        this.showDropdown = false;
+        this.selectedIndex = -1;
+      }, 200);
+    },
+
+    handleKeydown(event) {
+      if (!this.showDropdown) {
+        this.showDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.selectedIndex = Math.min(
+            this.selectedIndex + 1,
+            this.filteredBrands.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.selectedIndex = Math.max(this.selectedIndex - 1, -1);
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.selectedIndex >= 0 &&
+            this.filteredBrands[this.selectedIndex]
+          ) {
+            this.selectBrand(this.filteredBrands[this.selectedIndex]);
+          }
+          break;
+        case "Escape":
+          this.showDropdown = false;
+          this.selectedIndex = -1;
+          break;
+      }
+    },
+
+    /// Model search and selection logic
+    selectModel(model) {
+      this.model_id = model.model_id || model.id;
+      this.modelSearchQuery = model.model_name;
+      this.modelShowDropdown = false;
+      this.modelSelectedIndex = -1;
+    },
+
+    handleModelBlur() {
+      setTimeout(() => {
+        this.modelShowDropdown = false;
+        this.modelSelectedIndex = -1;
+      }, 200);
+    },
+
+    handleModelKeydown(event) {
+      if (!this.modelShowDropdown) {
+        this.modelShowDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.modelSelectedIndex = Math.min(
+            this.modelSelectedIndex + 1,
+            this.filteredModels.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.modelSelectedIndex = Math.max(this.modelSelectedIndex - 1, -1);
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.modelSelectedIndex >= 0 &&
+            this.filteredModels[this.modelSelectedIndex]
+          ) {
+            this.selectModel(this.filteredModels[this.modelSelectedIndex]);
+          }
+          break;
+        case "Escape":
+          this.modelShowDropdown = false;
+          this.modelSelectedIndex = -1;
+          break;
+      }
+    },
+
+    /// Body Style search and selection logic
+    selectBodyStyle(style) {
+      this.body_style_id = style.body_style_id || style.id;
+      this.bodyStyleSearchQuery = style.name;
+      this.bodyStyleShowDropdown = false;
+      this.bodyStyleSelectedIndex = -1;
+    },
+
+    handleBodyStyleBlur() {
+      setTimeout(() => {
+        this.bodyStyleShowDropdown = false;
+        this.bodyStyleSelectedIndex = -1;
+      }, 200);
+    },
+
+    handleBodyStyleKeydown(event) {
+      if (!this.bodyStyleShowDropdown) {
+        this.bodyStyleShowDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.bodyStyleSelectedIndex = Math.min(
+            this.bodyStyleSelectedIndex + 1,
+            this.filteredBodyStyles.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.bodyStyleSelectedIndex = Math.max(
+            this.bodyStyleSelectedIndex - 1,
+            -1
+          );
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.bodyStyleSelectedIndex >= 0 &&
+            this.filteredBodyStyles[this.bodyStyleSelectedIndex]
+          ) {
+            this.selectBodyStyle(
+              this.filteredBodyStyles[this.bodyStyleSelectedIndex]
+            );
+          }
+          break;
+        case "Escape":
+          this.bodyStyleShowDropdown = false;
+          this.bodyStyleSelectedIndex = -1;
+          break;
+      }
+    },
+
+    // get makes
+    async getBrands() {
+      try {
+        const response = await axios.get(`${api}/get-makes`);
+        const data = response.data;
+        if (data.success && data.brands) {
+          this.brands = data.brands;
+        } else {
+          this.brands = [];
+        }
+
+        console.log("brands array:", this.brands); // Debug log
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    },
+
+    // get models
+    async getModels() {
+      try {
+        const response = await axios.get(`${api}/get-models`);
+        const data = response.data;
+        if (data.success && data.models) {
+          this.models = data.models;
+        } else {
+          this.models = [];
+        }
+
+        console.log("models array:", this.models); // Debug log
+      } catch (error) {
+        console.error("Error fetching models:", error);
+        this.models = [];
+      }
+    },
+
+    // get body_styles
+    async getBodyStyles() {
+      try {
+        const response = await axios.get(`${api}/get-body-styles`);
+        const data = response.data;
+        if (data.success && data.body_styles) {
+          this.body_styles = data.body_styles;
+        } else {
+          this.body_styles = [];
+        }
+
+        console.log("body styles array:", this.body_styles); // Debug log
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+        this.body_styles = [];
+      }
+    },
   },
 };
 </script>

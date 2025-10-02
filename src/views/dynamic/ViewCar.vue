@@ -45,7 +45,7 @@
                 :style="{ transform: `translateX(-${current_image * 100}%)` }"
               >
                 <img
-                  :src="img.image_url"
+                  :src="img?.image_url"
                   class="w-full h-auto max-h-[60vh] object-cover"
                 />
               </div>
@@ -57,7 +57,7 @@
               v-for="(img, index) in fetched_images"
               :key="index"
               @click="current_image = index"
-              :src="img.image_url"
+              :src="img?.image_url"
               class="w-[19%] h-auto object-cover cursor-pointer"
               :class="
                 current_image === index ? 'border-2 border-[#E6B800]' : ''
@@ -75,7 +75,7 @@
         >
           <div class="w-1/2 half-to-full">Price</div>
           <div class="w-1/2 font-semibold text-2xl theme-blue half-to-full">
-            Ksh. {{ price.toLocaleString() }}
+            Ksh. {{ price?.toLocaleString() }}
           </div>
           <div class="w-1/2">
             <a href="#enquire"
@@ -94,7 +94,7 @@
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
             <p class="w-full text-gray-500">Mileage</p>
             <p class="w-full font-semibold">
-              {{ mileage.toLocaleString() }} km
+              {{ mileage?.toLocaleString() }} km
             </p>
           </div>
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
@@ -104,7 +104,7 @@
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
             <p class="w-full text-gray-500">Engine</p>
             <p class="w-full font-semibold">
-              {{ engine_size.toLocaleString() }} cc
+              {{ engine_size?.toLocaleString() }} cc
             </p>
           </div>
           <div class="w-1/4 text-sm border p-2 bg-gray-100 half-to-full">
@@ -178,7 +178,7 @@
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
             <div class="w-1/2 bg-gray-200 p-1 py-2">Weight</div>
-            <div class="w-1/2 p-1 py-2">{{ weight.toLocaleString() }} kg</div>
+            <div class="w-1/2 p-1 py-2">{{ weight?.toLocaleString() }} kg</div>
           </div>
           <!-- end of row -->
           <div class="w-1/2 flex flex-nowrap border border-gray-300">
@@ -202,12 +202,12 @@
             :key="index"
             class="w-[24%] p-1 text-sm border rounded-sm text-center"
             :class="
-              feature.exists === true
+              feature?.exists === true
                 ? 'bg-[#FFF199] border-[#FFF199] font-semibold'
                 : 'border-gray-300 text-gray-300'
             "
           >
-            {{ feature.name }}
+            {{ feature?.name }}
           </div>
         </div>
       </div>
@@ -222,7 +222,6 @@
               class="w-full border p-1 py-2 mt-2"
               placeholder="Full Name"
               v-model="client_name"
-              required
             />
           </div>
           <div class="w-1/2 p-1 half-to-full">
@@ -232,7 +231,6 @@
               class="w-full border p-1 py-2 mt-2"
               placeholder="someone@example.com"
               v-model="client_email"
-              required
             />
           </div>
           <div class="w-1/2 p-1 half-to-full">
@@ -242,7 +240,6 @@
               class="w-full border p-1 py-2 mt-2"
               placeholder="07 00 00 00 00"
               v-model="client_phone"
-              required
             />
           </div>
           <div class="w-1/2 p-1 half-to-full">
@@ -301,6 +298,11 @@
             >
               <i class="fa-brands fa-whatsapp mr-4"></i>
             </button>
+          </div>
+
+          <!-- response  -->
+          <div class="w-full mt-4">
+            {{ response_message }}
           </div>
         </form>
       </div>
@@ -389,6 +391,9 @@ export default {
       client_phone: "",
       client_address: "",
       client_message: "",
+
+      //response
+      response_message: "",
 
       makes: [
         { make: "Toyota" },
@@ -659,34 +664,29 @@ export default {
           this.vehicle = data.vehicle;
 
           //map data
-          this.name = this.vehicle.name;
-          this.price = this.vehicle.price;
-          this.mileage = this.vehicle.mileage;
-          this.engine_size = this.vehicle.engine;
-          this.location = this.vehicle.location.location_name;
-          this.ref_number = this.vehicle.ref_no;
-          this.model_code = this.vehicle.model_code;
-          this.steering_wheel = this.vehicle.steering;
-          this.exterior_color = this.vehicle.exterior_color;
-          this.fuel_type = this.vehicle.fuel;
-          this.seats = this.vehicle.seats;
-          this.drive_type = this.vehicle.drive;
-          this.transmission = this.vehicle.transmission;
-          this.registration_year = this.vehicle.year;
-          this.weight = this.vehicle.weight;
-          this.condition = this.vehicle.condition;
-          this.make_name = this.vehicle.make.name;
-          this.model_name = this.vehicle.model.model_name;
-          this.body_style = this.vehicle.body_style.name;
-          this.seats_color = this.vehicle.seats_color;
-          this.car_features = this.vehicle.features;
-          this.body_id = this.vehicle.body_style.style_id;
-
-          //brands, body, models
-          // this.bodySearchQuery = this.vehicle.body_style.name;
-          // this.brandSearchQuery = this.vehicle.make.name;
-          // this.modelSearchQuery = this.vehicle.model.model_name;
-          this.fetched_images = this.vehicle.images;
+          this.name = this.vehicle?.name;
+          this.price = this.vehicle?.price;
+          this.mileage = this.vehicle?.mileage;
+          this.engine_size = this.vehicle?.engine;
+          this.location = this.vehicle?.location?.location_name;
+          this.ref_number = this.vehicle?.ref_no;
+          this.model_code = this.vehicle?.model_code;
+          this.steering_wheel = this.vehicle?.steering;
+          this.exterior_color = this.vehicle?.exterior_color;
+          this.fuel_type = this.vehicle?.fuel;
+          this.seats = this.vehicle?.seats;
+          this.drive_type = this.vehicle?.drive;
+          this.transmission = this.vehicle?.transmission;
+          this.registration_year = this.vehicle?.year;
+          this.weight = this.vehicle?.weight;
+          this.condition = this.vehicle?.condition;
+          this.make_name = this.vehicle?.make?.name;
+          this.model_name = this.vehicle?.model?.model_name;
+          this.body_style = this.vehicle?.body_style?.name;
+          this.seats_color = this.vehicle?.seats_color;
+          this.car_features = this.vehicle?.features;
+          this.body_id = this.vehicle.body_style?.style_id;
+          this.fetched_images = this.vehicle?.images;
 
           this.total_images = this.fetched_images.length;
 
@@ -700,9 +700,6 @@ export default {
         }
       } catch (error) {
         console.error("Error fetching vehicles:", error);
-
-        this.response_is_visible = true;
-        this.alert_status = false;
         this.response_message = "Failed. Check  your connection";
 
         // Initialize empty array on error
@@ -848,12 +845,24 @@ export default {
       client_address,
       client_message
     ) {
+      if (
+        client_name == "" ||
+        client_email == "" ||
+        car_name == "" ||
+        client_phone == "" ||
+        client_address == "" ||
+        client_message == ""
+      ) {
+        this.response_message = "All Fields are required";
+        return;
+      }
+
       // Format the message
       const message = `Hello, my name is ${client_name}.
 
 I am making an enquiry about ${car_name}
 
-*Message:* 
+*Message:*
 ${client_message}
 
 Email: ${client_email}
@@ -866,7 +875,19 @@ Address: ${client_address}`;
 
       // Open WhatsApp in a new window/tab
       window.open(whatsappUrl, "_blank");
-      this.clearForm();
+      // const mode = "Whatsapp";
+      this.save_enquiry(
+        client_name,
+        client_email,
+        car_name,
+        client_phone,
+        client_address,
+        client_message,
+        "Whatsapp"
+      );
+      setTimeout(() => {
+        this.clearForm();
+      }, 1500);
     },
     //clear form
     clearForm() {
@@ -875,6 +896,7 @@ Address: ${client_address}`;
       this.client_phone = "";
       this.client_address = "";
       this.client_message = "";
+      this.response_message = "";
     },
 
     //send mail
@@ -887,6 +909,17 @@ Address: ${client_address}`;
       client_address,
       client_message
     ) {
+      if (
+        client_name == "" ||
+        client_email == "" ||
+        car_name == "" ||
+        client_phone == "" ||
+        client_address == "" ||
+        client_message == ""
+      ) {
+        this.response_message = "All Fields are required";
+        return;
+      }
       // Email recipient
       const recipientEmail = this.contact_email; // Replace with your email
 
@@ -917,8 +950,19 @@ Address: ${client_address}`;
 
       // Open email client
       window.location.href = mailtoUrl;
-
-      this.clearForm();
+      // const mode = "Email";
+      this.save_enquiry(
+        client_name,
+        client_email,
+        car_name,
+        client_phone,
+        client_address,
+        client_message,
+        "Email"
+      );
+      setTimeout(() => {
+        this.clearForm();
+      }, 1500);
     },
 
     //clear form
@@ -956,6 +1000,42 @@ Address: ${client_address}`;
         console.error("Error fetching vehicles:", error);
         // Initialize empty array on error
         this.all_vehicles = [];
+      }
+    },
+
+    //save data
+    async save_enquiry(
+      client_name,
+      client_email,
+      car_name,
+      client_phone,
+      client_address,
+      client_message,
+      mode
+    ) {
+      try {
+        const formData = new FormData();
+        formData.append("client_name", client_name);
+        formData.append("client_email", client_email);
+        formData.append("car_name", car_name);
+        formData.append("client_phone", client_phone);
+        formData.append("client_address", client_address);
+        formData.append("client_message", client_message);
+        formData.append("mode", mode);
+        const response = await axios.post(`${api}/save-enquiry`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        const data = response.data;
+        if (data.success) {
+          // this.response_message = data.message;
+        } else {
+          this.response_message = data.error;
+        }
+      } catch (error) {
+        console.error(error);
       }
     },
   },

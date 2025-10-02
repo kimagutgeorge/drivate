@@ -18,6 +18,8 @@
             {{ item.name }}
           </p>
         </div>
+
+        <!-- TAB 0: Personal Details -->
         <div
           v-if="tab_in_view === 0"
           class="w-[80%] flex mt-8 flex-wrap view-car to-full-smaller"
@@ -26,73 +28,215 @@
             <label class="text-sm font-bold">Full Name</label>
             <input
               type="text"
+              v-model="form.full_name"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="Full Name"
             />
             <label class="text-sm font-bold">Phone Number</label>
             <input
               type="number"
+              v-model="form.phone"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="0700000"
             />
             <label class="text-sm font-bold">Email</label>
             <input
               type="text"
+              v-model="form.email"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="someone@example.com"
             />
             <label class="text-sm font-bold">Location</label>
-            <select class="p-2 w-full border mt-1">
-              <option selected disabled>Pick a location</option>
-              <option
-                v-for="(county, index) in counties"
-                :key="index"
-                :value="county.name"
+            <div class="relative">
+              <input
+                type="text"
+                class="p-2 w-full border focus:outline-none focus:border-[#3BC57E]"
+                placeholder="Search by location name"
+                v-model="locationSearchQuery"
+                @focus="showLocationDropdown = true"
+                @blur="handleLocationBlur"
+                @keydown="handleLocationKeydown"
+                @input="onLocationSearchInput"
+                autocomplete="off"
+              />
+              <div
+                class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
               >
-                {{ county.name }}
-              </option>
-            </select>
+                <i
+                  class="fa-solid"
+                  :class="
+                    showLocationDropdown && filteredLocations.length > 0
+                      ? 'fa-angle-up'
+                      : 'fa-angle-down'
+                  "
+                ></i>
+              </div>
+              <div
+                v-if="showLocationDropdown && filteredLocations.length > 0"
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+              >
+                <div
+                  v-for="(location, index) in filteredLocations"
+                  :key="location?.location_id || location?.id"
+                  :class="[
+                    'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                    locationSelectedIndex === index ? 'bg-blue-100' : '',
+                  ]"
+                  @mousedown="selectLocation(location)"
+                  @mouseenter="locationSelectedIndex = index"
+                >
+                  <div class="font-medium text-gray-900">
+                    {{ location?.location_name }}
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="
+                  showLocationDropdown &&
+                  filteredLocations.length === 0 &&
+                  locationSearchQuery
+                "
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg p-3 text-gray-500 text-center"
+              >
+                No location found for "{{ locationSearchQuery }}"
+              </div>
+            </div>
           </div>
           <div class="w-1/2 border p-4 half-to-full to-flex">
             <h1 class="font-bold text-xl">Fill in your details to continue</h1>
           </div>
-          <!-- buttons -->
           <div class="w-full flex justify-end mt-4">
             <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view++">
               Next <i class="fa-solid fa-angle-right ml-2"></i>
             </button>
           </div>
         </div>
+
+        <!-- TAB 1: Basic Info -->
         <div
           v-if="tab_in_view === 1"
           class="w-[80%] flex mt-8 flex-wrap view-car to-full-smaller"
         >
           <div class="w-1/2 p-4 half-to-full to-flex">
             <label class="text-sm font-bold">Make</label>
-            <select class="p-2 w-full border mb-4 mt-1">
-              <option selected disabled>Pick a make</option>
-              <option
-                v-for="(make, index) in makes"
-                :key="index"
-                :value="make.make"
+            <div class="relative mb-4">
+              <input
+                type="text"
+                class="p-2 w-full border focus:outline-none focus:border-[#3BC57E]"
+                placeholder="Search by make"
+                v-model="brandSearchQuery"
+                @focus="showDropdown = true"
+                @blur="handleBlur"
+                @keydown="handleKeydown"
+                @input="onBrandSearchInput"
+                autocomplete="off"
+              />
+              <div
+                class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
               >
-                {{ make.make }}
-              </option>
-            </select>
+                <i
+                  class="fa-solid"
+                  :class="
+                    showDropdown && filteredBrands.length > 0
+                      ? 'fa-angle-up'
+                      : 'fa-angle-down'
+                  "
+                ></i>
+              </div>
+              <div
+                v-if="showDropdown && filteredBrands.length > 0"
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+              >
+                <div
+                  v-for="(brand, index) in filteredBrands"
+                  :key="brand?.make_id || brand?.id"
+                  :class="[
+                    'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                    brandSelectedIndex === index ? 'bg-blue-100' : '',
+                  ]"
+                  @mousedown="selectBrand(brand)"
+                  @mouseenter="brandSelectedIndex = index"
+                >
+                  <div class="font-medium text-gray-900">
+                    {{ brand?.name }}
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="
+                  showDropdown &&
+                  filteredBrands.length === 0 &&
+                  brandSearchQuery
+                "
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg p-3 text-gray-500 text-center"
+              >
+                No make found for "{{ brandSearchQuery }}"
+              </div>
+            </div>
+
             <label class="text-sm font-bold">Model</label>
-            <select class="p-2 w-full border mb-4 mt-1">
-              <option selected disabled>Pick a model</option>
-              <option
-                v-for="(model, index) in models"
-                :key="index"
-                :value="model.name"
+            <div class="relative mb-4">
+              <input
+                type="text"
+                class="p-2 w-full border focus:outline-none focus:border-[#3BC57E]"
+                :placeholder="
+                  form.make_id ? 'Search by model' : 'Select a make first'
+                "
+                v-model="modelSearchQuery"
+                :disabled="!form.make_id"
+                @focus="showModelDropdown = true"
+                @blur="handleModelBlur"
+                @keydown="handleModelKeydown"
+                @input="onModelSearchInput"
+                autocomplete="off"
+              />
+              <div
+                class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
               >
-                {{ model.name }}
-              </option>
-            </select>
+                <i
+                  class="fa-solid"
+                  :class="
+                    showModelDropdown && filteredModels.length > 0
+                      ? 'fa-angle-up'
+                      : 'fa-angle-down'
+                  "
+                ></i>
+              </div>
+              <div
+                v-if="showModelDropdown && filteredModels.length > 0"
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+              >
+                <div
+                  v-for="(model, index) in filteredModels"
+                  :key="model?.model_id || model?.id"
+                  :class="[
+                    'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                    modelSelectedIndex === index ? 'bg-blue-100' : '',
+                  ]"
+                  @mousedown="selectModel(model)"
+                  @mouseenter="modelSelectedIndex = index"
+                >
+                  <div class="font-medium text-gray-900">
+                    {{ model?.model_name || model?.name }}
+                  </div>
+                </div>
+              </div>
+              <div
+                v-if="
+                  showModelDropdown &&
+                  filteredModels.length === 0 &&
+                  modelSearchQuery &&
+                  form.make_id
+                "
+                class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg p-3 text-gray-500 text-center"
+              >
+                No model found for "{{ modelSearchQuery }}"
+              </div>
+            </div>
+
             <label class="text-sm font-bold">Year</label>
-            <select class="p-2 w-full border mb-4 mt-1">
-              <option selected disabled>Pick a model</option>
+            <select v-model="form.year" class="p-2 w-full border mb-4 mt-1">
+              <option value="" selected disabled>Pick a year</option>
               <option
                 v-for="(year, index) in years"
                 :key="index"
@@ -101,23 +245,26 @@
                 {{ year.year }}
               </option>
             </select>
+
             <label class="text-sm font-bold">Mileage</label>
             <input
               type="number"
+              v-model="form.mileage"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="Mileage"
             />
+
             <label class="text-sm font-bold">Selling Price</label>
             <input
               type="number"
+              v-model="form.price"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="Your price"
             />
           </div>
           <div class="w-1/2 border p-4 half-to-full to-flex">
-            <h1 class="font-bold text-xl">Fill in basic cars details</h1>
+            <h1 class="font-bold text-xl">Fill in basic car details</h1>
           </div>
-          <!-- buttons -->
           <div class="w-full flex justify-end mt-4 gap-2">
             <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view--">
               <i class="fa-solid fa-angle-left mr-2"></i>
@@ -128,6 +275,8 @@
             </button>
           </div>
         </div>
+
+        <!-- TAB 2: Upload Pictures -->
         <div
           v-if="tab_in_view === 2"
           class="w-[80%] flex mt-8 flex-wrap view-car to-full-smaller"
@@ -154,15 +303,12 @@
                 :key="index"
                 class="relative w-full h-32 border rounded overflow-hidden"
               >
-                <!-- Delete icon on each image -->
                 <button
                   @click="removeImage(index)"
                   class="absolute top-1 right-1 bg-white rounded-full p-1 px-2 shadow text-red-500 hover:text-red-700"
                 >
                   <i class="fas fa-times"></i>
                 </button>
-
-                <!-- Image -->
                 <img
                   :src="image"
                   alt="Preview"
@@ -182,7 +328,6 @@
               </ul>
             </div>
           </div>
-          <!-- buttons -->
           <div class="w-full flex justify-end mt-4 gap-2">
             <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view--">
               <i class="fa-solid fa-angle-left mr-2"></i>
@@ -194,6 +339,7 @@
           </div>
         </div>
 
+        <!-- TAB 3: Car Details -->
         <div
           v-if="tab_in_view === 3"
           class="w-[80%] flex mt-8 flex-wrap view-car to-full-smaller"
@@ -201,8 +347,11 @@
           <div class="w-1/2 p-4 flex flex-wrap h-fit half-to-full to-flex">
             <div class="w-1/2 p-1 to-full-smaller">
               <label class="text-sm font-bold">Fuel type</label>
-              <select class="p-2 w-full border mb-4 mt-1">
-                <option selected disabled>Fuel type</option>
+              <select
+                v-model="form.fuel_type"
+                class="p-2 w-full border mb-4 mt-1"
+              >
+                <option value="" selected disabled>Fuel type</option>
                 <option
                   v-for="(type, index) in fuel_types"
                   :key="index"
@@ -214,21 +363,68 @@
             </div>
             <div class="w-1/2 p-1 to-full-smaller">
               <label class="text-sm font-bold">Body type</label>
-              <select class="p-2 w-full border mb-4 mt-1">
-                <option selected disabled>Body type</option>
-                <option
-                  v-for="(body, index) in body_types"
-                  :key="index"
-                  :value="body.name"
+              <div class="relative">
+                <input
+                  type="text"
+                  class="p-2 w-full border focus:outline-none focus:border-[#3BC57E]"
+                  placeholder="Search by body type"
+                  v-model="bodySearchQuery"
+                  @focus="showBodyDropdown = true"
+                  @blur="handleBodyBlur"
+                  @keydown="handleBodyKeydown"
+                  @input="onBodySearchInput"
+                  autocomplete="off"
+                />
+                <div
+                  class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
                 >
-                  {{ body.name }}
-                </option>
-              </select>
+                  <i
+                    class="fa-solid"
+                    :class="
+                      showBodyDropdown && filteredBodies.length > 0
+                        ? 'fa-angle-up'
+                        : 'fa-angle-down'
+                    "
+                  ></i>
+                </div>
+                <div
+                  v-if="showBodyDropdown && filteredBodies.length > 0"
+                  class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg max-h-60 overflow-y-auto custom-scrollbar"
+                >
+                  <div
+                    v-for="(body, index) in filteredBodies"
+                    :key="body?.body_id || body?.id"
+                    :class="[
+                      'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
+                      bodySelectedIndex === index ? 'bg-blue-100' : '',
+                    ]"
+                    @mousedown="selectBody(body)"
+                    @mouseenter="bodySelectedIndex = index"
+                  >
+                    <div class="font-medium text-gray-900">
+                      {{ body?.name }}
+                    </div>
+                  </div>
+                </div>
+                <div
+                  v-if="
+                    showBodyDropdown &&
+                    filteredBodies.length === 0 &&
+                    bodySearchQuery
+                  "
+                  class="absolute z-10 w-full mt-1 bg-white border border-gray-300 shadow-lg p-3 text-gray-500 text-center"
+                >
+                  No body type found for "{{ bodySearchQuery }}"
+                </div>
+              </div>
             </div>
             <div class="w-1/2 p-1 to-full-smaller">
               <label class="text-sm font-bold">Transmission</label>
-              <select class="p-2 w-full border mb-4 mt-1">
-                <option selected disabled>Transmission type</option>
+              <select
+                v-model="form.transmission"
+                class="p-2 w-full border mb-4 mt-1"
+              >
+                <option value="" selected disabled>Transmission type</option>
                 <option
                   v-for="(transmission, index) in transmissions"
                   :key="index"
@@ -240,8 +436,8 @@
             </div>
             <div class="w-1/2 p-1 to-full-smaller">
               <label class="text-sm font-bold">Colors</label>
-              <select class="p-2 w-full border mb-4 mt-1">
-                <option selected disabled>Pick a color</option>
+              <select v-model="form.color" class="p-2 w-full border mb-4 mt-1">
+                <option value="" selected disabled>Pick a color</option>
                 <option
                   v-for="(color, index) in colors"
                   :key="index"
@@ -253,8 +449,11 @@
             </div>
             <div class="w-1/2 p-1 to-full-smaller">
               <label class="text-sm font-bold">Steering</label>
-              <select class="p-2 w-full border mb-4 mt-1">
-                <option selected disabled>Pick a color</option>
+              <select
+                v-model="form.steering"
+                class="p-2 w-full border mb-4 mt-1"
+              >
+                <option value="" selected disabled>Steering position</option>
                 <option
                   v-for="(position, index) in steering_positions"
                   :key="index"
@@ -266,8 +465,11 @@
             </div>
             <div class="w-1/2 p-1 to-full-smaller">
               <label class="text-sm font-bold">Drive Type</label>
-              <select class="p-2 w-full border mb-4 mt-1">
-                <option selected disabled>Pick a color</option>
+              <select
+                v-model="form.drive_type"
+                class="p-2 w-full border mb-4 mt-1"
+              >
+                <option value="" selected disabled>Drive type</option>
                 <option
                   v-for="(drive, index) in drive_types"
                   :key="index"
@@ -280,8 +482,9 @@
             <div class="w-full">
               <label class="text-sm font-bold">Description</label>
               <textarea
+                v-model="form.description"
                 class="p-2 w-full border mb-4 mt-1 h-[120px]"
-                placeholder="Description and additional info "
+                placeholder="Description and additional info"
               ></textarea>
             </div>
           </div>
@@ -291,13 +494,17 @@
             <div
               v-for="(feature, index) in features"
               :key="index"
-              class="w-[48%] flex flex-nowrap py-2 border-b to-full-smaller"
+              class="w-[48%] !h-fit flex flex-nowrap py-2 border-b to-full-smaller"
             >
-              <input type="checkbox" class="w-fit" />
-              <span class="ml-2">{{ feature.name }} </span>
+              <input
+                type="checkbox"
+                class="w-fit"
+                :checked="isFeatureSelected(feature.feature_id || feature.id)"
+                @change="toggleFeature(feature.feature_id || feature.id)"
+              />
+              <span class="ml-2">{{ feature.name }}</span>
             </div>
           </div>
-          <!-- buttons -->
           <div class="w-full flex justify-end mt-4 gap-2">
             <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view--">
               <i class="fa-solid fa-angle-left mr-2"></i>
@@ -310,30 +517,48 @@
         </div>
       </div>
     </div>
-    <!-- footer -->
-    <Footer
-      :makes="makes"
-      :prices="price_ranges"
-      :body_styles="types"
-      :categories="categories"
-      :locations="locations"
-      :contacts="contacts"
-    />
   </div>
 </template>
+
 <script>
 import Footer from "../components/general/Footer.vue";
 import Navbar from "../components/general/Navbar.vue";
 import Spinner from "../components/general/Spinner.vue";
+import { api } from "../utils/store";
+import axios from "axios";
 
 export default {
-  name: "SelllCar",
+  name: "SellCar",
   components: { Navbar, Footer, Spinner },
   data() {
     return {
       page_is_loading: true,
       tab_in_view: 0,
       imagePreviews: [],
+
+      // Form data
+      form: {
+        full_name: "",
+        phone: "",
+        email: "",
+        location: "",
+        make_id: "",
+        model_id: "",
+        year: "",
+        mileage: "",
+        price: "",
+        fuel_type: "",
+        body_id: "",
+        transmission: "",
+        color: "",
+        steering: "",
+        drive_type: "",
+        description: "",
+      },
+
+      // Feature selection
+      selectedFeatures: new Set(),
+
       fuel_types: [
         { name: "Petrol" },
         { name: "Diesel" },
@@ -373,159 +598,41 @@ export default {
         { name: "Tiptronic" },
         { name: "Other" },
       ],
-      body_types: [
-        { name: "Sedan" },
-        { name: "Hatchback" },
-        { name: "SUV" },
-        { name: "Wagon" },
-        { name: "Pickup" },
-        { name: "Van" },
-        { name: "Coupe" },
-        { name: "Convertible" },
-        { name: "Minivan" },
-        { name: "Other" },
-      ],
-      features: [
-        { name: "Sunroof" },
-        { name: "CD Player" },
-        { name: "Power Steering" },
-        { name: "Air Conditioning" },
-        { name: "Leather Seats" },
-        { name: "Bluetooth" },
-        { name: "Backup Camera" },
-        { name: "Cruise Control" },
-        { name: "Navigation System" },
-        { name: "Heated Seats" },
-        { name: "Keyless Entry" },
-        { name: "Alloy Wheels" },
-        { name: "Anti-lock Braking System (ABS)" },
-        { name: "Parking Sensors" },
-        { name: "Apple CarPlay" },
-        { name: "Android Auto" },
-        { name: "Fog Lights" },
-        { name: "Power Windows" },
-        { name: "Tinted Windows" },
-        { name: "Traction Control" },
-        { name: "Push Start" },
-        { name: "Rear Entertainment System" },
-        { name: "Heads-Up Display" },
-        { name: "360-Degree Camera" },
-        { name: "Lane Departure Warning" },
-        { name: "Blind Spot Monitoring" },
-        { name: "Adaptive Cruise Control" },
-        { name: "Auto Headlights" },
-        { name: "Rain-Sensing Wipers" },
-        { name: "Remote Start" },
-        { name: "Third Row Seating" },
-        { name: "Power Tailgate" },
-        { name: "Side Airbags" },
-        { name: "Electronic Stability Control" },
-        { name: "Xenon Headlights" },
-        { name: "LED Headlights" },
-        { name: "Hill Start Assist" },
-        { name: "Downhill Assist Control" },
-        { name: "Roof Rails" },
-        { name: "Armrests" },
-        { name: "Isofix Child Seat Anchors" },
-      ],
-      years: [
-        { year: 2000 },
-        { year: 2001 },
-        { year: 2002 },
-        { year: 2003 },
-        { year: 2004 },
-        { year: 2005 },
-        { year: 2006 },
-        { year: 2007 },
-        { year: 2008 },
-        { year: 2009 },
-        { year: 2010 },
-        { year: 2011 },
-        { year: 2012 },
-        { year: 2013 },
-        { year: 2014 },
-        { year: 2015 },
-        { year: 2016 },
-        { year: 2017 },
-        { year: 2018 },
-        { year: 2019 },
-        { year: 2020 },
-        { year: 2021 },
-        { year: 2022 },
-        { year: 2023 },
-        { year: 2024 },
-        { year: 2025 },
-      ],
+      body_types: [],
+      features: [],
+      years: Array.from({ length: 26 }, (_, i) => ({ year: 2000 + i })),
       navigation: [
         { name: "Personal Details" },
         { name: "Basic Info." },
         { name: "Upload Pictures" },
         { name: "Car Details" },
       ],
-      models: [
-        { name: "Toyota RAV4" },
-        { name: "Mazda Demio" },
-        { name: "Range Rover Vogue" },
-        { name: "Nissan Note" },
-        { name: "Subaru Forester" },
-        { name: "Honda Fit" },
-        { name: "BMW X5" },
-        { name: "Mercedes-Benz C200" },
-        { name: "Volkswagen Passat" },
-        { name: "Mitsubishi Lancer" },
-      ],
-      locations: [
-        { name: "Nairobi" },
-        { name: "Mombasa" },
-        { name: "Japan - Import" },
-        { name: "Import - Dubai" },
-        { name: "Bute" },
-        { name: "Machakos" },
-        { name: "Busia" },
-        { name: "Bura" },
-        { name: "Kiambu" },
-        { name: "Changamwe" },
-      ],
-      types: [
-        { type: "Coupe", icon: "static/bodies/coupe.png" },
-        { type: "Sedan", icon: "static/bodies/sedan.png" },
-        { type: "Hatchback", icon: "static/bodies/hatchback.png" },
-        { type: "SUV", icon: "static/bodies/suv.png" },
-        { type: "Crossover", icon: "static/bodies/crossover.png" },
-        { type: "Convertible", icon: "static/bodies/convertible.png" },
-        { type: "Pickup", icon: "static/bodies/pickup.png" },
-        { type: "Van", icon: "static/bodies/van.png" },
-      ],
-      price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
-      ],
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
+
+      // API Data
+      brands: [],
+      models: [],
+      locations: [],
+
+      // Brand dropdown
+      brandSearchQuery: "",
+      showDropdown: false,
+      brandSelectedIndex: -1,
+
+      // Model dropdown
+      modelSearchQuery: "",
+      showModelDropdown: false,
+      modelSelectedIndex: -1,
+
+      // Body dropdown
+      bodySearchQuery: "",
+      showBodyDropdown: false,
+      bodySelectedIndex: -1,
+
+      // Location dropdown
+      locationSearchQuery: "",
+      showLocationDropdown: false,
+      locationSelectedIndex: -1,
+
       categories: [
         { category: "Manual" },
         { category: "Automatic" },
@@ -551,77 +658,114 @@ export default {
           icon: "fa-brands fa-instagram",
         },
       ],
-      counties: [
-        { name: "Baringo" },
-        { name: "Bomet" },
-        { name: "Bungoma" },
-        { name: "Busia" },
-        { name: "Elgeyo-Marakwet" },
-        { name: "Embu" },
-        { name: "Garissa" },
-        { name: "Homa Bay" },
-        { name: "Isiolo" },
-        { name: "Kajiado" },
-        { name: "Kakamega" },
-        { name: "Kericho" },
-        { name: "Kiambu" },
-        { name: "Kilifi" },
-        { name: "Kirinyaga" },
-        { name: "Kisii" },
-        { name: "Kisumu" },
-        { name: "Kitui" },
-        { name: "Kwale" },
-        { name: "Laikipia" },
-        { name: "Lamu" },
-        { name: "Machakos" },
-        { name: "Makueni" },
-        { name: "Mandera" },
-        { name: "Meru" },
-        { name: "Migori" },
-        { name: "Mombasa" },
-        { name: "Murang'a" },
-        { name: "Nairobi" },
-        { name: "Nakuru" },
-        { name: "Nandi" },
-        { name: "Narok" },
-        { name: "Nyamira" },
-        { name: "Nyandarua" },
-        { name: "Nyeri" },
-        { name: "Samburu" },
-        { name: "Siaya" },
-        { name: "Taita-Taveta" },
-        { name: "Tana River" },
-        { name: "Tharaka-Nithi" },
-        { name: "Trans Nzoia" },
-        { name: "Turkana" },
-        { name: "Uasin Gishu" },
-        { name: "Vihiga" },
-        { name: "Wajir" },
-        { name: "West Pokot" },
-      ],
     };
   },
-  /* mounted */
-  mounted() {
-    setTimeout(() => {
+
+  async mounted() {
+    document.title = "Sparkle wave - Sell Vehicle";
+    this.page_is_loading = true;
+
+    try {
+      await Promise.race([
+        Promise.all([
+          this.getBrands(),
+          this.getModels(),
+          this.getBodyStyles(),
+          this.getFeatures(),
+          this.getLocations(),
+        ]),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+        ),
+      ]);
+    } catch (error) {
+      console.error("Loading failed:", error);
+    } finally {
       this.page_is_loading = false;
-    }, 1500);
+    }
   },
-  /* methods */
+
+  computed: {
+    filteredBrands() {
+      if (!Array.isArray(this.brands)) return [];
+      if (!this.brandSearchQuery.trim()) return this.brands.slice(0, 50);
+
+      return this.brands
+        .filter((brand) =>
+          brand?.name
+            ?.toLowerCase()
+            .includes(this.brandSearchQuery.toLowerCase())
+        )
+        .slice(0, 50);
+    },
+
+    filteredModels() {
+      if (!Array.isArray(this.models) || !this.form.make_id) return [];
+
+      let brandModels = this.models.filter(
+        (model) =>
+          model.make_id === this.form.make_id ||
+          model.brand_id === this.form.make_id
+      );
+
+      if (!this.modelSearchQuery.trim()) return brandModels.slice(0, 50);
+
+      return brandModels
+        .filter((model) =>
+          (model?.model_name || model?.name)
+            ?.toLowerCase()
+            .includes(this.modelSearchQuery.toLowerCase())
+        )
+        .slice(0, 50);
+    },
+
+    filteredBodies() {
+      if (!Array.isArray(this.body_types)) return [];
+      if (!this.bodySearchQuery.trim()) return this.body_types.slice(0, 50);
+
+      return this.body_types
+        .filter((body) =>
+          body?.name?.toLowerCase().includes(this.bodySearchQuery.toLowerCase())
+        )
+        .slice(0, 50);
+    },
+
+    filteredLocations() {
+      if (!Array.isArray(this.locations)) return [];
+      if (!this.locationSearchQuery.trim()) return this.locations.slice(0, 50);
+
+      return this.locations
+        .filter((location) =>
+          location?.location_name
+            ?.toLowerCase()
+            .includes(this.locationSearchQuery.toLowerCase())
+        )
+        .slice(0, 50);
+    },
+
+    selectedFeaturesCount() {
+      return this.selectedFeatures.size;
+    },
+
+    selectedFeaturesArray() {
+      return Array.from(this.selectedFeatures).map((featureId) => ({
+        feature_id: featureId,
+      }));
+    },
+  },
+
   methods: {
+    // Image handling
     handleImageUpload(event) {
       const files = Array.from(event.target.files);
-
       if (files.length > 6) {
         alert("You can only upload up to 6 images.");
         return;
       }
 
       this.imagePreviews = [];
-
       files.forEach((file) => {
         if (!file.type.startsWith("image/")) return;
-
         const reader = new FileReader();
         reader.onload = (e) => {
           this.imagePreviews.push(e.target.result);
@@ -629,12 +773,399 @@ export default {
         reader.readAsDataURL(file);
       });
     },
+
     removeImage(index) {
       this.imagePreviews.splice(index, 1);
     },
-    clearAllImages() {
-      this.imagePreviews = [];
+
+    // API calls
+    async getBrands() {
+      try {
+        const response = await axios.get(`${api}/get-makes`);
+        const data = response.data;
+
+        if (data.success && data.brands) {
+          this.brands = Array.isArray(data.brands) ? data.brands : [];
+        } else if (data.makes) {
+          this.brands = Array.isArray(data.makes) ? data.makes : [];
+        } else {
+          this.brands = [];
+        }
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+        this.brands = [];
+      }
+    },
+
+    async getModels() {
+      try {
+        const response = await axios.get(`${api}/get-models`);
+        const data = response.data;
+
+        if (data.success && data.models) {
+          this.models = Array.isArray(data.models) ? data.models : [];
+        } else if (data.data) {
+          this.models = Array.isArray(data.data) ? data.data : [];
+        } else {
+          this.models = [];
+        }
+      } catch (error) {
+        console.error("Error fetching models:", error);
+        this.models = [];
+      }
+    },
+
+    async getBodyStyles() {
+      try {
+        const response = await axios.get(`${api}/get-body-styles`);
+        const data = response.data;
+
+        if (data.success && data.body_styles) {
+          this.body_types = data.body_styles;
+        } else {
+          this.body_types = [];
+        }
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+        this.body_types = [];
+      }
+    },
+
+    async getFeatures() {
+      try {
+        const response = await axios.get(`${api}/get-features`);
+        const data = response.data;
+
+        if (data.success && data.features) {
+          this.features = data.features;
+        } else {
+          this.features = [];
+        }
+      } catch (error) {
+        console.error("Error fetching features:", error);
+        this.features = [];
+      }
+    },
+
+    async getLocations() {
+      try {
+        const response = await axios.get(`${api}/get-locations`);
+        const data = response.data;
+
+        if (data.success && data.locations) {
+          this.locations = data.locations;
+        } else {
+          this.locations = [];
+        }
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+        this.locations = [];
+      }
+    },
+
+    // Brand selection
+    selectBrand(brand) {
+      this.form.make_id = brand.make_id || brand.id;
+      this.brandSearchQuery = brand.name;
+      this.showDropdown = false;
+      this.brandSelectedIndex = -1;
+
+      // Reset model when brand changes
+      this.form.model_id = "";
+      this.modelSearchQuery = "";
+    },
+
+    onBrandSearchInput() {
+      this.showDropdown = true;
+      this.brandSelectedIndex = -1;
+      if (this.form.make_id && this.brandSearchQuery) {
+        const selectedBrand = this.brands.find(
+          (b) => b.make_id === this.form.make_id || b.id === this.form.make_id
+        );
+        if (!selectedBrand || selectedBrand.name !== this.brandSearchQuery) {
+          this.form.make_id = "";
+          this.form.model_id = "";
+          this.modelSearchQuery = "";
+        }
+      }
+    },
+
+    handleBlur() {
+      setTimeout(() => {
+        this.showDropdown = false;
+        this.brandSelectedIndex = -1;
+      }, 200);
+    },
+
+    handleKeydown(event) {
+      if (!this.showDropdown) {
+        this.showDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.brandSelectedIndex = Math.min(
+            this.brandSelectedIndex + 1,
+            this.filteredBrands.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.brandSelectedIndex = Math.max(this.brandSelectedIndex - 1, -1);
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.brandSelectedIndex >= 0 &&
+            this.filteredBrands[this.brandSelectedIndex]
+          ) {
+            this.selectBrand(this.filteredBrands[this.brandSelectedIndex]);
+          }
+          break;
+        case "Escape":
+          this.showDropdown = false;
+          this.brandSelectedIndex = -1;
+          break;
+      }
+    },
+
+    // Model selection
+    selectModel(model) {
+      this.form.model_id = model.model_id || model.id;
+      this.modelSearchQuery = model.model_name || model.name;
+      this.showModelDropdown = false;
+      this.modelSelectedIndex = -1;
+    },
+
+    onModelSearchInput() {
+      if (this.form.make_id) {
+        this.showModelDropdown = true;
+        this.modelSelectedIndex = -1;
+        if (this.form.model_id && this.modelSearchQuery) {
+          const selectedModel = this.models.find(
+            (m) =>
+              m.model_id === this.form.model_id || m.id === this.form.model_id
+          );
+          if (
+            !selectedModel ||
+            (selectedModel.model_name || selectedModel.name) !==
+              this.modelSearchQuery
+          ) {
+            this.form.model_id = "";
+          }
+        }
+      }
+    },
+
+    handleModelBlur() {
+      setTimeout(() => {
+        this.showModelDropdown = false;
+        this.modelSelectedIndex = -1;
+      }, 200);
+    },
+
+    handleModelKeydown(event) {
+      if (!this.form.make_id) return;
+
+      if (!this.showModelDropdown) {
+        this.showModelDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.modelSelectedIndex = Math.min(
+            this.modelSelectedIndex + 1,
+            this.filteredModels.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.modelSelectedIndex = Math.max(this.modelSelectedIndex - 1, -1);
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.modelSelectedIndex >= 0 &&
+            this.filteredModels[this.modelSelectedIndex]
+          ) {
+            this.selectModel(this.filteredModels[this.modelSelectedIndex]);
+          }
+          break;
+        case "Escape":
+          this.showModelDropdown = false;
+          this.modelSelectedIndex = -1;
+          break;
+      }
+    },
+
+    // Body type selection
+    selectBody(body) {
+      this.form.body_id = body.body_id || body.id;
+      this.bodySearchQuery = body.name;
+      this.showBodyDropdown = false;
+      this.bodySelectedIndex = -1;
+    },
+
+    onBodySearchInput() {
+      this.showBodyDropdown = true;
+      this.bodySelectedIndex = -1;
+      if (this.form.body_id && this.bodySearchQuery) {
+        const selectedBody = this.body_types.find(
+          (b) => b.body_id === this.form.body_id || b.id === this.form.body_id
+        );
+        if (!selectedBody || selectedBody.name !== this.bodySearchQuery) {
+          this.form.body_id = "";
+        }
+      }
+    },
+
+    handleBodyBlur() {
+      setTimeout(() => {
+        this.showBodyDropdown = false;
+        this.bodySelectedIndex = -1;
+      }, 200);
+    },
+
+    handleBodyKeydown(event) {
+      if (!this.showBodyDropdown) {
+        this.showBodyDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.bodySelectedIndex = Math.min(
+            this.bodySelectedIndex + 1,
+            this.filteredBodies.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.bodySelectedIndex = Math.max(this.bodySelectedIndex - 1, -1);
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.bodySelectedIndex >= 0 &&
+            this.filteredBodies[this.bodySelectedIndex]
+          ) {
+            this.selectBody(this.filteredBodies[this.bodySelectedIndex]);
+          }
+          break;
+        case "Escape":
+          this.showBodyDropdown = false;
+          this.bodySelectedIndex = -1;
+          break;
+      }
+    },
+
+    // Location selection
+    selectLocation(location) {
+      this.form.location = location.location_id || location.id;
+      this.locationSearchQuery = location.location_name;
+      this.showLocationDropdown = false;
+      this.locationSelectedIndex = -1;
+    },
+
+    onLocationSearchInput() {
+      this.showLocationDropdown = true;
+      this.locationSelectedIndex = -1;
+      if (this.form.location && this.locationSearchQuery) {
+        const selectedLocation = this.locations.find(
+          (l) =>
+            l.location_id === this.form.location || l.id === this.form.location
+        );
+        if (
+          !selectedLocation ||
+          selectedLocation.location_name !== this.locationSearchQuery
+        ) {
+          this.form.location = "";
+        }
+      }
+    },
+
+    handleLocationBlur() {
+      setTimeout(() => {
+        this.showLocationDropdown = false;
+        this.locationSelectedIndex = -1;
+      }, 200);
+    },
+
+    handleLocationKeydown(event) {
+      if (!this.showLocationDropdown) {
+        this.showLocationDropdown = true;
+        return;
+      }
+
+      switch (event.key) {
+        case "ArrowDown":
+          event.preventDefault();
+          this.locationSelectedIndex = Math.min(
+            this.locationSelectedIndex + 1,
+            this.filteredLocations.length - 1
+          );
+          break;
+        case "ArrowUp":
+          event.preventDefault();
+          this.locationSelectedIndex = Math.max(
+            this.locationSelectedIndex - 1,
+            -1
+          );
+          break;
+        case "Enter":
+          event.preventDefault();
+          if (
+            this.locationSelectedIndex >= 0 &&
+            this.filteredLocations[this.locationSelectedIndex]
+          ) {
+            this.selectLocation(
+              this.filteredLocations[this.locationSelectedIndex]
+            );
+          }
+          break;
+        case "Escape":
+          this.showLocationDropdown = false;
+          this.locationSelectedIndex = -1;
+          break;
+      }
+    },
+
+    // Feature selection
+    isFeatureSelected(featureId) {
+      return this.selectedFeatures.has(featureId);
+    },
+
+    toggleFeature(featureId) {
+      if (this.selectedFeatures.has(featureId)) {
+        this.selectedFeatures.delete(featureId);
+      } else {
+        this.selectedFeatures.add(featureId);
+      }
     },
   },
 };
 </script>
+
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+</style>

@@ -121,8 +121,10 @@
                   v-for="index in 5"
                   :key="index"
                   @click="set_rating(index)"
-                  class="fa-solid fa-star text-gray-400 cursor-pointer"
-                  :class="current_rating >= index ? 'text-[#ffcd00]' : ''"
+                  class="fa-solid fa-star cursor-pointer"
+                  :class="
+                    current_rating >= index ? 'text-[#ffcd00]' : 'text-gray-400'
+                  "
                 />
               </div>
               <button class="bg-[#E6B800] p-2 px-4 rounded-md mt-4">

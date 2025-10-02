@@ -180,31 +180,34 @@
   <!-- review card -->
   <div
     v-if="review_card"
+    v-for="(review, index) in reviews"
     class="flex flex-nowrap h-auto overflow-hidden border shadow-sm p-2 review-card"
     :class="class"
   >
     <div class="w-[30%] h-auto max-h-[40vh] overflow-hidden img-holder">
-      <img
-        src="/images/bg-1.jpg"
-        class="h-full w-auto max-w-none object-cover"
-      />
+      <img :src="review?.image" class="h-full w-auto max-w-none object-cover" />
     </div>
     <div class="w-[70%] h-full ml-2 content-holder">
-      <h1 class="text-2xl font-bold">Excellent service from Drivate</h1>
+      <h1 class="text-2xl font-bold">{{ review?.title }}</h1>
       <div class="w-full flex mt-4">
-        <i v-for="i in 4" class="fa-solid fa-star theme-yellow"></i>
+        <i
+          v-for="index in review?.rating"
+          :key="index"
+          class="fa-solid fa-star theme-yellow"
+        ></i>
       </div>
       <div class="w-full mt-2">
         <p class="text-sm">
-          George Kimagut on 07/Aug/2025
-          <span class="font-bold"> Verified Buyer </span>
+          {{ review?.reviewer }} on 07/Aug/2025
+          <span class="font-bold">
+            {{
+              review?.status == "Active" ? "Verified Buyer" : "Unverified Buyer"
+            }}
+          </span>
         </p>
       </div>
       <p class="mt-6">
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Quis,
-        voluptatem nihil. Unde vitae, doloremque numquam accusamus aliquid nemo,
-        impedit autem molestias, tenetur maxime maiores iusto? Architecto earum
-        atque doloremque maxime!
+        {{ review?.review }}
       </p>
     </div>
   </div>
@@ -239,6 +242,7 @@ export default {
     // arrray data
     blogs: Array,
     vehicles: Array,
+    reviews: Array,
   },
   components: { Link, IconButton },
 
