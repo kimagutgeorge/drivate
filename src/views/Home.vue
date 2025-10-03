@@ -338,109 +338,7 @@ export default {
       is_body_type: "body",
       is_model: "model",
       /* data */
-      carousel: [
-        {
-          image: "/images/car-6.jpg",
-          heading_1: "TRUSTED BY CLIENTS",
-          heading_2: "ALL OVER EAST AFRICA!",
-          is_pic: true,
-        },
-        {
-          image: "/images/bg-1.jpg",
-          heading_1: "DRIVE YOUR DREAMS",
-          heading_2: "WITH US TODAY!",
-          is_pic: true,
-        },
-        {
-          image: "/images/bg-2.jpg",
-          heading_1: "GOOD VALUE FOR",
-          heading_2: "YOUR MONEY",
-          is_pic: true,
-        },
-      ],
-      contacts: [
-        { contact: "0759200998", is_phone: true },
-        { contact: "info@drivate.co.ke", is_email: true },
-        {
-          contact: "facebook.com",
-          is_handle: true,
-          icon: "fa-brands fa-facebook-f",
-        },
-        { contact: "tiktok.com", is_handle: true, icon: "fa-brands fa-tiktok" },
-        {
-          contact: "instagram.com",
-          is_handle: true,
-          icon: "fa-brands fa-instagram",
-        },
-      ],
-      // makes: [
-      //   { make: "Toyota" },
-      //   { make: "Suzuki" },
-      //   { make: "Honda" },
-      //   { make: "Nissan" },
-      //   { make: "Mazda" },
-      //   { make: "Mitsubishi" },
-      //   { make: "Subaru" },
-      //   { make: "Ford" },
-      //   { make: "Chevrolet" },
-      //   { make: "Volkswagen" },
-      //   { make: "Hyundai" },
-      //   { make: "Kia" },
-      //   { make: "Mercedes-Benz" },
-      //   { make: "BMW" },
-      //   { make: "Audi" },
-      // ],
-      years: [
-        { year: 2000 },
-        { year: 2001 },
-        { year: 2002 },
-        { year: 2003 },
-        { year: 2004 },
-        { year: 2005 },
-        { year: 2006 },
-        { year: 2007 },
-        { year: 2008 },
-        { year: 2009 },
-        { year: 2010 },
-        { year: 2011 },
-        { year: 2012 },
-        { year: 2013 },
-        { year: 2014 },
-        { year: 2015 },
-        { year: 2016 },
-        { year: 2017 },
-        { year: 2018 },
-        { year: 2019 },
-        { year: 2020 },
-        { year: 2021 },
-        { year: 2022 },
-        { year: 2023 },
-        { year: 2024 },
-        { year: 2025 },
-      ],
-      prices: [
-        { price: "500,000" },
-        { price: "750,000" },
-        { price: "1,000,000" },
-        { price: "1,500,000" },
-        { price: "2,000,000" },
-        { price: "2,500,000" },
-        { price: "3,000,000" },
-        { price: "4,000,000" },
-        { price: "5,000,000" },
-        { price: "6,000,000" },
-        { price: "7,000,000" },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
+
       makes: [
         { make: "Toyota", icon: "/static/toyota.png" },
         { make: "Honda", icon: "/static/honda.png" },
@@ -797,72 +695,72 @@ export default {
     },
 
     // get makes
-    async getMakes() {
-      try {
-        const response = await axios.get(`${api}/get-makes`);
-        const data = response.data;
+    // async getMakes() {
+    //   try {
+    //     const response = await axios.get(`${api}/get-makes`);
+    //     const data = response.data;
 
-        console.log("Full response:", data); // Debug log
+    //     console.log("Full response:", data); // Debug log
 
-        if (data.success) {
-          this.brands = data.brands;
-        } else {
-          console.log("Error fetching brands");
-        }
+    //     if (data.success) {
+    //       this.brands = data.brands;
+    //     } else {
+    //       console.log("Error fetching brands");
+    //     }
 
-        console.log("brands array:", this.brands); // Debug log
-      } catch (error) {
-        console.error("Error fetching brands:", error);
-      }
-    },
+    //     console.log("brands array:", this.brands); // Debug log
+    //   } catch (error) {
+    //     console.error("Error fetching brands:", error);
+    //   }
+    // },
     //get body styles
-    async getBodyStyles() {
-      try {
-        const response = await axios.get(`${api}/get-body-styles`);
-        const data = response.data;
+    // async getBodyStyles() {
+    //   try {
+    //     const response = await axios.get(`${api}/get-body-styles`);
+    //     const data = response.data;
 
-        console.log("Full response:", data); // Debug log
+    //     console.log("Full response:", data); // Debug log
 
-        if (data.success) {
-          this.body_styles = data.body_styles; // Extract the array
-        } else {
-          this.body_styles = []; // Fallback to empty array
-        }
-      } catch (error) {
-        console.error("Error fetching body styles:", error);
-      }
-    },
-    async getModels() {
-      try {
-        const response = await axios.get(`${api}/get-models`);
-        const data = response.data;
+    //     if (data.success) {
+    //       this.body_styles = data.body_styles; // Extract the array
+    //     } else {
+    //       this.body_styles = []; // Fallback to empty array
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching body styles:", error);
+    //   }
+    // },
+    // async getModels() {
+    //   try {
+    //     const response = await axios.get(`${api}/get-models`);
+    //     const data = response.data;
 
-        if (data.success) {
-          this.models = data.models; // Extract the array
-        } else {
-          this.models = []; // Fallback to empty array
-          console.warn("No models found in response");
-        }
-      } catch (error) {
-        console.error("Error fetching models:", error);
-      }
-    },
-    // get about us
-    async get_about_us() {
-      try {
-        const response = await axios.get(`${api}/get-about-us`);
-        const data = response.data;
+    //     if (data.success) {
+    //       this.models = data.models; // Extract the array
+    //     } else {
+    //       this.models = []; // Fallback to empty array
+    //       console.warn("No models found in response");
+    //     }
+    //   } catch (error) {
+    //     console.error("Error fetching models:", error);
+    //   }
+    // },
+    // // get about us
+    // async get_about_us() {
+    //   try {
+    //     const response = await axios.get(`${api}/get-about-us`);
+    //     const data = response.data;
 
-        this.about_us = data.about_us;
-        console.log("About us: ", data);
+    //     this.about_us = data.about_us;
+    //     console.log("About us: ", data);
 
-        if (!data.success) {
-          console.log(data.error);
-        }
-      } catch (error) {
-        console.log("Error: ", error);
-      }
-    },
+    //     if (!data.success) {
+    //       console.log(data.error);
+    //     }
+    //   } catch (error) {
+    //     console.log("Error: ", error);
+    //   }
+    // },
     async getBlogs() {
       try {
         const response = await axios.get(`${api}/get-blogs`);

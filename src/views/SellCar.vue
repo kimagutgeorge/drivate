@@ -6,7 +6,7 @@
     <div
       class="w-full flex flex-wrap justify-center relative overflow-hidden mt-6 sell"
     >
-      <div class="w-[90%] flex justify-center flex-wrap content">
+      <div class="w-[90%] flex justify-center flex-wrap content pb-4">
         <div class="flex w-full justify-center gap-1 self-start">
           <p
             v-for="(item, index) in navigation"
@@ -17,6 +17,11 @@
           >
             {{ item.name }}
           </p>
+        </div>
+
+        <!-- response message -->
+        <div class="flex w-full justify-center mt-2 self-start">
+          <p>{{ response_message }}</p>
         </div>
 
         <!-- TAB 0: Personal Details -->
@@ -34,14 +39,14 @@
             />
             <label class="text-sm font-bold">Phone Number</label>
             <input
-              type="number"
+              type="tel"
               v-model="form.phone"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="0700000"
             />
             <label class="text-sm font-bold">Email</label>
             <input
-              type="text"
+              type="email"
               v-model="form.email"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="someone@example.com"
@@ -106,7 +111,7 @@
             <h1 class="font-bold text-xl">Fill in your details to continue</h1>
           </div>
           <div class="w-full flex justify-end mt-4">
-            <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view++">
+            <button class="bg-[#E6B800] p-2 px-4" @click="goToNextTab">
               Next <i class="fa-solid fa-angle-right ml-2"></i>
             </button>
           </div>
@@ -237,12 +242,8 @@
             <label class="text-sm font-bold">Year</label>
             <select v-model="form.year" class="p-2 w-full border mb-4 mt-1">
               <option value="" selected disabled>Pick a year</option>
-              <option
-                v-for="(year, index) in years"
-                :key="index"
-                :value="year.year"
-              >
-                {{ year.year }}
+              <option v-for="(year, index) in years" :key="index" :value="year">
+                {{ year }}
               </option>
             </select>
 
@@ -252,6 +253,7 @@
               v-model="form.mileage"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="Mileage"
+              min="0"
             />
 
             <label class="text-sm font-bold">Selling Price</label>
@@ -260,6 +262,7 @@
               v-model="form.price"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="Your price"
+              min="0"
             />
           </div>
           <div class="w-1/2 border p-4 half-to-full to-flex">
@@ -270,7 +273,7 @@
               <i class="fa-solid fa-angle-left mr-2"></i>
               Previous
             </button>
-            <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view++">
+            <button class="bg-[#E6B800] p-2 px-4" @click="goToNextTab">
               Next <i class="fa-solid fa-angle-right ml-2"></i>
             </button>
           </div>
@@ -284,8 +287,11 @@
           <div
             class="w-1/2 p-4 flex flex-col justify-center half-to-full to-flex"
           >
-            <label class="text-sm font-bold">Select Images</label>
+            <label class="text-sm font-bold"
+              >Select Images (Max 6, 3MB each)</label
+            >
             <input
+              ref="fileInput"
               type="file"
               class="p-2 w-full border mb-4 mt-1"
               accept="image/*"
@@ -305,7 +311,7 @@
               >
                 <button
                   @click="removeImage(index)"
-                  class="absolute top-1 right-1 bg-white rounded-full p-1 px-2 shadow text-red-500 hover:text-red-700"
+                  class="absolute top-1 right-1 bg-white rounded-full p-1 px-2 shadow text-red-500 hover:text-red-700 z-10"
                 >
                   <i class="fas fa-times"></i>
                 </button>
@@ -333,7 +339,7 @@
               <i class="fa-solid fa-angle-left mr-2"></i>
               Previous
             </button>
-            <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view++">
+            <button class="bg-[#E6B800] p-2 px-4" @click="goToNextTab">
               Next <i class="fa-solid fa-angle-right ml-2"></i>
             </button>
           </div>
@@ -489,7 +495,7 @@
             </div>
           </div>
           <div
-            class="w-1/2 border p-4 flex flex-wrap gap-2 max-h-[60vh] overflow-y-scroll half-to-full to-flex"
+            class="w-1/2 border p-4 flex flex-wrap gap-2 max-h-[60vh] overflow-y-scroll custom-scrollbar half-to-full to-flex"
           >
             <div
               v-for="(feature, index) in features"
@@ -510,7 +516,7 @@
               <i class="fa-solid fa-angle-left mr-2"></i>
               Previous
             </button>
-            <button class="bg-theme-blue p-2 px-4">
+            <button @click="add_vehicle" class="bg-theme-blue p-2 px-4">
               Submit <i class="fa-regular fa-paper-plane ml-2"></i>
             </button>
           </div>
@@ -535,6 +541,8 @@ export default {
       page_is_loading: true,
       tab_in_view: 0,
       imagePreviews: [],
+      imageFiles: [],
+      response_message: "",
 
       // Form data
       form: {
@@ -600,7 +608,7 @@ export default {
       ],
       body_types: [],
       features: [],
-      years: Array.from({ length: 26 }, (_, i) => ({ year: 2000 + i })),
+      years: [],
       navigation: [
         { name: "Personal Details" },
         { name: "Basic Info." },
@@ -633,6 +641,9 @@ export default {
       showLocationDropdown: false,
       locationSelectedIndex: -1,
 
+      // Timeout refs for cleanup
+      dropdownTimeouts: [],
+
       categories: [
         { category: "Manual" },
         { category: "Automatic" },
@@ -663,6 +674,7 @@ export default {
 
   async mounted() {
     document.title = "Sparkle wave - Sell Vehicle";
+    this.generateYears();
     this.page_is_loading = true;
 
     try {
@@ -680,9 +692,16 @@ export default {
       ]);
     } catch (error) {
       console.error("Loading failed:", error);
+      this.response_message =
+        "Failed to load some data. Please refresh the page.";
     } finally {
       this.page_is_loading = false;
     }
+  },
+
+  beforeUnmount() {
+    // Clean up any pending timeouts
+    this.dropdownTimeouts.forEach((timeout) => clearTimeout(timeout));
   },
 
   computed: {
@@ -742,30 +761,49 @@ export default {
         )
         .slice(0, 50);
     },
-
-    selectedFeaturesCount() {
-      return this.selectedFeatures.size;
-    },
-
-    selectedFeaturesArray() {
-      return Array.from(this.selectedFeatures).map((featureId) => ({
-        feature_id: featureId,
-      }));
-    },
   },
 
   methods: {
-    // Image handling
+    generateYears() {
+      const currentYear = new Date().getFullYear();
+      const startYear = 2000;
+      this.years = [];
+      for (let year = currentYear; year >= startYear; year--) {
+        this.years.push(year);
+      }
+    },
+
+    // Image handling with validation
     handleImageUpload(event) {
       const files = Array.from(event.target.files);
+
       if (files.length > 6) {
-        alert("You can only upload up to 6 images.");
+        this.response_message = "You can only upload up to 6 images.";
+        event.target.value = "";
         return;
       }
 
+      // Validate file sizes
+      const maxSize = 3 * 1024 * 1024; // 3MB
+      for (let i = 0; i < files.length; i++) {
+        if (!files[i].type.startsWith("image/")) {
+          this.response_message = `File ${i + 1} is not a valid image.`;
+          event.target.value = "";
+          return;
+        }
+        if (files[i].size > maxSize) {
+          this.response_message = `Image ${
+            i + 1
+          } exceeds the 3MB size limit. Please compress or choose a smaller image.`;
+          event.target.value = "";
+          return;
+        }
+      }
+
       this.imagePreviews = [];
+      this.imageFiles = files;
+
       files.forEach((file) => {
-        if (!file.type.startsWith("image/")) return;
         const reader = new FileReader();
         reader.onload = (e) => {
           this.imagePreviews.push(e.target.result);
@@ -776,9 +814,81 @@ export default {
 
     removeImage(index) {
       this.imagePreviews.splice(index, 1);
+      // Update imageFiles array
+      const dt = new DataTransfer();
+      this.imageFiles.forEach((file, i) => {
+        if (i !== index) dt.items.add(file);
+      });
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.files = dt.files;
+      }
+      this.imageFiles = Array.from(dt.files);
     },
 
-    // API calls
+    // Validation for tab navigation
+    validateTab(tabIndex) {
+      switch (tabIndex) {
+        case 0:
+          if (!this.form.full_name.trim()) {
+            this.response_message = "Please enter your full name.";
+            return false;
+          }
+          if (!this.form.phone.trim()) {
+            this.response_message = "Please enter your phone number.";
+            return false;
+          }
+          if (!this.form.email.trim()) {
+            this.response_message = "Please enter your email.";
+            return false;
+          }
+          if (!this.form.location) {
+            this.response_message = "Please select a location.";
+            return false;
+          }
+          return true;
+
+        case 1:
+          if (!this.form.make_id) {
+            this.response_message = "Please select a make.";
+            return false;
+          }
+          if (!this.form.model_id) {
+            this.response_message = "Please select a model.";
+            return false;
+          }
+          if (!this.form.year) {
+            this.response_message = "Please select a year.";
+            return false;
+          }
+          if (!this.form.mileage) {
+            this.response_message = "Please enter mileage.";
+            return false;
+          }
+          if (!this.form.price) {
+            this.response_message = "Please enter selling price.";
+            return false;
+          }
+          return true;
+
+        case 2:
+          if (this.imagePreviews.length === 0) {
+            this.response_message = "Please upload at least one image.";
+            return false;
+          }
+          return true;
+
+        default:
+          return true;
+      }
+    },
+
+    goToNextTab() {
+      if (this.validateTab(this.tab_in_view)) {
+        this.tab_in_view++;
+      }
+    },
+
+    // API calls with better error handling
     async getBrands() {
       try {
         const response = await axios.get(`${api}/get-makes`);
@@ -794,6 +904,7 @@ export default {
       } catch (error) {
         console.error("Error fetching brands:", error);
         this.brands = [];
+        throw error;
       }
     },
 
@@ -812,6 +923,7 @@ export default {
       } catch (error) {
         console.error("Error fetching models:", error);
         this.models = [];
+        throw error;
       }
     },
 
@@ -828,6 +940,7 @@ export default {
       } catch (error) {
         console.error("Error fetching body styles:", error);
         this.body_types = [];
+        throw error;
       }
     },
 
@@ -844,6 +957,7 @@ export default {
       } catch (error) {
         console.error("Error fetching features:", error);
         this.features = [];
+        throw error;
       }
     },
 
@@ -860,6 +974,7 @@ export default {
       } catch (error) {
         console.error("Error fetching locations:", error);
         this.locations = [];
+        throw error;
       }
     },
 
@@ -880,7 +995,7 @@ export default {
       this.brandSelectedIndex = -1;
       if (this.form.make_id && this.brandSearchQuery) {
         const selectedBrand = this.brands.find(
-          (b) => b.make_id === this.form.make_id || b.id === this.form.make_id
+          (b) => (b.make_id || b.id) === this.form.make_id
         );
         if (!selectedBrand || selectedBrand.name !== this.brandSearchQuery) {
           this.form.make_id = "";
@@ -891,10 +1006,11 @@ export default {
     },
 
     handleBlur() {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         this.showDropdown = false;
         this.brandSelectedIndex = -1;
       }, 200);
+      this.dropdownTimeouts.push(timeout);
     },
 
     handleKeydown(event) {
@@ -945,8 +1061,7 @@ export default {
         this.modelSelectedIndex = -1;
         if (this.form.model_id && this.modelSearchQuery) {
           const selectedModel = this.models.find(
-            (m) =>
-              m.model_id === this.form.model_id || m.id === this.form.model_id
+            (m) => (m.model_id || m.id) === this.form.model_id
           );
           if (
             !selectedModel ||
@@ -960,10 +1075,11 @@ export default {
     },
 
     handleModelBlur() {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         this.showModelDropdown = false;
         this.modelSelectedIndex = -1;
       }, 200);
+      this.dropdownTimeouts.push(timeout);
     },
 
     handleModelKeydown(event) {
@@ -1015,7 +1131,7 @@ export default {
       this.bodySelectedIndex = -1;
       if (this.form.body_id && this.bodySearchQuery) {
         const selectedBody = this.body_types.find(
-          (b) => b.body_id === this.form.body_id || b.id === this.form.body_id
+          (b) => (b.body_id || b.id) === this.form.body_id
         );
         if (!selectedBody || selectedBody.name !== this.bodySearchQuery) {
           this.form.body_id = "";
@@ -1024,10 +1140,11 @@ export default {
     },
 
     handleBodyBlur() {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         this.showBodyDropdown = false;
         this.bodySelectedIndex = -1;
       }, 200);
+      this.dropdownTimeouts.push(timeout);
     },
 
     handleBodyKeydown(event) {
@@ -1077,8 +1194,7 @@ export default {
       this.locationSelectedIndex = -1;
       if (this.form.location && this.locationSearchQuery) {
         const selectedLocation = this.locations.find(
-          (l) =>
-            l.location_id === this.form.location || l.id === this.form.location
+          (l) => (l.location_id || l.id) === this.form.location
         );
         if (
           !selectedLocation ||
@@ -1090,10 +1206,11 @@ export default {
     },
 
     handleLocationBlur() {
-      setTimeout(() => {
+      const timeout = setTimeout(() => {
         this.showLocationDropdown = false;
         this.locationSelectedIndex = -1;
       }, 200);
+      this.dropdownTimeouts.push(timeout);
     },
 
     handleLocationKeydown(event) {
@@ -1145,6 +1262,128 @@ export default {
         this.selectedFeatures.delete(featureId);
       } else {
         this.selectedFeatures.add(featureId);
+      }
+    },
+
+    // Add vehicle
+    async add_vehicle() {
+      // Validate all required fields
+      const requiredFields = {
+        full_name: "Full Name",
+        phone: "Phone Number",
+        email: "Email",
+        location: "Location",
+        make_id: "Make",
+        model_id: "Model",
+        year: "Year",
+        mileage: "Mileage",
+        price: "Selling Price",
+        fuel_type: "Fuel Type",
+        body_id: "Body Type",
+        transmission: "Transmission",
+        color: "Color",
+        steering: "Steering Position",
+        drive_type: "Drive Type",
+      };
+
+      // Check for empty required fields
+      for (const [field, label] of Object.entries(requiredFields)) {
+        if (!this.form[field]) {
+          this.response_message = `Please fill in the ${label} field.`;
+          return;
+        }
+      }
+
+      // Validate images
+      if (this.imageFiles.length === 0) {
+        this.response_message = "Please upload at least one image.";
+        return;
+      }
+
+      try {
+        // Prepare FormData for multipart/form-data submission
+        const formData = new FormData();
+
+        // Add all form fields
+        Object.keys(this.form).forEach((key) => {
+          formData.append(key, this.form[key] || "");
+        });
+
+        // Add selected features as JSON string
+        const featuresArray = Array.from(this.selectedFeatures);
+        formData.append("features", JSON.stringify(featuresArray));
+
+        // Add images
+        this.imageFiles.forEach((file) => {
+          formData.append("images", file);
+        });
+
+        // Show loading state
+        this.page_is_loading = true;
+
+        // Send to API
+        const response = await axios.post(
+          `${api}/add-vehicle-to-sell`,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        // Handle success
+        if (response.data.success) {
+          this.response_message = "Vehicle submitted successfully!";
+          this.resetForm();
+          this.tab_in_view = 0;
+        } else {
+          this.response_message =
+            response.data.message ||
+            "Failed to submit vehicle. Please try again.";
+        }
+      } catch (error) {
+        console.error("Error submitting vehicle:", error);
+        this.response_message =
+          error.response?.data?.message ||
+          "An error occurred while submitting the vehicle. Please try again.";
+      } finally {
+        this.page_is_loading = false;
+      }
+    },
+
+    // Helper method to reset the form
+    resetForm() {
+      this.form = {
+        full_name: "",
+        phone: "",
+        email: "",
+        location: "",
+        make_id: "",
+        model_id: "",
+        year: "",
+        mileage: "",
+        price: "",
+        fuel_type: "",
+        body_id: "",
+        transmission: "",
+        color: "",
+        steering: "",
+        drive_type: "",
+        description: "",
+      };
+
+      this.selectedFeatures = new Set();
+      this.imagePreviews = [];
+      this.imageFiles = [];
+      this.brandSearchQuery = "";
+      this.modelSearchQuery = "";
+      this.bodySearchQuery = "";
+      this.locationSearchQuery = "";
+
+      // Clear file input
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = "";
       }
     },
   },

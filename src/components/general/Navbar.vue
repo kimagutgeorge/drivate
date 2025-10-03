@@ -113,6 +113,11 @@
             class="py-2 px-4 cursor-pointer hover:bg-[#f4f5f4] hover:text-[#0066ff] h-full text-lg font-bold"
             >Sell Car</router-link
           >
+          <router-link
+            to="/import-vehicle"
+            class="py-2 px-4 cursor-pointer hover:bg-[#f4f5f4] hover:text-[#0066ff] h-full text-lg font-bold"
+            >Import</router-link
+          >
         </div>
       </div>
       <!-- navigation bar -->
@@ -333,6 +338,9 @@
           </p>
           <p class="font-bold w-full mt-2 border-b py-2">
             <router-link to="/sell-car">Sell car</router-link>
+          </p>
+          <p class="font-bold w-full mt-2 border-b py-2">
+            <router-link to="/import-vehicle">Import</router-link>
           </p>
         </div>
       </div>
