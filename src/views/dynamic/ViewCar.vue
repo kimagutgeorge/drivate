@@ -1,13 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex justify-center flex-wrap">
-    <!-- <Navbar
-      :makes="brands"
-      :body_types="body_styles"
-      :categories="categories"
+    <Navbar
+      :categories="other_categories"
       :contacts="contacts"
-      has_top_bar
-    /> -->
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <!-- body page -->
     <div class="w-[90%] flex flex-wrap justify-center mt-10 view-car">
       <div class="w-1/2 half-to-full">
@@ -319,7 +319,7 @@
       :makes="brands"
       :prices="price_ranges"
       :body_styles="body_styles"
-      :categories="categories"
+      :categories="other_categories"
       :locations="locations"
       :contacts="contacts"
     />
@@ -335,7 +335,19 @@ import axios from "axios";
 
 export default {
   name: "View Car",
-  props: ["id", "title"],
+  props: {
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+
+    // url data
+    id: String,
+    title: String,
+  },
   components: { Spinner, Footer, Navbar, Card },
   data() {
     return {
@@ -343,9 +355,7 @@ export default {
       current_image: 0,
       total_images: "",
       // data arrays
-      brands: [],
-      body_styles: [],
-      models: [],
+
       all_vehicles: [],
       is_make: "make",
       is_body_type: "body",
@@ -394,202 +404,6 @@ export default {
 
       //response
       response_message: "",
-
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
-      price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      types: [
-        { type: "Coupe", icon: "static/bodies/coupe.png" },
-        { type: "Sedan", icon: "static/bodies/sedan.png" },
-        { type: "Hatchback", icon: "static/bodies/hatchback.png" },
-        { type: "SUV", icon: "static/bodies/suv.png" },
-        { type: "Crossover", icon: "static/bodies/crossover.png" },
-        { type: "Convertible", icon: "static/bodies/convertible.png" },
-        { type: "Pickup", icon: "static/bodies/pickup.png" },
-        { type: "Van", icon: "static/bodies/van.png" },
-      ],
-      contacts: [],
-      all_vehicles: [],
-      locations: [
-        { name: "Nairobi" },
-        { name: "Mombasa" },
-        { name: "Japan - Import" },
-        { name: "Import - Dubai" },
-        { name: "Bute" },
-        { name: "Machakos" },
-        { name: "Busia" },
-        { name: "Bura" },
-        { name: "Kiambu" },
-        { name: "Changamwe" },
-      ],
-      car_images: [
-        { image: "/images/bg-2.jpg" },
-        { image: "/images/bg-1.jpg" },
-        { image: "/images/car-1.jpeg" },
-        { image: "/images/car-2.webp" },
-        { image: "/images/car-3.webp" },
-        { image: "/images/car-4.jpg" },
-        { image: "/images/car-5.jpg" },
-      ],
-      cars: [
-        {
-          name: "Toyota Auris 2017",
-          location: "Mombasa",
-          mileage: "102,300",
-          year: "2017",
-          engine: "2000 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "4, 000, 000",
-          transmission: "Automatic",
-          pic: "car-1.jpeg",
-        },
-        {
-          name: "Nissan X-Trail 2018",
-          location: "Nairobi",
-          mileage: "89,500",
-          year: "2018",
-          engine: "2500 cc",
-          steering: "Right",
-          fuel: "Diesel",
-          price: "3, 500, 000",
-          transmission: "Manual",
-          pic: "car-2.webp",
-        },
-        {
-          name: "Mazda CX-5 2019",
-          location: "Kisumu",
-          mileage: "54,800",
-          year: "2019",
-          engine: "2200 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "7, 700, 000",
-          transmission: "Automatic",
-          pic: "car-3.webp",
-        },
-        {
-          name: "Subaru Forester 2020",
-          location: "Nakuru",
-          mileage: "33,900",
-          year: "2020",
-          engine: "2000 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 000, 000",
-          transmission: "Automatic",
-          pic: "car-4.jpg",
-        },
-        {
-          name: "Mitsubishi Outlander 2016",
-          location: "Eldoret",
-          mileage: "140,200",
-          year: "2016",
-          engine: "2400 cc",
-          steering: "Left",
-          fuel: "Hybrid",
-          price: "1, 800, 000",
-          transmission: "Automatic",
-          pic: "car-5.jpg",
-        },
-        {
-          name: "Honda CR-V 2015",
-          location: "Mombasa",
-          mileage: "156,700",
-          year: "2015",
-          engine: "2000 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 200, 000",
-          transmission: "Manual",
-          pic: "car-6.jpg",
-        },
-        {
-          name: "Toyota Land Cruiser Prado 2018",
-          location: "Nairobi",
-          mileage: "68,900",
-          year: "2018",
-          engine: "3000 cc",
-          steering: "Left",
-          fuel: "Diesel",
-          price: "900, 000",
-          transmission: "Automatic",
-          pic: "car-7.jpg",
-        },
-        {
-          name: "Suzuki Swift 2021",
-          location: "Kisumu",
-          mileage: "15,200",
-          year: "2021",
-          engine: "1200 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 500, 000",
-          transmission: "Automatic",
-          pic: "car-8.jpg",
-        },
-        {
-          name: "Ford Ranger 2019",
-          location: "Nakuru",
-          mileage: "72,500",
-          year: "2019",
-          engine: "3200 cc",
-          steering: "Left",
-          fuel: "Diesel",
-          price: "2, 000, 000",
-          transmission: "Manual",
-          pic: "car-9.jpg",
-        },
-        {
-          name: "Mercedes-Benz GLC 2022",
-          location: "Nairobi",
-          mileage: "8,900",
-          year: "2022",
-          engine: "2000 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "2, 000, 000",
-          transmission: "Automatic",
-          pic: "car-10.jpg",
-        },
-      ],
     };
   },
   /*mounted */
@@ -633,7 +447,6 @@ export default {
             document.title = `Drivate - ${this.name}`;
             this.generate_features();
             this.fetch_simillar_vehicles();
-            this.getContacts();
             this.page_is_loading = false;
           }
         }

@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <Navbar :categories="categories" :contacts="contacts" />
+    <Navbar
+      :categories="other_categories"
+      :contacts="contacts"
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <!-- body -->
     <div
       class="w-full flex flex-wrap justify-center relative overflow-hidden mt-6 sell"
@@ -523,6 +529,15 @@
         </div>
       </div>
     </div>
+    <!-- footer -->
+    <Footer
+      :makes="brands"
+      :prices="price_ranges"
+      :body_styles="body_styles"
+      :categories="other_categories"
+      :locations="locations"
+      :contacts="contacts"
+    />
   </div>
 </template>
 
@@ -535,6 +550,15 @@ import axios from "axios";
 
 export default {
   name: "SellCar",
+  props: {
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+  },
   components: { Navbar, Footer, Spinner },
   data() {
     return {
@@ -617,9 +641,9 @@ export default {
       ],
 
       // API Data
-      brands: [],
-      models: [],
-      locations: [],
+      // brands: [],
+      // models: [],
+      // locations: [],
 
       // Brand dropdown
       brandSearchQuery: "",
@@ -679,13 +703,7 @@ export default {
 
     try {
       await Promise.race([
-        Promise.all([
-          this.getBrands(),
-          this.getModels(),
-          this.getBodyStyles(),
-          this.getFeatures(),
-          this.getLocations(),
-        ]),
+        Promise.all([this.getFeatures()]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
         ),
@@ -888,62 +906,6 @@ export default {
       }
     },
 
-    // API calls with better error handling
-    async getBrands() {
-      try {
-        const response = await axios.get(`${api}/get-makes`);
-        const data = response.data;
-
-        if (data.success && data.brands) {
-          this.brands = Array.isArray(data.brands) ? data.brands : [];
-        } else if (data.makes) {
-          this.brands = Array.isArray(data.makes) ? data.makes : [];
-        } else {
-          this.brands = [];
-        }
-      } catch (error) {
-        console.error("Error fetching brands:", error);
-        this.brands = [];
-        throw error;
-      }
-    },
-
-    async getModels() {
-      try {
-        const response = await axios.get(`${api}/get-models`);
-        const data = response.data;
-
-        if (data.success && data.models) {
-          this.models = Array.isArray(data.models) ? data.models : [];
-        } else if (data.data) {
-          this.models = Array.isArray(data.data) ? data.data : [];
-        } else {
-          this.models = [];
-        }
-      } catch (error) {
-        console.error("Error fetching models:", error);
-        this.models = [];
-        throw error;
-      }
-    },
-
-    async getBodyStyles() {
-      try {
-        const response = await axios.get(`${api}/get-body-styles`);
-        const data = response.data;
-
-        if (data.success && data.body_styles) {
-          this.body_types = data.body_styles;
-        } else {
-          this.body_types = [];
-        }
-      } catch (error) {
-        console.error("Error fetching body styles:", error);
-        this.body_types = [];
-        throw error;
-      }
-    },
-
     async getFeatures() {
       try {
         const response = await axios.get(`${api}/get-features`);
@@ -957,23 +919,6 @@ export default {
       } catch (error) {
         console.error("Error fetching features:", error);
         this.features = [];
-        throw error;
-      }
-    },
-
-    async getLocations() {
-      try {
-        const response = await axios.get(`${api}/get-locations`);
-        const data = response.data;
-
-        if (data.success && data.locations) {
-          this.locations = data.locations;
-        } else {
-          this.locations = [];
-        }
-      } catch (error) {
-        console.error("Error fetching locations:", error);
-        this.locations = [];
         throw error;
       }
     },

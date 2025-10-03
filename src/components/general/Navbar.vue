@@ -348,16 +348,17 @@
   </div>
 </template>
 <script>
-import { slugify, api } from "../../utils/store";
-import axios from "axios";
+import { slugify } from "../../utils/store";
+
 export default {
   name: "Navbar",
   props: {
     categories: Array,
-    // contacts: Array,
+    contacts: Array,
     has_top_bar: Boolean,
-    // makes: Array,
-    // body_types: Array,
+    makes: Array,
+    body_styles: Array,
+    prices: Array,
   },
   data() {
     return {
@@ -367,113 +368,12 @@ export default {
       filter_is_hidden: false,
       is_make: "make",
       is_body_type: "type",
-      contacts: [],
-      makes: [],
-      body_styles: [],
-
-      types: [
-        { type: "Coupe" },
-        { type: "Sedan" },
-        { type: "Hatchback" },
-        { type: "SUV" },
-        { type: "Crossover" },
-        { type: "Convertible" },
-        { type: "Pickup" },
-        { type: "Van" },
-        { type: "Minivan" },
-        { type: "Wagon" },
-        { type: "Truck" },
-        { type: "Electric" },
-      ],
-      prices: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
-      ],
     };
-  },
-
-  async mounted() {
-    try {
-      await Promise.race([
-        Promise.all([
-          this.getContacts(),
-          this.getMakes(),
-          this.getBodyStyles(),
-        ]),
-        new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
-        ),
-      ]);
-    } catch (error) {
-      console.error("Loading failed:", error);
-    } finally {
-    }
   },
 
   /* methods */
   methods: {
     slugify,
-    async getContacts() {
-      try {
-        const response = await axios.get(`${api}/get-contacts`);
-        const data = response.data;
-
-        console.log("contacts response:", data);
-
-        if (data.success && data.contacts) {
-          this.contacts = data.contacts;
-        } else {
-          this.contacts = [];
-        }
-      } catch (error) {
-        console.error("Error fetching contacts:", error);
-      }
-    },
-    // get makes
-    async getMakes() {
-      try {
-        const response = await axios.get(`${api}/get-makes`);
-        const data = response.data;
-
-        console.log("Full response:", data); // Debug log
-
-        if (data.success) {
-          this.makes = data.brands;
-        } else {
-          console.log("Error fetching brands");
-        }
-
-        console.log("brands array:", this.brands); // Debug log
-      } catch (error) {
-        console.error("Error fetching brands:", error);
-      }
-    },
-    //get body styles
-    async getBodyStyles() {
-      try {
-        const response = await axios.get(`${api}/get-body-styles`);
-        const data = response.data;
-
-        console.log("Full response:", data); // Debug log
-
-        if (data.success) {
-          this.body_styles = data.body_styles; // Extract the array
-        } else {
-          this.body_styles = []; // Fallback to empty array
-        }
-      } catch (error) {
-        console.error("Error fetching body styles:", error);
-      }
-    },
   },
 };
 </script>

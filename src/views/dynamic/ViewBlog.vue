@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <Navbar :categories="categories" :contacts="contacts" />
+    <Navbar
+      :categories="other_categories"
+      :contacts="contacts"
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <div class="w-[90%] flex flex-wrap">
       <!-- blog body -->
       <div class="w-full flex mt-8 gap-4 relative">
@@ -51,14 +57,14 @@
       </div>
     </div>
     <!-- footer -->
-    <!-- <Footer
-      :makes="makes"
+    <Footer
+      :makes="brands"
       :prices="price_ranges"
-      :body_styles="types"
-      :categories="categories"
+      :body_styles="body_styles"
+      :categories="other_categories"
       :locations="locations"
       :contacts="contacts"
-    /> -->
+    />
   </div>
 </template>
 <script>
@@ -70,8 +76,21 @@ import axios from "axios";
 
 export default {
   name: "Blogs",
+  props: {
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+
+    // url data
+    id: String,
+    title: String,
+  },
   components: { Navbar, Spinner, Footer },
-  props: ["id", "title"],
+  // props: ["id", "title"],
   data() {
     return {
       page_is_loading: true,

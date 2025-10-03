@@ -55,7 +55,7 @@
               :key="index"
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
             >
-              {{ location.name }}
+              {{ location.location_name }}
             </p>
           </div>
         </div>
@@ -108,24 +108,34 @@
                 <div class="h-full flex flex-col justify-center">
                   <a
                     :href="
-                      contact.is_phone
-                        ? `tel:${contact.contact}`
-                        : contact.is_email
-                        ? `mailto:${contact.contact}`
-                          ? contact.is_handle
-                          : contact.contact
+                      contact.type === 'phone'
+                        ? `tel:${contact.value}`
+                        : contact.type === 'email'
+                        ? `mailto:${contact.value}`
+                        : contact.type === 'whatsapp'
+                        ? `https://wa.me/${contact.value}`
+                          ? contact.type === 'social'
+                          : contact.value
+                        : contact.social_link
+                    "
+                    :target="
+                      contact.type === 'social'
+                        ? '_blank'
+                        : contact.type === 'whatsapp'
+                        ? '_blank'
                         : ''
                     "
-                    :target="contact.is_handle ? '_blank' : ''"
                   >
                     <i
                       :class="
                         contact.icon
                           ? contact.icon
-                          : contact.is_email
+                          : contact.type === 'email'
                           ? 'fa-regular fa-envelope'
-                          : contact.is_phone
+                          : contact.type === 'phone'
                           ? 'fa-solid fa-phone'
+                          : contact.type === 'whatsapp'
+                          ? 'fa-brands fa-whatsapp'
                           : ''
                       "
                       class="theme-black cursor-pointer text-sm icon transition 0.3s ease-in-out"

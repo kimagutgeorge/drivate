@@ -1,13 +1,24 @@
 <template>
   <div class="w-full bg-white">
     <!-- <Navbar /> -->
-    <router-view />
+    <router-view
+      :about_us="about_us"
+      :brands="brands"
+      :body_styles="body_styles"
+      :models="models"
+      :other_categories="drive_categories"
+      :price_ranges="price_ranges"
+      :locations="locations"
+      :contacts="contacts"
+    />
     <!-- <Footer /> -->
   </div>
 </template>
 <script>
 import Navbar from "./components/general/Navbar.vue";
 import Footer from "./components/general/Footer.vue";
+import { api } from "./utils/store";
+import axios from "axios";
 export default {
   name: "App",
   components: { Navbar, Footer },
@@ -69,10 +80,10 @@ export default {
 
       //data arrays
       contacts: [],
-      carousels: [],
       brands: [],
       body_styles: [],
       about_us: null,
+      locations: [],
     };
   },
 
@@ -82,11 +93,11 @@ export default {
     try {
       await Promise.race([
         Promise.all([
-          this.getCarousels(),
           this.getMakes(),
           this.getBodyStyles(),
           this.getModels(),
           this.get_about_us(),
+          this.getLocations(),
           this.getContacts(),
         ]),
         new Promise((_, reject) =>
@@ -98,34 +109,10 @@ export default {
     } finally {
       this.page_is_loading = false;
     }
-    // setTimeout(() => {
-    //   this.page_is_loading = false;
-    // }, 1500);
   },
 
   // methods
   methods: {
-    async getCarousels() {
-      try {
-        const response = await axios.get(`${api}/get-carousels`);
-        const data = response.data;
-
-        console.log("Full response:", data); // Debug log
-
-        if (data.success && data.carousels) {
-          this.carousels = data.carousels; // Extract the array
-          this.total_slides = this.carousels.length;
-        } else {
-          this.carousels = []; // Fallback to empty array
-          console.warn("No carousels found in response");
-        }
-
-        console.log("Carousels array:", this.carousels); // Debug log
-      } catch (error) {
-        console.error("Error fetching carousels:", error);
-      }
-    },
-
     // get makes
     async getMakes() {
       try {
@@ -143,6 +130,38 @@ export default {
         console.log("brands array:", this.brands); // Debug log
       } catch (error) {
         console.error("Error fetching brands:", error);
+      }
+    },
+    async getContacts() {
+      try {
+        const response = await axios.get(`${api}/get-contacts`);
+        const data = response.data;
+
+        console.log("contacts response:", data);
+
+        if (data.success && data.contacts) {
+          this.contacts = data.contacts;
+        } else {
+          this.contacts = [];
+        }
+      } catch (error) {
+        console.error("Error fetching contacts:", error);
+      }
+    },
+    async getLocations() {
+      try {
+        const response = await axios.get(`${api}/get-locations`);
+        const data = response.data;
+
+        if (data.success && data.locations) {
+          this.locations = data.locations;
+        } else {
+          this.locations = [];
+        }
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+        this.locations = [];
+        throw error;
       }
     },
     //get body styles

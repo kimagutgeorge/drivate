@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <Navbar :categories="categories" :contacts="contacts" />
+    <Navbar
+      :categories="other_categories"
+      :contacts="contacts"
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <div class="w-[90%] flex flex-wrap mt-8">
       <div class="w-full h-[40vh] overflow-hidden mt-6 relative view-car">
         <!-- background -->
@@ -46,7 +52,7 @@
                 : 'border-gray-300'
             "
           >
-            {{ category.category_name }}
+            {{ category?.category_name }}
           </p>
         </div>
         <div class="w-[70%] view-car">
@@ -55,6 +61,14 @@
       </div>
     </div>
     <!-- <Footer /> -->
+    <Footer
+      :makes="brands"
+      :prices="price_ranges"
+      :body_styles="body_styles"
+      :categories="other_categories"
+      :locations="locations"
+      :contacts="contacts"
+    />
   </div>
 </template>
 <script>
@@ -67,6 +81,15 @@ import axios from "axios";
 
 export default {
   name: "Faqs",
+  props: {
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+  },
   components: { Accordion, Spinner, Footer, Navbar },
   data() {
     return {
@@ -77,7 +100,7 @@ export default {
   },
   /* mounted */
   async mounted() {
-    document.title = "Drivate - Drive Dreams";
+    document.title = "Drivate - Frequently Asked Questions";
     try {
       await Promise.race([
         Promise.all([this.getFaqs(), this.getCategories()]),

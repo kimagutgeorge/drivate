@@ -1,14 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex justify-center flex-wrap">
-    <!-- <Navbar
-      :makes="brands"
-      :body_types="body_styles"
-      :categories="categories"
+    <Navbar
+      :categories="other_categories"
       :contacts="contacts"
-      has_top_bar
-    /> -->
-    <Navbar :categories="categories" :contacts="contacts" has_top_bar />
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <div class="w-[90%] flex flex-wrap mt-6">
       <div class="w-full flex to-wrap">
         <!-- left -->
@@ -25,14 +24,14 @@
                 style="border-bottom: 1px solid #f4f5f4"
               >
                 <router-link
-                  :to="`/vehicles/${is_make}/${slugify(make.name)}`"
+                  :to="`/vehicles/${is_make}/${slugify(make?.name)}`"
                   class="w-full flex gap-2 flex-nowrap inner-cat"
                 >
                   <img
-                    :src="make.image_url"
+                    :src="make?.image_url"
                     class="w-[30px] min-w-[30px] h-fit"
                   />
-                  <p class="font-semibold cursor-pointer">{{ make.name }}</p>
+                  <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
                 </router-link>
               </div>
             </div>
@@ -48,12 +47,12 @@
               style="border-bottom: 1px solid #f4f5f4"
             >
               <router-link
-                :to="`/vehicles/${is_model}/${slugify(model.model_name)}`"
+                :to="`/vehicles/${is_model}/${slugify(model?.model_name)}`"
               >
                 <span
                   class="font-semibold cursor-pointer hover:underline text-sm"
                 >
-                  {{ model.make_name }} {{ model.model_name }}
+                  {{ model?.make_name }} {{ model?.model_name }}
                 </span>
               </router-link>
             </div>
@@ -70,14 +69,14 @@
                 style="border-bottom: 1px solid #f4f5f4"
               >
                 <router-link
-                  :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
+                  :to="`/vehicles/${is_body_type}/${slugify(type?.name)}`"
                   class="w-full flex gap-2 flex-nowrap inner-cat"
                 >
                   <img
-                    :src="type.image_url"
+                    :src="type?.image_url"
                     class="w-[30px] min-w-[30px] filter grayscale h-fit"
                   />
-                  <p class="font-semibold cursor-pointer">{{ type.name }}</p>
+                  <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
                 </router-link>
               </div>
             </div>
@@ -99,7 +98,7 @@
                 />
                 <span
                   class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                  >{{ price.price }}</span
+                  >{{ price?.price }}</span
                 >
               </div>
             </div>
@@ -119,7 +118,7 @@
                 <i class="fa-solid fa-location-dot text-gray-600"></i>
                 <span
                   class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                  >{{ location.location_name }}</span
+                  >{{ location?.location_name }}</span
                 >
               </div>
             </div>
@@ -131,7 +130,7 @@
             </h4>
             <div class="w-full to-flex">
               <div
-                v-for="(category, index) in categories"
+                v-for="(category, index) in other_categories"
                 :key="index"
                 class="flex flex-nowrap gap-2 py-2 category"
                 style="border-bottom: 1px solid #f4f5f4"
@@ -142,7 +141,7 @@
                 />
                 <span
                   class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                  >{{ category.category }}</span
+                  >{{ category?.category }}</span
                 >
               </div>
             </div>
@@ -298,13 +297,12 @@
         </div>
       </div>
     </div>
-    <!--  -->
     <!-- footer -->
     <Footer
       :makes="brands"
       :prices="price_ranges"
       :body_styles="body_styles"
-      :categories="categories"
+      :categories="other_categories"
       :locations="locations"
       :contacts="contacts"
     />
@@ -320,192 +318,27 @@ import { api, slugify } from "../utils/store";
 import axios from "axios";
 export default {
   name: "Shop",
+  props: {
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+  },
   components: { Navbar, Card, Spinner, Footer, Search },
   data() {
     return {
       page_is_loading: true,
       is_grid_view: true,
+
       // data arrays
-      brands: [],
-      body_styles: [],
-      models: [],
       all_vehicles: [],
-      locations: [],
       is_make: "make",
       is_body_type: "body",
       is_brand: "brand",
       is_model: "model",
-      contacts: [
-        { contact: "0759200998", is_phone: true },
-        { contact: "info@drivate.co.ke", is_email: true },
-        {
-          contact: "facebook.com",
-          is_handle: true,
-          icon: "fa-brands fa-facebook-f",
-        },
-        { contact: "tiktok.com", is_handle: true, icon: "fa-brands fa-tiktok" },
-        {
-          contact: "instagram.com",
-          is_handle: true,
-          icon: "fa-brands fa-instagram",
-        },
-      ],
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
-      years: [
-        { year: 2000 },
-        { year: 2001 },
-        { year: 2002 },
-        { year: 2003 },
-        { year: 2004 },
-        { year: 2005 },
-        { year: 2006 },
-        { year: 2007 },
-        { year: 2008 },
-        { year: 2009 },
-        { year: 2010 },
-        { year: 2011 },
-        { year: 2012 },
-        { year: 2013 },
-        { year: 2014 },
-        { year: 2015 },
-        { year: 2016 },
-        { year: 2017 },
-        { year: 2018 },
-        { year: 2019 },
-        { year: 2020 },
-        { year: 2021 },
-        { year: 2022 },
-        { year: 2023 },
-        { year: 2024 },
-        { year: 2025 },
-      ],
-      prices: [
-        { price: "500,000" },
-        { price: "750,000" },
-        { price: "1,000,000" },
-        { price: "1,500,000" },
-        { price: "2,000,000" },
-        { price: "2,500,000" },
-        { price: "3,000,000" },
-        { price: "4,000,000" },
-        { price: "5,000,000" },
-        { price: "6,000,000" },
-        { price: "7,000,000" },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      makes: [
-        { make: "Toyota", icon: "/static/toyota.png" },
-        { make: "Honda", icon: "/static/honda.png" },
-        { make: "Nissan", icon: "/static/mazda.png" },
-        { make: "Mazda", icon: "/static/mazda.png" },
-        { make: "Subaru", icon: "/static/subaru.png" },
-        { make: "Ford", icon: "/static/ford.png" },
-        { make: "Chevrolet", icon: "/static/chevy.png" },
-        { make: "Volkswagen", icon: "/static/vw.png" },
-        { make: "Kia", icon: "/static/kia.png" },
-        { make: "Mercedes-Benz", icon: "/static/mercedes.png" },
-        {
-          make: "BMW",
-          icon: "/static/bmw.png",
-        },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      types: [
-        { type: "Coupe", icon: "static/bodies/coupe.png" },
-        { type: "Sedan", icon: "static/bodies/sedan.png" },
-        { type: "Hatchback", icon: "static/bodies/hatchback.png" },
-        { type: "SUV", icon: "static/bodies/suv.png" },
-        { type: "Crossover", icon: "static/bodies/crossover.png" },
-        { type: "Convertible", icon: "static/bodies/convertible.png" },
-        { type: "Pickup", icon: "static/bodies/pickup.png" },
-        { type: "Van", icon: "static/bodies/van.png" },
-      ],
-      price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
-      ],
-      locations: [
-        { name: "Nairobi" },
-        { name: "Mombasa" },
-        { name: "Japan - Import" },
-        { name: "Import - Dubai" },
-        { name: "Bute" },
-        { name: "Machakos" },
-        { name: "Busia" },
-        { name: "Bura" },
-        { name: "Kiambu" },
-        { name: "Changamwe" },
-      ],
-      most_searched: [
-        { name: "Isuzu D-Max" },
-        { name: "Toyota Land Cruiser 70 Series" },
-        { name: "Toyota Hiace" },
-        { name: "Toyota Hilux" },
-        { name: "Toyota Prado" },
-        { name: "Subaru Forester" },
-        { name: "Toyota Axio" },
-        { name: "Toyota Vitz" },
-        { name: "Nissan X-Trail" },
-        { name: "Mahindra Bolero Pickup" },
-      ],
-      contacts: [
-        { contact: "0759200998", is_phone: true },
-        { contact: "info@drivate.co.ke", is_email: true },
-        {
-          contact: "facebook.com",
-          is_handle: true,
-          icon: "fa-brands fa-facebook-f",
-        },
-        { contact: "tiktok.com", is_handle: true, icon: "fa-brands fa-tiktok" },
-        {
-          contact: "instagram.com",
-          is_handle: true,
-          icon: "fa-brands fa-instagram",
-        },
-      ],
 
       // pagination
       grid_page_size: 30,
@@ -522,11 +355,11 @@ export default {
     try {
       await Promise.race([
         Promise.all([
-          this.getMakes(),
+          // this.getMakes(),
           this.fetchVehicles(),
-          this.getBodyStyles(),
-          this.getModels(),
-          this.getLocations(),
+          // this.getBodyStyles(),
+          // this.getModels(),
+          // this.getLocations(),
         ]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)

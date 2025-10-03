@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <Navbar />
+    <Navbar
+      :categories="other_categories"
+      :contacts="contacts"
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <!-- hero section -->
     <div class="w-full h-[45vh] relative overflow-hidden">
       <div class="w-full absolute top-0 h-full">
@@ -20,8 +26,8 @@
                 class="w-full absolute h-full bg-black opacity-50 z-10"
               ></div>
               <img
-                :src="carousel_item.image_url"
-                :alt="carousel_item.image_alt"
+                :src="carousel_item?.image_url"
+                :alt="carousel_item?.image_alt"
                 class="w-full h-auto max-h-none min-h-full max-w-none object-cover"
               />
             </div>
@@ -34,12 +40,12 @@
                   <h1
                     class="text-4xl font-extrabold uppercase bg-theme-yellow w-fit px-4"
                   >
-                    {{ carousel_item.heading_1 }}
+                    {{ carousel_item?.heading_1 }}
                   </h1>
                   <h2
                     class="text-3xl font-extrabold uppercase bg-theme-yellow w-fit px-4 mt-2"
                   >
-                    {{ carousel_item.heading_2 }}
+                    {{ carousel_item?.heading_2 }}
                   </h2>
                 </div>
               </div>
@@ -84,14 +90,14 @@
               style="border-bottom: 1px solid #f4f5f4"
             >
               <router-link
-                :to="`/vehicles/${is_make}/${slugify(make.name)}`"
+                :to="`/vehicles/${is_make}/${slugify(make?.name)}`"
                 class="w-full flex gap-2 flex-nowrap inner-cat"
               >
                 <img
-                  :src="make.image_url"
+                  :src="make?.image_url"
                   class="w-[30px] min-w-[30px] h-fit"
                 />
-                <p class="font-semibold cursor-pointer">{{ make.name }}</p>
+                <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
               </router-link>
             </div>
           </div>
@@ -108,14 +114,14 @@
               style="border-bottom: 1px solid #f4f5f4"
             >
               <router-link
-                :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
+                :to="`/vehicles/${is_body_type}/${slugify(type?.name)}`"
                 class="w-full flex gap-2 flex-nowrap inner-cat"
               >
                 <img
-                  :src="type.image_url"
+                  :src="type?.image_url"
                   class="w-[30px] min-w-[30px] filter grayscale h-fit"
                 />
-                <p class="font-semibold cursor-pointer">{{ type.name }}</p>
+                <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
               </router-link>
             </div>
           </div>
@@ -142,7 +148,7 @@
                 <p
                   class="font-semibold text-sm cursor-pointer hover:underline ml-2"
                 >
-                  {{ price.price }}
+                  {{ price?.price }}
                 </p>
               </router-link>
             </div>
@@ -163,16 +169,6 @@
             <h4 class="font-bold text-lg theme-blue">New Arrivals</h4>
           </div>
           <div class="w-full flex flex-wrap gap-2 mt-4 car-holder">
-            <!-- <Card
-              car_card
-              v-for="(car, index) in cars.slice(0, 6)"
-              :key="index"
-              :car_name="car.name"
-              :location="car.location"
-              :price="car.price"
-              :car_pic="car.pic"
-              class="w-[32%] mb-2"
-            /> -->
             <Card car_card :vehicles="all_vehicles" class="w-[32%] mb-2" />
           </div>
         </div>
@@ -199,22 +195,22 @@
             style="border-bottom: 1px solid #f4f5f4"
           >
             <router-link
-              :to="`/vehicles/${is_model}/${slugify(model.model_name)}`"
+              :to="`/vehicles/${is_model}/${slugify(model?.model_name)}`"
             >
               <span
                 class="font-semibold cursor-pointer hover:underline text-sm"
               >
-                {{ model.make_name }} {{ model.model_name }}
+                {{ model?.make_name }} {{ model?.model_name }}
               </span>
             </router-link>
           </div>
         </div>
         <div class="w-full mt-8">
           <h4 class="font-bold text-lg py-1 px-2 bg-theme-yellow">
-            Top 10 Searched
+            Search by Locations
           </h4>
           <div
-            v-for="(searched, index) in most_searched"
+            v-for="(location, index) in locations"
             :key="index"
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
@@ -222,7 +218,7 @@
             <router-link to="/vehicles">
               <span
                 class="font-semibold cursor-pointer hover:underline text-sm"
-                >{{ searched.name }}</span
+                >{{ location?.location_name }}</span
               >
             </router-link>
           </div>
@@ -239,7 +235,7 @@
           <h1 class="font-extrabold text-2xl">About us</h1>
           <!-- {{ about_us }} -->
           <p class="mt-4">
-            {{ about_us.statement }}
+            {{ about_us?.statement }}
           </p>
         </div>
         <div class="w-1/2 h-[70vh] p-4 flex justify-center relative">
@@ -248,17 +244,17 @@
               class="mt-10 ml-[-15%] h-full bg-transparent w-[80%] absolute flex flex-col justify-end overflow-hidden"
             >
               <div class="h-[60%] bg-[#fffadd] p-[15px]">
-                <img :src="about_us.image_1" class="w-full h-auto" />
+                <img :src="about_us?.image_1" class="w-full h-auto" />
               </div>
             </div>
             <!-- 2nd image -->
-            <img :src="about_us.image_2" class="w-auto h-full" />
+            <img :src="about_us?.image_2" class="w-auto h-full" />
           </div>
         </div>
         <div class="w-full p-4 flex gap-[1%] flex-wrap mb-4 mt-[15vh] why-us">
           <h1 class="font-extrabold text-2xl w-full mb-8">Why Choose Us?</h1>
           <div
-            v-for="(why, index) in about_us.why_choose_us"
+            v-for="(why, index) in about_us?.why_choose_us"
             :key="index"
             class="w-[31%] mt-4 why-inner"
           >
@@ -266,17 +262,17 @@
               <div>
                 <i
                   class="text-[#E6B800] text-2xl p-2 border border-[#E6B800]"
-                  :class="why.icon"
+                  :class="why?.icon"
                 ></i>
               </div>
 
               <div class="w-full h-full flex flex-col justify-end">
-                <h2 class="text-xl font-bold">{{ why.heading }}</h2>
+                <h2 class="text-xl font-bold">{{ why?.heading }}</h2>
               </div>
             </div>
 
             <!-- description -->
-            <p class="mt-2">{{ why.description }}</p>
+            <p class="mt-2">{{ why?.description }}</p>
           </div>
         </div>
       </div>
@@ -285,15 +281,6 @@
     <div class="w-[90%] mt-24">
       <h4 class="font-bold text-3xl theme-blue">Latest News & Reviews</h4>
       <div class="w-full flex flex-wrap gap-2 mt-8 blog-holder no-scrollbar">
-        <!-- {{ blogs }} -->
-        <!-- <Card
-          v-for="(blog, index) in blogs.slice(0, 4)"
-          :key="index"
-          blog_card
-          class="w-[24%]"
-          :blog_title="blog.title"
-          :car_pic="blog.pic"
-        /> -->
         <Card blog_card class="w-[24%]" :blogs="blogs" />
       </div>
     </div>
@@ -302,7 +289,7 @@
       :makes="brands"
       :prices="price_ranges"
       :body_styles="body_styles"
-      :categories="categories"
+      :categories="other_categories"
       :locations="locations"
       :contacts="contacts"
     />
@@ -319,6 +306,19 @@ import axios from "axios";
 
 export default {
   name: "Home",
+  props: {
+    about_us: {
+      type: String,
+      default: null,
+    },
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+  },
   components: { Navbar, Card, Footer, Spinner, Search },
   data() {
     return {
@@ -326,253 +326,17 @@ export default {
       current_slide: 0,
       total_slides: "",
       page_is_loading: true,
+
+      // data arrays
       all_vehicles: [],
       popular_vehicles: [],
       carousels: [],
-      brands: [],
-      body_styles: [],
-      about_us: null,
       blogs: [],
+
       is_make: "make",
       is_brand: "brand",
       is_body_type: "body",
       is_model: "model",
-      /* data */
-
-      makes: [
-        { make: "Toyota", icon: "/static/toyota.png" },
-        { make: "Honda", icon: "/static/honda.png" },
-        { make: "Nissan", icon: "/static/mazda.png" },
-        { make: "Mazda", icon: "/static/mazda.png" },
-        { make: "Subaru", icon: "/static/subaru.png" },
-        { make: "Ford", icon: "/static/ford.png" },
-        { make: "Chevrolet", icon: "/static/chevy.png" },
-        { make: "Volkswagen", icon: "/static/vw.png" },
-        { make: "Kia", icon: "/static/kia.png" },
-        { make: "Mercedes-Benz", icon: "/static/mercedes.png" },
-        {
-          make: "BMW",
-          icon: "/static/bmw.png",
-        },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      types: [
-        { type: "Coupe", icon: "static/bodies/coupe.png" },
-        { type: "Sedan", icon: "static/bodies/sedan.png" },
-        { type: "Hatchback", icon: "static/bodies/hatchback.png" },
-        { type: "SUV", icon: "static/bodies/suv.png" },
-        { type: "Crossover", icon: "static/bodies/crossover.png" },
-        { type: "Convertible", icon: "static/bodies/convertible.png" },
-        { type: "Pickup", icon: "static/bodies/pickup.png" },
-        { type: "Van", icon: "static/bodies/van.png" },
-      ],
-      price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
-      ],
-      locations: [
-        { name: "Nairobi" },
-        { name: "Mombasa" },
-        { name: "Japan - Import" },
-        { name: "Import - Dubai" },
-        { name: "Bute" },
-        { name: "Machakos" },
-        { name: "Busia" },
-        { name: "Bura" },
-        { name: "Kiambu" },
-        { name: "Changamwe" },
-      ],
-      most_searched: [
-        { name: "Isuzu D-Max" },
-        { name: "Toyota Land Cruiser 70 Series" },
-        { name: "Toyota Hiace" },
-        { name: "Toyota Hilux" },
-        { name: "Toyota Prado" },
-        { name: "Subaru Forester" },
-        { name: "Toyota Axio" },
-        { name: "Toyota Vitz" },
-        { name: "Nissan X-Trail" },
-        { name: "Mahindra Bolero Pickup" },
-      ],
-      why_choose_us: [
-        {
-          title: "Wide Selection",
-          description:
-            "Explore a large and diverse range of vehicles, from budget-friendly compacts to premium SUVs, all in one convenient, easy-to-browse platform.",
-          icon: "fas fa-car-side",
-        },
-        {
-          title: "Trusted Listings",
-          description:
-            "We verify every car before listing to ensure it meets quality, ownership, and condition standards for a safe and reliable purchase.",
-          icon: "fas fa-shield-alt",
-        },
-        {
-          title: "Affordable Prices",
-          description:
-            "Enjoy competitive pricing and frequent deals that ensure you get great value without compromising on the car’s performance or condition.",
-          icon: "fas fa-tags",
-        },
-        {
-          title: "Customer Support",
-          description:
-            "Our friendly team is always available to assist you, answer questions, and guide you throughout the buying or selling process with care.",
-          icon: "fas fa-headset",
-        },
-        {
-          title: "Easy Online Process",
-          description:
-            "From searching to booking, our platform lets you complete the entire process online with speed, simplicity, and transparency at every step.",
-          icon: "fas fa-laptop",
-        },
-        {
-          title: "Fast Turnaround",
-          description:
-            "We move fast — from listing to test drive, we aim to streamline your experience and minimize delays throughout the transaction process.",
-          icon: "fas fa-stopwatch",
-        },
-      ],
-      cars: [
-        {
-          name: "Toyota Auris 2017",
-          location: "Mombasa",
-          mileage: "102,300",
-          year: "2017",
-          engine: "2000 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "4, 000, 000",
-          transmission: "Automatic",
-          pic: "car-1.jpeg",
-        },
-        {
-          name: "Nissan X-Trail 2018",
-          location: "Nairobi",
-          mileage: "89,500",
-          year: "2018",
-          engine: "2500 cc",
-          steering: "Right",
-          fuel: "Diesel",
-          price: "3, 500, 000",
-          transmission: "Manual",
-          pic: "car-2.webp",
-        },
-        {
-          name: "Mazda CX-5 2019",
-          location: "Kisumu",
-          mileage: "54,800",
-          year: "2019",
-          engine: "2200 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "7, 700, 000",
-          transmission: "Automatic",
-          pic: "car-3.webp",
-        },
-        {
-          name: "Subaru Forester 2020",
-          location: "Nakuru",
-          mileage: "33,900",
-          year: "2020",
-          engine: "2000 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 000, 000",
-          transmission: "Automatic",
-          pic: "car-4.jpg",
-        },
-        {
-          name: "Mitsubishi Outlander 2016",
-          location: "Eldoret",
-          mileage: "140,200",
-          year: "2016",
-          engine: "2400 cc",
-          steering: "Left",
-          fuel: "Hybrid",
-          price: "1, 800, 000",
-          transmission: "Automatic",
-          pic: "car-5.jpg",
-        },
-        {
-          name: "Honda CR-V 2015",
-          location: "Mombasa",
-          mileage: "156,700",
-          year: "2015",
-          engine: "2000 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 200, 000",
-          transmission: "Manual",
-          pic: "car-6.jpg",
-        },
-        {
-          name: "Toyota Land Cruiser Prado 2018",
-          location: "Nairobi",
-          mileage: "68,900",
-          year: "2018",
-          engine: "3000 cc",
-          steering: "Left",
-          fuel: "Diesel",
-          price: "900, 000",
-          transmission: "Automatic",
-          pic: "car-7.jpg",
-        },
-        {
-          name: "Suzuki Swift 2021",
-          location: "Kisumu",
-          mileage: "15,200",
-          year: "2021",
-          engine: "1200 cc",
-          steering: "Right",
-          fuel: "Petrol",
-          price: "2, 500, 000",
-          transmission: "Automatic",
-          pic: "car-8.jpg",
-        },
-        {
-          name: "Ford Ranger 2019",
-          location: "Nakuru",
-          mileage: "72,500",
-          year: "2019",
-          engine: "3200 cc",
-          steering: "Left",
-          fuel: "Diesel",
-          price: "2, 000, 000",
-          transmission: "Manual",
-          pic: "car-9.jpg",
-        },
-        {
-          name: "Mercedes-Benz GLC 2022",
-          location: "Nairobi",
-          mileage: "8,900",
-          year: "2022",
-          engine: "2000 cc",
-          steering: "Left",
-          fuel: "Petrol",
-          price: "2, 000, 000",
-          transmission: "Automatic",
-          pic: "car-10.jpg",
-        },
-      ],
-      blogs: [],
     };
   },
   /* mounted */
@@ -582,12 +346,8 @@ export default {
       await Promise.race([
         Promise.all([
           this.getCarousels(),
-          this.getMakes(),
           this.fetchVehicles(),
           this.fetch_popular_vehicles(),
-          this.getBodyStyles(),
-          this.getModels(),
-          this.get_about_us(),
           this.getBlogs(),
         ]),
         new Promise((_, reject) =>
@@ -599,9 +359,6 @@ export default {
     } finally {
       this.page_is_loading = false;
     }
-    // setTimeout(() => {
-    //   this.page_is_loading = false;
-    // }, 1500);
   },
   /* methods */
   methods: {
@@ -694,73 +451,6 @@ export default {
       }
     },
 
-    // get makes
-    // async getMakes() {
-    //   try {
-    //     const response = await axios.get(`${api}/get-makes`);
-    //     const data = response.data;
-
-    //     console.log("Full response:", data); // Debug log
-
-    //     if (data.success) {
-    //       this.brands = data.brands;
-    //     } else {
-    //       console.log("Error fetching brands");
-    //     }
-
-    //     console.log("brands array:", this.brands); // Debug log
-    //   } catch (error) {
-    //     console.error("Error fetching brands:", error);
-    //   }
-    // },
-    //get body styles
-    // async getBodyStyles() {
-    //   try {
-    //     const response = await axios.get(`${api}/get-body-styles`);
-    //     const data = response.data;
-
-    //     console.log("Full response:", data); // Debug log
-
-    //     if (data.success) {
-    //       this.body_styles = data.body_styles; // Extract the array
-    //     } else {
-    //       this.body_styles = []; // Fallback to empty array
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching body styles:", error);
-    //   }
-    // },
-    // async getModels() {
-    //   try {
-    //     const response = await axios.get(`${api}/get-models`);
-    //     const data = response.data;
-
-    //     if (data.success) {
-    //       this.models = data.models; // Extract the array
-    //     } else {
-    //       this.models = []; // Fallback to empty array
-    //       console.warn("No models found in response");
-    //     }
-    //   } catch (error) {
-    //     console.error("Error fetching models:", error);
-    //   }
-    // },
-    // // get about us
-    // async get_about_us() {
-    //   try {
-    //     const response = await axios.get(`${api}/get-about-us`);
-    //     const data = response.data;
-
-    //     this.about_us = data.about_us;
-    //     console.log("About us: ", data);
-
-    //     if (!data.success) {
-    //       console.log(data.error);
-    //     }
-    //   } catch (error) {
-    //     console.log("Error: ", error);
-    //   }
-    // },
     async getBlogs() {
       try {
         const response = await axios.get(`${api}/get-blogs`);

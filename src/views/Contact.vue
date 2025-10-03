@@ -1,7 +1,13 @@
 <template>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
-    <Navbar :categories="categories" :contacts="contacts" />
+    <Navbar
+      :categories="other_categories"
+      :contacts="contacts"
+      :makes="brands"
+      :body_styles="body_styles"
+      :prices="price_ranges"
+    />
     <!-- body -->
     <div class="w-full flex justify-center view-car">
       <div class="w-[80%] flex mt-8 half-to-full to-flex">
@@ -63,10 +69,10 @@
     </div>
     <!-- footer -->
     <Footer
-      :makes="makes"
+      :makes="brands"
       :prices="price_ranges"
-      :body_styles="types"
-      :categories="categories"
+      :body_styles="body_styles"
+      :categories="other_categories"
       :locations="locations"
       :contacts="contacts"
     />
@@ -82,6 +88,15 @@ import axios from "axios";
 
 export default {
   name: "Contact us",
+  props: {
+    brands: Array,
+    body_styles: Array,
+    models: Array,
+    other_categories: Array,
+    price_ranges: Array,
+    locations: Array,
+    contacts: Array,
+  },
   components: { Navbar, Spinner, Footer, Map },
   data() {
     return {
