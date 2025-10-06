@@ -1,20 +1,14 @@
 <template>
   <div class="w-full p-4 bg-third h-fit bg-[#E6B800] search">
-    <h4 class="font-bold text-xl theme-blue">
-      Advanced Search
-      <!-- <i
-       @click="search_is_visible = !search_is_visible"
-        class="fa-solid fa-angle-down ml-2 transition-all duration-300"
-        :class="search_is_visible ? 'rotate-180' : ''"
-      ></i> -->
-    </h4>
+    <h4 class="font-bold text-xl theme-blue">Advanced Search</h4>
     <div class="w-full flex flex-nowrap mt-4">
       <input
         type="text"
         placeholder="Key words"
+        v-model="keywords"
         class="focus:outline-none p-2 w-full"
       />
-      <button class="bg-theme-gray text-white p-2 px-4">
+      <button @click="handleSearch" class="bg-theme-gray text-white p-2 px-4">
         <i class="fa-solid fa-search"></i>
       </button>
     </div>
@@ -23,12 +17,13 @@
       class="w-full flex flex-nowrap mt-2 gap-2 to-flex"
     >
       <div class="w-[25%] search-inner">
-        <label class="font-semibold">Make</label><br />
+        <label class="font-semibold text-sm">Make</label><br />
         <select
           @change="filterModels()"
           v-model="selected_make"
           class="py-1 rounded-0 bg-white w-full mt-1"
         >
+          <option value="">Any Make</option>
           <option v-for="(make, index) in makes" :key="index" :value="make.id">
             {{ make.name }}
           </option>
@@ -36,27 +31,37 @@
       </div>
       <div class="w-[25%] search-inner">
         <label class="font-semibold">Model</label><br />
-        <select class="py-1 rounded-0 bg-white w-full mt-1">
-          <option>Any Model</option>
-          <option v-for="(model, index) in models" :key="index">
+        <select
+          v-model="selected_model"
+          class="py-1 rounded-0 bg-white w-full mt-1"
+        >
+          <option value="">Any Model</option>
+          <option
+            v-for="(model, index) in models"
+            :key="index"
+            :value="model.id"
+          >
             {{ model.model_name }}
           </option>
         </select>
       </div>
       <div class="w-[25%] search-inner">
-        <label class="font-semibold">Used/New</label><br />
-        <select class="py-1 rounded-0 bg-white w-full mt-1">
-          <option>Used</option>
-          <option>New</option>
+        <label class="font-semibold text-sm">Used/New</label><br />
+        <select v-model="condition" class="py-1 rounded-0 bg-white w-full mt-1">
+          <option value="">Any Condition</option>
+          <option value="Used">Used</option>
+          <option value="New">New</option>
         </select>
       </div>
       <div class="w-[25%] search-inner">
-        <label class="font-semibold">Fuel</label><br />
-        <select class="py-1 rounded-0 bg-white w-full mt-1">
-          <option>Electric</option>
-          <option>Petrol</option>
-          <option>Diesel</option>
-          <option>Hybrid</option>
+        <label class="font-semibold text-sm">Fuel</label><br />
+        <select v-model="fuel_type" class="py-1 rounded-0 bg-white w-full mt-1">
+          <option value="">Select Fuel Type</option>
+          <option value="Petrol">Petrol</option>
+          <option value="Diesel">Diesel</option>
+          <option value="Hybrid">Hybrid</option>
+          <option value="Electric">Electric</option>
+          <option value="Other">Other</option>
         </select>
       </div>
     </div>
@@ -64,46 +69,84 @@
     <div v-if="search_is_visible" class="w-full py-1 bg-third mt-2 search-2">
       <div class="w-full flex flex-nowrap gap-2 to-flex">
         <div class="w-[25%] flex flex-nowrap gap-1 search-2-inner">
-          <select class="py-1 h-fit rounded-0 bg-white w-full">
-            <option disabled selected>Min Year</option>
-            <option v-for="(year, index) in years" :key="index">
+          <select
+            v-model="min_year"
+            class="py-1 h-fit rounded-0 bg-white w-full"
+          >
+            <option value="">Min Year</option>
+            <option
+              v-for="(year, index) in years"
+              :key="index"
+              :value="year.year"
+            >
               {{ year.year }}
             </option>
           </select>
-          <select class="py-1 h-fit rounded-0 bg-white w-full">
-            <option disabled selected>Max Year</option>
-            <option v-for="(year, index) in years" :key="index">
+          <select
+            v-model="max_year"
+            class="py-1 h-fit rounded-0 bg-white w-full"
+          >
+            <option value="">Max Year</option>
+            <option
+              v-for="(year, index) in years"
+              :key="index"
+              :value="year.year"
+            >
               {{ year.year }}
             </option>
           </select>
         </div>
         <div class="w-[25%] flex flex-nowrap gap-1 search-2-inner">
-          <select class="py-1 h-fit rounded-0 bg-white w-full">
-            <option disabled selected>Min Price</option>
-            <option v-for="(price, index) in prices" :key="index">
+          <select
+            v-model="min_price_value"
+            class="py-1 h-fit rounded-0 bg-white w-full"
+          >
+            <option value="">Min Price</option>
+            <option
+              v-for="(price, index) in min_price"
+              :key="index"
+              :value="price.price"
+            >
               {{ price.price }}
             </option>
           </select>
-          <select class="py-1 h-fit rounded-0 bg-white w-full">
-            <option disabled selected>Max Price</option>
-            <option v-for="(price, index) in prices" :key="index">
+          <select
+            v-model="max_price_value"
+            class="py-1 h-fit rounded-0 bg-white w-full"
+          >
+            <option value="">Max Price</option>
+            <option
+              v-for="(price, index) in prices"
+              :key="index"
+              :value="price.price"
+            >
               {{ price.price }}
             </option>
           </select>
         </div>
         <div class="w-[25%] flex flex-nowrap gap-1 search-2-inner">
-          <select class="py-1 h-fit rounded-0 bg-white w-full">
-            <option disabled selected>Body Type</option>
-            <option v-for="(type, index) in body_styles" :key="index">
+          <select
+            v-model="body_type"
+            class="py-1 h-fit rounded-0 bg-white w-full"
+          >
+            <option value="">Body Type</option>
+            <option
+              v-for="(type, index) in body_styles"
+              :key="index"
+              :value="type.id"
+            >
               {{ type.name }}
             </option>
           </select>
         </div>
         <div class="w-[25%] flex flex-nowrap gap-1 search-2-inner">
-          <select class="py-1 h-fit rounded-0 bg-white w-full">
-            <option disabled selected>Transmission</option>
-            <option>Automatic</option>
-            <option>Manual</option>
+          <select
+            v-model="transmission"
+            class="py-1 h-fit rounded-0 bg-white w-full focus:outline-none"
+          >
+            <option value="">Transmission</option>
+            <option value="Automatic">Automatic</option>
+            <option value="Manual">Manual</option>
           </select>
         </div>
       </div>
@@ -113,17 +156,23 @@
       v-if="search_is_visible"
       class="w-full flex justify-end gap-4 mt-2 buttons"
     >
-      <button class="bg-[#E6B800] w-[150px] font-bold py-1 px-4 rounded-sm">
+      <button
+        @click="handleSearch"
+        class="bg-[#E6B800] w-[150px] font-bold py-1 px-4 rounded-sm"
+      >
         Search
       </button>
       <span>or</span>
       <span
+        @click="handleReset"
         class="text-xl font-semibold cursor-pointer theme-blue hover:text-black hover:underline"
-        >Reset</span
       >
+        Reset
+      </span>
     </div>
   </div>
 </template>
+
 <script>
 export default {
   name: "Search",
@@ -131,17 +180,31 @@ export default {
     makes: Array,
     fetched_models: Array,
     body_styles: Array,
+    locations: Array,
   },
   data() {
     return {
-      selected_make: "Any Make",
-      // makes: [],
-      // all_makes_tracker: [],
-      // filtered_makes: [],
-      //models
+      // Form fields with v-models
+      keywords: "",
+      selected_make: "",
+      selected_model: "",
+      condition: "",
+      fuel_type: "",
+      min_year: "",
+      max_year: "",
+      min_price_value: "",
+      max_price_value: "",
+      body_type: "",
+      transmission: "",
+      location: "",
+      status: "",
+
+      // Models tracking
       models: [],
       all_models_tracker: [],
       filtered_models: [],
+
+      // Static data
       years: [
         { year: 2000 },
         { year: 2001 },
@@ -170,85 +233,97 @@ export default {
         { year: 2024 },
         { year: 2025 },
       ],
+      min_price: [
+        { price: "Less than 500001" },
+        { price: 500001 },
+        { price: 1000001 },
+        { price: 1500001 },
+        { price: 2000001 },
+        { price: 2500001 },
+        { price: 3000001 },
+        { price: 4000001 },
+        { price: 5000001 },
+        { price: 6000001 },
+        { price: 7000001 },
+      ],
       prices: [
-        { price: "500,000" },
-        { price: "750,000" },
-        { price: "1,000,000" },
-        { price: "1,500,000" },
-        { price: "2,000,000" },
-        { price: "2,500,000" },
-        { price: "3,000,000" },
-        { price: "4,000,000" },
-        { price: "5,000,000" },
-        { price: "6,000,000" },
-        { price: "7,000,000" },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      types: [
-        { type: "Coupe", icon: "static/bodies/coupe.png" },
-        { type: "Sedan", icon: "static/bodies/sedan.png" },
-        { type: "Hatchback", icon: "static/bodies/hatchback.png" },
-        { type: "SUV", icon: "static/bodies/suv.png" },
-        { type: "Crossover", icon: "static/bodies/crossover.png" },
-        { type: "Convertible", icon: "static/bodies/convertible.png" },
-        { type: "Pickup", icon: "static/bodies/pickup.png" },
-        { type: "Van", icon: "static/bodies/van.png" },
-      ],
-      price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
+        { price: 500000 },
+        { price: 1000000 },
+        { price: 1500000 },
+        { price: 2000000 },
+        { price: 2500000 },
+        { price: 3000000 },
+        { price: 4000000 },
+        { price: 5000000 },
+        { price: 6000000 },
+        { price: 7000000 },
+        { price: "Above 7000000" },
       ],
       search_is_visible: true,
     };
   },
-  /* mounted */
   mounted() {
     this.models = this.fetched_models;
     this.all_models_tracker = this.fetched_models;
   },
-  /* methods */
   methods: {
     filterModels() {
-      //filter brands
       this.models = [];
+      this.selected_model = ""; // Reset model selection when make changes
+
+      if (!this.selected_make) {
+        this.models = this.all_models_tracker;
+        return;
+      }
 
       this.filtered_models = this.all_models_tracker.filter(
         (item) => item.make_id === parseInt(this.selected_make)
       );
 
-      //map item
       this.models = this.filtered_models.map((item) => ({
         ...item,
       }));
+    },
+
+    handleSearch() {
+      // Build query parameters object
+      const query = {};
+
+      if (this.keywords) query.keywords = this.keywords;
+      if (this.selected_make) query.make = this.selected_make;
+      if (this.selected_model) query.model = this.selected_model;
+      if (this.condition) query.condition = this.condition;
+      if (this.fuel_type) query.fuel = this.fuel_type;
+      if (this.min_year) query.min_year = this.min_year;
+      if (this.max_year) query.max_year = this.max_year;
+      if (this.min_price_value) query.min_price = this.min_price_value;
+      if (this.max_price_value) query.max_price = this.max_price_value;
+      if (this.body_type) query.body = this.body_type;
+      if (this.transmission) query.transmission = this.transmission;
+
+      // Navigate to /vehicles with query parameters
+      this.$router.push({
+        path: "/vehicles",
+        query: query,
+      });
+    },
+
+    handleReset() {
+      // Reset all form fields
+      this.keywords = "";
+      this.selected_make = "";
+      this.selected_model = "";
+      this.condition = "";
+      this.fuel_type = "";
+      this.min_year = "";
+      this.max_year = "";
+      this.min_price_value = "";
+      this.max_price_value = "";
+      this.body_type = "";
+      this.transmission = "";
+
+      // Reset models to show all
+      this.models = this.all_models_tracker;
     },
   },
 };

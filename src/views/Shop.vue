@@ -20,19 +20,17 @@
               <div
                 v-for="(make, index) in brands"
                 :key="index"
-                class="flex flex-nowrap gap-2 p-2 hover:bg-white category"
+                class="flex flex-nowrap gap-2 p-2 hover:bg-white category cursor-pointer"
                 style="border-bottom: 1px solid #f4f5f4"
+                @click="filterByMake(make.id)"
               >
-                <router-link
-                  :to="`/vehicles/${is_make}/${slugify(make?.name)}`"
-                  class="w-full flex gap-2 flex-nowrap inner-cat"
-                >
+                <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
                     :src="make?.image_url"
                     class="w-[30px] min-w-[30px] h-fit"
                   />
-                  <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
-                </router-link>
+                  <p class="font-semibold">{{ make?.name }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -43,18 +41,13 @@
             <div
               v-for="(model, index) in models"
               :key="index"
-              class="flex flex-nowrap gap-2 py-2"
+              class="flex flex-nowrap gap-2 py-2 cursor-pointer hover:bg-white"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByModel(model.id)"
             >
-              <router-link
-                :to="`/vehicles/${is_model}/${slugify(model?.model_name)}`"
-              >
-                <span
-                  class="font-semibold cursor-pointer hover:underline text-sm"
-                >
-                  {{ model?.make_name }} {{ model?.model_name }}
-                </span>
-              </router-link>
+              <span class="font-semibold hover:underline text-sm">
+                {{ model?.make_name }} {{ model?.model_name }}
+              </span>
             </div>
           </div>
           <div class="w-full mt-8 heading">
@@ -65,19 +58,17 @@
               <div
                 v-for="(type, index) in body_styles"
                 :key="index"
-                class="flex flex-nowrap gap-2 p-2 hover:bg-white category"
+                class="flex flex-nowrap gap-2 p-2 hover:bg-white category cursor-pointer"
                 style="border-bottom: 1px solid #f4f5f4"
+                @click="filterByBodyType(type.id)"
               >
-                <router-link
-                  :to="`/vehicles/${is_body_type}/${slugify(type?.name)}`"
-                  class="w-full flex gap-2 flex-nowrap inner-cat"
-                >
+                <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
                     :src="type?.image_url"
                     class="w-[30px] min-w-[30px] filter grayscale h-fit"
                   />
-                  <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
-                </router-link>
+                  <p class="font-semibold">{{ type?.name }}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -89,17 +80,17 @@
               <div
                 v-for="(price, index) in price_ranges"
                 :key="index"
-                class="flex flex-nowrap gap-2 py-2 category"
+                class="flex flex-nowrap gap-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
+                @click="filterByPrice(price)"
               >
                 <img
                   src="/icons/coin.png"
                   class="w-[20px] h-[20px] h-fit to-hide"
                 />
-                <span
-                  class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                  >{{ price?.price }}</span
-                >
+                <span class="font-semibold hover:underline ml-2 text-sm">
+                  {{ price?.price }}
+                </span>
               </div>
             </div>
           </div>
@@ -112,14 +103,14 @@
               <div
                 v-for="(location, index) in locations"
                 :key="index"
-                class="flex flex-nowrap gap-2 py-2 category"
+                class="flex flex-nowrap gap-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
+                @click="filterByLocation(location.location_id)"
               >
                 <i class="fa-solid fa-location-dot text-gray-600"></i>
-                <span
-                  class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                  >{{ location?.location_name }}</span
-                >
+                <span class="font-semibold hover:underline ml-2 text-sm">
+                  {{ location?.location_name }}
+                </span>
               </div>
             </div>
           </div>
@@ -130,19 +121,19 @@
             </h4>
             <div class="w-full to-flex">
               <div
-                v-for="(category, index) in other_categories"
+                v-for="(category, index) in categories"
                 :key="index"
-                class="flex flex-nowrap gap-2 py-2 category"
+                class="flex flex-nowrap gap-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
+                @click="filterByCategory(category.name)"
               >
                 <img
                   src="/icons/category.png"
                   class="w-[18px] h-[18px] h-fit"
                 />
-                <span
-                  class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                  >{{ category?.category }}</span
-                >
+                <span class="font-semibold hover:underline ml-2 text-sm">
+                  {{ category?.name }}
+                </span>
               </div>
             </div>
           </div>
@@ -156,16 +147,49 @@
               :fetched_models="models"
               :body_styles="body_styles"
             />
+            <!-- Results count -->
+            <div v-if="search_params_exist" class="w-full bg-white p-3 mt-2">
+              <p class="text-sm">
+                <strong>{{ all_vehicles.length }}</strong> vehicles found
+                <span v-if="active_filters.length > 0">
+                  matching your search criteria
+                </span>
+              </p>
+              <!-- Active filters -->
+              <div
+                v-if="active_filters.length > 0"
+                class="flex flex-wrap gap-2 mt-2"
+              >
+                <span
+                  v-for="(filter, index) in active_filters"
+                  :key="index"
+                  class="bg-theme-yellow px-3 py-1 text-sm"
+                >
+                  {{ filter }}
+                </span>
+                <button
+                  @click="clearAllFilters"
+                  class="text-sm text-red-600 hover:underline ml-2"
+                >
+                  Clear all
+                </button>
+              </div>
+            </div>
             <!-- sort -->
             <div class="w-full bg-third p-4 flex flex-nowrap">
               <p class="text-sm font-semibold">Sort By:</p>
-              <select class="ml-1 h-fit">
-                <option>None</option>
-                <option>Price - Low to high</option>
-                <option>Price - High to low</option>
-                <option>Year - Old to new</option>
-                <option>Mileage - Low to high</option>
-                <option>Mileage - High to low</option>
+              <select
+                v-model="sort_option"
+                @change="sortVehicles"
+                class="ml-1 h-fit"
+              >
+                <option value="">None</option>
+                <option value="price_asc">Price - Low to high</option>
+                <option value="price_desc">Price - High to low</option>
+                <option value="year_asc">Year - Old to new</option>
+                <option value="year_desc">Year - New to old</option>
+                <option value="mileage_asc">Mileage - Low to high</option>
+                <option value="mileage_desc">Mileage - High to low</option>
               </select>
               <div
                 @click="is_grid_view = true"
@@ -173,6 +197,7 @@
               >
                 <div
                   v-for="i in 4"
+                  :key="i"
                   class="h-[11px] w-[11px] rounded-[2px]"
                   :class="is_grid_view ? 'bg-theme-yellow' : 'bg-black'"
                 ></div>
@@ -183,15 +208,31 @@
               >
                 <div
                   v-for="i in 3"
+                  :key="i"
                   class="h-[6px] w-full rounded-[2px]"
                   :class="!is_grid_view ? 'bg-theme-yellow' : 'bg-black'"
                 ></div>
               </div>
             </div>
           </div>
+          <!-- No results message -->
+          <div
+            v-if="all_vehicles.length === 0 && !page_is_loading"
+            class="w-full p-8 text-center"
+          >
+            <i class="fa-solid fa-car text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">No vehicles found</h3>
+            <p class="text-gray-600 mb-4">Try adjusting your search filters</p>
+            <button
+              @click="clearAllFilters"
+              class="bg-theme-yellow px-6 py-2 rounded font-semibold"
+            >
+              Clear Filters
+            </button>
+          </div>
           <!-- grid view -->
           <div
-            v-if="is_grid_view"
+            v-if="is_grid_view && all_vehicles.length > 0"
             class="w-full flex flex-wrap mt-6 gap-2 shop-car-holder"
           >
             <Card
@@ -244,7 +285,10 @@
             </div>
           </div>
           <!-- list view -->
-          <div v-if="!is_grid_view" class="w-full flex flex-wrap mt-6 gap-2">
+          <div
+            v-if="!is_grid_view && all_vehicles.length > 0"
+            class="w-full flex flex-wrap mt-6 gap-2"
+          >
             <Card
               list_card
               :vehicles="paginated_list_vehicles"
@@ -256,7 +300,7 @@
               <div class="w-1/2 to-w-full">
                 <span
                   >Page {{ current_list_page + 1 }} of
-                  {{ current_list_page }}</span
+                  {{ total_list_pages }}</span
                 >
               </div>
               <div class="w-1/2 flex justify-end gap-1 to-w-full">
@@ -332,13 +376,32 @@ export default {
     return {
       page_is_loading: true,
       is_grid_view: true,
+      sort_option: "",
 
       // data arrays
+      categories: [
+        { name: "Petrol" },
+        { name: "Diesel" },
+        { name: "Hybrid" },
+        { name: "Electric" },
+        { name: "Other" },
+        // <select v-model="fuel_type" class="py-1 rounded-0 bg-white w-full mt-1">
+        //   <option value="">Select Fuel Type</option>
+        //   <option value="Petrol">Petrol</option>
+        //   <option value="Diesel">Diesel</option>
+        //   <option value="Hybrid">Hybrid</option>
+        //   <option value="Electric">Electric</option>
+        //   <option value="Other">Other</option>
+        // </select>
+      ],
       all_vehicles: [],
       is_make: "make",
       is_body_type: "body",
       is_brand: "brand",
       is_model: "model",
+
+      // Search parameters
+      search_params: {},
 
       // pagination
       grid_page_size: 30,
@@ -352,15 +415,13 @@ export default {
   /* mounted */
   async mounted() {
     document.title = "Drivate - All vehicles";
+
+    // Get search parameters from URL
+    this.search_params = { ...this.$route.query };
+
     try {
       await Promise.race([
-        Promise.all([
-          // this.getMakes(),
-          this.fetchVehicles(),
-          // this.getBodyStyles(),
-          // this.getModels(),
-          // this.getLocations(),
-        ]),
+        this.filterVehicles(),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
         ),
@@ -370,6 +431,16 @@ export default {
     } finally {
       this.page_is_loading = false;
     }
+  },
+  /* watch for route changes */
+  watch: {
+    "$route.query": {
+      handler(newQuery) {
+        this.search_params = { ...newQuery };
+        this.filterVehicles();
+      },
+      deep: true,
+    },
   },
   computed: {
     total_grid_pages() {
@@ -388,104 +459,203 @@ export default {
       const start = this.current_list_page * this.list_page_size;
       return this.all_vehicles.slice(start, start + this.list_page_size);
     },
+
+    // Check if search params exist
+    search_params_exist() {
+      return Object.keys(this.search_params).length > 0;
+    },
+
+    // Get active filters for display
+    active_filters() {
+      const filters = [];
+      const params = this.search_params;
+
+      if (params.keywords) filters.push(`Keywords: ${params.keywords}`);
+      if (params.make) {
+        const make = this.brands.find((b) => b.id == params.make);
+        if (make) filters.push(`Make: ${make.name}`);
+      }
+      if (params.model) {
+        const model = this.models.find((m) => m.id == params.model);
+        if (model) filters.push(`Model: ${model.model_name}`);
+      }
+      if (params.condition) filters.push(`Condition: ${params.condition}`);
+      if (params.fuel) filters.push(`Fuel: ${params.fuel}`);
+      if (params.min_year || params.max_year) {
+        filters.push(
+          `Year: ${params.min_year || "Any"} - ${params.max_year || "Any"}`
+        );
+      }
+      if (params.min_price || params.max_price) {
+        filters.push(
+          `Price: ${params.min_price || "Any"} - ${params.max_price || "Any"}`
+        );
+      }
+      if (params.body) {
+        const body = this.body_styles.find((b) => b.id == params.body);
+        if (body) filters.push(`Body: ${body.name}`);
+      }
+      if (params.transmission)
+        filters.push(`Transmission: ${params.transmission}`);
+      if (params.location) {
+        const location = this.locations.find((l) => l.id == params.location);
+        if (location) filters.push(`Location: ${location.location_name}`);
+      }
+      if (params.category) {
+        const category = this.other_categories.find(
+          (c) => c.id == params.category
+        );
+        if (category) filters.push(`Category: ${category.category}`);
+      }
+
+      return filters;
+    },
   },
   /* methods */
   methods: {
     slugify,
-    async getLocations() {
-      try {
-        const response = await axios.get(`${api}/get-locations`);
-        const data = response.data;
 
-        console.log("locations response:", data); // Debug log
-
-        if (data.success) {
-          this.locations = data.locations; // Extract the array
-        } else {
-          this.locations = []; // Fallback to empty array
-          this.show_error(data.error);
-        }
-      } catch (error) {
-        this.show_error(error);
-        this.locations = []; // Set to empty array on error
-      }
+    // New filter methods for sidebar clicks
+    filterByMake(makeId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, make: makeId },
+      });
     },
-    async fetchVehicles() {
+
+    filterByModel(modelId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, model: modelId },
+      });
+    },
+
+    filterByBodyType(bodyId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, body: bodyId },
+      });
+    },
+
+    filterByPrice(priceRange) {
+      // Assuming price_ranges have min_price and max_price properties
+      const query = { ...this.$route.query };
+      if (priceRange.min_price) query.min_price = priceRange.min_price;
+      if (priceRange.max_price) query.max_price = priceRange.max_price;
+      this.$router.push({ path: "/vehicles", query });
+    },
+
+    filterByLocation(locationId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, location: locationId },
+      });
+    },
+
+    filterByCategory(categoryId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, category: categoryId },
+      });
+    },
+
+    async filterVehicles() {
       try {
-        const response = await axios.get(`${api}/get-vehicles`);
+        this.page_is_loading = true;
+
+        // Create FormData with search parameters
+        const formData = new FormData();
+
+        // Add all search parameters from URL query
+        if (this.search_params.keywords)
+          formData.append("keywords", this.search_params.keywords);
+        if (this.search_params.make)
+          formData.append("make", this.search_params.make);
+        if (this.search_params.model)
+          formData.append("model", this.search_params.model);
+        if (this.search_params.condition)
+          formData.append("condition", this.search_params.condition);
+        if (this.search_params.fuel)
+          formData.append("fuel", this.search_params.fuel);
+        if (this.search_params.min_year)
+          formData.append("min_year", this.search_params.min_year);
+        if (this.search_params.max_year)
+          formData.append("max_year", this.search_params.max_year);
+        if (this.search_params.min_price)
+          formData.append("min_price", this.search_params.min_price);
+        if (this.search_params.max_price)
+          formData.append("max_price", this.search_params.max_price);
+        if (this.search_params.body)
+          formData.append("body", this.search_params.body);
+        if (this.search_params.transmission)
+          formData.append("transmission", this.search_params.transmission);
+        if (this.search_params.location)
+          formData.append("location", this.search_params.location);
+        else formData.append("location", "");
+        if (this.search_params.category)
+          formData.append("category", this.search_params.category);
+
+        formData.append("status", "");
+
+        const response = await axios.post(`${api}/filter-vehicles`, formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
 
         const data = response.data;
 
-        // Check if the request was successful
         if (data.success) {
           this.all_vehicles = data.vehicles;
+          console.log("Filtered vehicles:", data.vehicles);
 
-          // this.all_loan_tracker = data.vehicles;
-
-          // Hide message after 3 seconds
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
+          // Reset to first page when new results come in
+          this.current_grid_page = 0;
+          this.current_list_page = 0;
         } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch vehicles");
+          console.error("Filter error:", data.error);
+          this.all_vehicles = [];
         }
       } catch (error) {
-        console.error("Error fetching vehicles:", error);
-        // Initialize empty array on error
+        console.error("Error filtering vehicles:", error);
         this.all_vehicles = [];
+      } finally {
+        this.page_is_loading = false;
       }
     },
-    // get makes
-    async getMakes() {
-      try {
-        const response = await axios.get(`${api}/get-makes`);
-        const data = response.data;
 
-        console.log("Full response:", data); // Debug log
-
-        if (data.success) {
-          this.brands = data.brands;
-        } else {
-          console.log("Error fetching brands");
-        }
-
-        console.log("brands array:", this.brands); // Debug log
-      } catch (error) {
-        console.error("Error fetching brands:", error);
-      }
+    clearAllFilters() {
+      // Navigate to /vehicles without any query parameters
+      this.$router.push("/vehicles");
     },
-    //get body styles
-    async getBodyStyles() {
-      try {
-        const response = await axios.get(`${api}/get-body-styles`);
-        const data = response.data;
 
-        console.log("Full response:", data); // Debug log
+    sortVehicles() {
+      if (!this.sort_option) return;
 
-        if (data.success) {
-          this.body_styles = data.body_styles; // Extract the array
-        } else {
-          this.body_styles = []; // Fallback to empty array
-        }
-      } catch (error) {
-        console.error("Error fetching body styles:", error);
+      const sorted = [...this.all_vehicles];
+
+      switch (this.sort_option) {
+        case "price_asc":
+          sorted.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+          break;
+        case "price_desc":
+          sorted.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+          break;
+        case "year_asc":
+          sorted.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+          break;
+        case "year_desc":
+          sorted.sort((a, b) => parseInt(b.year) - parseInt(a.year));
+          break;
+        case "mileage_asc":
+          sorted.sort((a, b) => parseFloat(a.mileage) - parseFloat(b.mileage));
+          break;
+        case "mileage_desc":
+          sorted.sort((a, b) => parseFloat(b.mileage) - parseFloat(a.mileage));
+          break;
       }
-    },
-    async getModels() {
-      try {
-        const response = await axios.get(`${api}/get-models`);
-        const data = response.data;
 
-        if (data.success) {
-          this.models = data.models; // Extract the array
-        } else {
-          this.models = []; // Fallback to empty array
-          console.warn("No models found in response");
-        }
-      } catch (error) {
-        console.error("Error fetching models:", error);
-      }
+      this.all_vehicles = sorted;
     },
 
     //pagination methods

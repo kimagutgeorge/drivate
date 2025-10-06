@@ -162,6 +162,7 @@
           :makes="brands"
           :fetched_models="models"
           :body_styles="body_styles"
+          :locations="locations"
         />
         <!-- New Arrivals -->
         <div class="w-full flex flex-wrap gap-2 p-2 mt-8">
@@ -279,7 +280,7 @@
     </div>
     <!-- blogs -->
     <div class="w-[90%] mt-24">
-      <h4 class="font-bold text-3xl theme-blue">Latest News & Reviews</h4>
+      <h4 class="font-bold text-3xl theme-blue">Latest News & Insights</h4>
       <div class="w-full flex flex-wrap gap-2 mt-8 blog-holder no-scrollbar">
         <Card blog_card class="w-[24%]" :blogs="blogs" />
       </div>

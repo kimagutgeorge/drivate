@@ -75,7 +75,10 @@
     class="border-b border-gray-300 py-4 transition-all duration-300 hover:border-[#ffcd00] blog-card"
     :class="class"
   >
-    <router-link :to="`/blog/${slugify(blog.title)}`" class="w-full">
+    <router-link
+      :to="`/blogs/view/${blog.blog_id}/${slugify(blog.title)}`"
+      class="w-full"
+    >
       <div class="w-full max-h-[25vh] overflow-hidden">
         <img
           :src="blog.image_url"
