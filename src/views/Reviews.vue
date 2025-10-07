@@ -21,17 +21,15 @@
               :key="index"
               class="flex flex-nowrap gap-2 p-2 hover:bg-white"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByMake(make?.id)"
             >
-              <router-link
-                :to="`/vehicles/${is_make}/${slugify(make?.name)}`"
-                class="w-full flex gap-2 flex-nowrap inner-cat"
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="make?.image_url"
                   class="w-[30px] min-w-[30px] h-fit"
                 />
                 <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
-              </router-link>
+              </div>
             </div>
           </div>
           <div class="w-full mt-8">
@@ -43,17 +41,15 @@
               :key="index"
               class="flex flex-nowrap gap-2 p-2 hover:bg-white"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByBodyType(type?.id)"
             >
-              <router-link
-                :to="`/vehicles/${is_body_type}/${slugify(type?.name)}`"
-                class="w-full flex gap-2 flex-nowrap inner-cat"
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="type?.image_url"
                   class="w-[30px] min-w-[30px] filter grayscale h-fit"
                 />
                 <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
-              </router-link>
+              </div>
             </div>
           </div>
           <div class="w-full mt-8">
@@ -65,12 +61,25 @@
               :key="index"
               class="flex flex-nowrap gap-2 py-2"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByPrice(price)"
             >
-              <img src="/icons/coin.png" class="w-[20px] h-[20px] h-fit" />
-              <span
-                class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                >{{ price?.price }}</span
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
+                <img src="/icons/coin.png" class="w-[20px] h-[20px] h-fit" />
+                <span
+                  class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
+                  >{{
+                    price?.min_price === 0
+                      ? "Less than"
+                      : price?.min_price.toLocaleString()
+                  }}
+                  -
+                  {{
+                    price?.max_price === 0
+                      ? "More than"
+                      : price?.max_price.toLocaleString()
+                  }}</span
+                >
+              </div>
             </div>
           </div>
           <div class="w-full mt-8">
@@ -82,12 +91,15 @@
               :key="index"
               class="flex flex-nowrap gap-2 py-2"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByCategory(category?.name)"
             >
-              <img src="/icons/category.png" class="w-[18px] h-[18px]" />
-              <span
-                class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
-                >{{ category?.category }}</span
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
+                <img src="/icons/category.png" class="w-[18px] h-[18px]" />
+                <span
+                  class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
+                  >{{ category?.category }}</span
+                >
+              </div>
             </div>
           </div>
         </div>
@@ -126,7 +138,7 @@
               </div>
             </div>
             <div class="w-full flex flex-nowrap mt-4 gap-2 review-search">
-              <div
+              <!-- <div
                 class="w-1/2 flex flex-nowrap border border-[#ffcd00] search-inner"
               >
                 <input
@@ -137,7 +149,7 @@
                 <button class="bg-[#ffcd00] text-white p-2 px-4">
                   <i class="fa-solid fa-search"></i>
                 </button>
-              </div>
+              </div> -->
               <div class="w-1/2 flex flex-nowrap gap-2 search-inner">
                 <div class="w-[25%] to-full">
                   <div class="relative w-full">
@@ -297,7 +309,10 @@
                   <input type="hidden" v-model="body_style_id" />
                 </div>
                 <div class="w-[25%] to-full">
-                  <button class="bg-[#ffcd00] text-white h-full p-2 w-full">
+                  <button
+                    @click="filter_review"
+                    class="bg-[#ffcd00] text-white h-full p-2 w-full"
+                  >
                     Search
                   </button>
                 </div>
@@ -308,7 +323,25 @@
 
           <!-- list view -->
           <div class="w-full flex flex-wrap mt-6 gap-2 review-card-holder">
-            <Card review_card :reviews="paginated_reviews" class="w-full" />
+            <div v-if="reviews.length < 1" class="w-full text-center">
+              <i class="fa-solid fa-car text-6xl text-gray-300 mb-4"></i>
+              <h3 class="text-xl font-bold mb-2">No reviews found</h3>
+              <p class="text-gray-600 mb-4">
+                Try adjusting your search filters
+              </p>
+              <button
+                @click="clearAllFilters"
+                class="bg-theme-yellow px-6 py-2 font-semibold"
+              >
+                Clear Filters
+              </button>
+            </div>
+            <Card
+              v-else
+              review_card
+              :reviews="paginated_reviews"
+              class="w-full"
+            />
           </div>
 
           <!-- pagination -->
@@ -489,6 +522,57 @@ export default {
   /* methods */
   methods: {
     slugify,
+    async filter_review() {
+      if (
+        this.model_id == "" &&
+        this.make_id == "" &&
+        this.body_style_id == ""
+      ) {
+        return;
+      }
+      try {
+        const formData = new FormData();
+        formData.append("model", this.model_id);
+        formData.append("make", this.make_id);
+        formData.append("body", this.body_style_id);
+
+        const response = await axios.post(
+          api + "/filter-reviews/" + this.review_status,
+          formData,
+          {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+        const data = response.data;
+        if (data.success) {
+          this.reviews = data.reviews;
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    clearAllFilters() {
+      // make search query
+      this.make_id = "";
+      this.searchQuery = "";
+      this.showDropdown = "";
+      this.selectedIndex = "";
+
+      // model search query
+      this.model_id = "";
+      this.modelSearchQuery = "";
+      this.modelShowDropdown = "";
+      this.modelSelectedIndex = "";
+
+      // body style search query
+      this.body_style_id = "";
+      this.bodyStyleSearchQuery = "";
+      this.bodyStyleShowDropdown = "";
+      this.bodyStyleSelectedIndex = "";
+      this.getReviews();
+    },
     async getReviews() {
       try {
         const response = await axios.get(
@@ -680,6 +764,50 @@ export default {
           this.bodyStyleSelectedIndex = -1;
           break;
       }
+    },
+
+    // New filter methods for sidebar clicks
+    filterByMake(makeId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, make: makeId },
+      });
+    },
+
+    filterByModel(modelId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, model: modelId },
+      });
+    },
+
+    filterByBodyType(bodyId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, body: bodyId },
+      });
+    },
+
+    filterByPrice(priceRange) {
+      // Assuming price_ranges have min_price and max_price properties
+      const query = { ...this.$route.query };
+      if (priceRange.min_price) query.min_price = priceRange.min_price;
+      if (priceRange.max_price) query.max_price = priceRange.max_price;
+      this.$router.push({ path: "/vehicles", query });
+    },
+
+    filterByLocation(locationId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, location: locationId },
+      });
+    },
+
+    filterByCategory(categoryId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, category: categoryId },
+      });
     },
   },
 };

@@ -25,17 +25,21 @@ export default {
   data() {
     return {
       price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
+        { min_price: 0, max_price: 500000 },
+        { min_price: 500001, max_price: 1000000 },
+        { min_price: 1000001, max_price: 1500000 },
+        { min_price: 1500001, max_price: 2000000 },
+        { min_price: 2000001, max_price: 2500000 },
+        { min_price: 2500001, max_price: 3000000 },
+        { min_price: 3000001, max_price: 3500000 },
+        { min_price: 3500001, max_price: 4000000 },
+        { min_price: 4000001, max_price: 4500000 },
+        { min_price: 4500001, max_price: 5000000 },
+        { min_price: 5000001, max_price: 5500000 },
+        { min_price: 5500001, max_price: 6000000 },
+        { min_price: 6000001, max_price: 6500000 },
+        { min_price: 6500001, max_price: 7000000 },
+        { min_price: 7000000, max_price: 0 },
       ],
 
       drive_categories: [

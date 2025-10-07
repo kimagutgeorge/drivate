@@ -8,6 +8,7 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
+
     <div class="w-[90%] flex flex-wrap mt-8">
       <div class="w-full h-[40vh] overflow-hidden mt-6 relative view-car">
         <!-- background -->
@@ -43,14 +44,26 @@
       <div class="w-full flex content">
         <div class="w-[30%] sticky top-[15vh] pt-6 self-start">
           <p
+            class="py-1 px-4 full cursor-pointer border w-fit mb-1 hover:bg-[#FFF199] hover:font-bold hover:border-[#FFF199]"
+            :class="
+              selected_category == 'All'
+                ? 'bg-[#FFF199] font-bold border-[#FFF199]'
+                : 'border-gray-300'
+            "
+            @click="filter_category('All')"
+          >
+            All Faqs
+          </p>
+          <p
             v-for="(category, index) in categories"
             :key="index"
             class="py-1 px-4 full cursor-pointer border w-fit mb-1 hover:bg-[#FFF199] hover:font-bold hover:border-[#FFF199]"
             :class="
-              index === 0
+              selected_category == category.category_name
                 ? 'bg-[#FFF199] font-bold border-[#FFF199]'
                 : 'border-gray-300'
             "
+            @click="filter_category(category?.category_name)"
           >
             {{ category?.category_name }}
           </p>
@@ -96,6 +109,7 @@ export default {
       page_is_loading: true,
       categories: [],
       faqs: [],
+      selected_category: "All",
     };
   },
   /* mounted */
@@ -116,12 +130,25 @@ export default {
   },
 
   methods: {
+    filter_category(category) {
+      this.selected_category = category;
+      this.faqs = this.all_faqs_tracker;
+      if (this.selected_category == "All") {
+        return;
+      }
+
+      this.filtered_faqs = this.faqs.filter(
+        (faq) => faq.category_name === this.selected_category
+      );
+      this.faqs = this.filtered_faqs;
+    },
     async getFaqs() {
       try {
         const response = await axios.get(`${api}/get-faqs`);
         const data = response.data;
         if (data.success && data.faqs) {
           this.faqs = data.faqs;
+          this.all_faqs_tracker = data.faqs;
         } else {
           this.faqs = [];
           this.show_success("No faqs found in response");

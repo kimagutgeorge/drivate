@@ -275,13 +275,13 @@
               <i class="fa-regular fa-envelope mr-4"></i>EMAIL
             </button>
 
-            <button
+            <!-- <button
               class="w-1/4 bg-[#E6B800] shadow-sm p-2 font-bold rounded-sm"
             >
               <a :href="`tel:${contact_phone}`">
                 <i class="fa-solid fa-phone mr-4"></i>
               </a>
-            </button>
+            </button> -->
 
             <button
               @click="
@@ -294,7 +294,7 @@
                   client_message
                 )
               "
-              class="w-1/4 bg-[#E6B800] shadow-sm p-2 font-bold rounded-sm"
+              class="w-1/2 bg-[#E6B800] shadow-sm p-2 font-bold rounded-sm"
             >
               <i class="fa-brands fa-whatsapp mr-4"></i>
             </button>

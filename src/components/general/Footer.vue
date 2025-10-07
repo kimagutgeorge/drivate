@@ -12,10 +12,11 @@
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
               v-for="(make, index) in makes"
               :key="index"
+              @click="filterByMake(make?.id)"
             >
-              <router-link :to="`/vehicles/${is_make}/${slugify(make.name)}`">
+              <span>
                 {{ make.name }}
-              </router-link>
+              </span>
             </p>
           </div>
           <div class="w-[33%] p-2">
@@ -23,9 +24,20 @@
             <p
               v-for="(price, index) in prices"
               :key="index"
-              class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
+              class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600 cursor-pointer"
+              @click="filterByPrice(price)"
             >
-              {{ price.price }}
+              {{
+                price?.min_price === 0
+                  ? "Less than"
+                  : price?.min_price.toLocaleString()
+              }}
+              -
+              {{
+                price?.max_price === 0
+                  ? "More than"
+                  : price?.max_price.toLocaleString()
+              }}
             </p>
             <p class="font-bold my-4">Search by body style</p>
             <p
@@ -33,11 +45,11 @@
               :key="index"
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
             >
-              <router-link
-                :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
+              <span
+                class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
+                @click="filterByBodyType(type.id)"
+                >{{ type.name }}</span
               >
-                {{ type.name }}
-              </router-link>
             </p>
           </div>
           <div class="w-[33%] p-2">
@@ -46,16 +58,18 @@
               v-for="(category, index) in categories"
               :key="index"
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
+              @click="filterByCategory(category?.name)"
             >
-              {{ category.category }}
+              {{ category?.name }}
             </p>
             <p class="font-bold my-4">Locations</p>
             <p
               v-for="(location, index) in locations"
               :key="index"
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
+              @click="filterByLocation(location.location_id)"
             >
-              {{ location.location_name }}
+              {{ location?.location_name }}
             </p>
           </div>
         </div>
@@ -177,7 +191,7 @@ export default {
     makes: Array,
     prices: Array,
     body_styles: Array,
-    categories: Array,
+    // categories: Array,
     locations: Array,
     contacts: Array,
   },
@@ -186,12 +200,23 @@ export default {
       logo: "/logo.png",
       is_body_type: "body",
       is_make: "make",
-      help_pages: [{ page: "Contact us", page_link: "/contact-us" }],
+      help_pages: [
+        { page: "Contact us", page_link: "/contact-us" },
+        { page: "Import", page_link: "/import-vehicle" },
+      ],
       other_pages: [
         { page: "Reviews", page_link: "/reviews" },
-        { page: "Terms of use", page_link: "/terms-of-use" },
-        { page: "Privacy Policy", page_link: "/privacy-policy" },
+        { page: "Blog", page_link: "/blogs" },
+        // { page: "Terms of use", page_link: "/terms-of-use" },
+        // { page: "Privacy Policy", page_link: "/privacy-policy" },
         // { page: "Site Map", page_link: "/sitemap" },
+      ],
+      categories: [
+        { name: "Petrol" },
+        { name: "Diesel" },
+        { name: "Hybrid" },
+        { name: "Electric" },
+        { name: "Other" },
       ],
     };
   },
@@ -200,6 +225,49 @@ export default {
     slugify,
     back_to_top() {
       window.scrollTo(0, 0);
+    },
+    // New filter methods for sidebar clicks
+    filterByMake(makeId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, make: makeId },
+      });
+    },
+
+    filterByModel(modelId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, model: modelId },
+      });
+    },
+
+    filterByBodyType(bodyId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, body: bodyId },
+      });
+    },
+
+    filterByPrice(priceRange) {
+      // Assuming price_ranges have min_price and max_price properties
+      const query = { ...this.$route.query };
+      if (priceRange.min_price) query.min_price = priceRange.min_price;
+      if (priceRange.max_price) query.max_price = priceRange.max_price;
+      this.$router.push({ path: "/vehicles", query });
+    },
+
+    filterByLocation(locationId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, location: locationId },
+      });
+    },
+
+    filterByCategory(categoryId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, category: categoryId },
+      });
     },
   },
 };

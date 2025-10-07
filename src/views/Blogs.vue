@@ -40,9 +40,24 @@
       <div class="w-full flex mt-20 gap-4 content">
         <div class="w-[40%] flex flex-wrap sticky top-[15vh] self-start">
           <p
+            @click="filter_category('All')"
+            class="w-[60%] px-4 bg-third transition-all duration-300 ease-in-out hover:text-[#0066ff] py-2 cursor-pointer border-b border-gray-300"
+            :class="
+              selected_category == 'All' ? 'text-[#0066ff]' : 'text-gray-700'
+            "
+          >
+            All Categories
+          </p>
+          <p
             v-for="(category, index) in categories"
             :key="index"
-            class="w-[60%] px-4 bg-third transition-all duration-300 ease-in-out hover:text-[#0066ff] py-2 cursor-pointer text-gray-700 border-b border-gray-300"
+            @click="filter_category(category.category_name)"
+            class="w-[60%] px-4 bg-third transition-all duration-300 ease-in-out hover:text-[#0066ff] py-2 cursor-pointer border-b border-gray-300"
+            :class="
+              selected_category == category?.category_name
+                ? 'text-[#0066ff]'
+                : 'text-gray-700'
+            "
           >
             {{ category?.category_name }}
           </p>
@@ -158,6 +173,10 @@ export default {
       page_is_loading: true,
 
       blogs: [],
+      all_blogs_tracker: [],
+      filtered_blogs: [],
+      categories: [],
+      selected_category: "All",
 
       //pagination
       currentPage: 0, // start on first page
@@ -190,6 +209,19 @@ export default {
   },
   methods: {
     slugify,
+    filter_category(category) {
+      this.blogs = this.all_blogs_tracker;
+      this.selected_category = category;
+
+      if (this.selected_category == "All") {
+        return;
+      }
+
+      this.filtered_blogs = this.blogs.filter(
+        (blog) => blog.category === this.selected_category
+      );
+      this.blogs = this.filtered_blogs;
+    },
     async getCategories() {
       try {
         const response = await axios.get(`${api}/get-categories`);
@@ -211,6 +243,7 @@ export default {
         const data = response.data;
         if (data.success) {
           this.blogs = data.blogs;
+          this.all_blogs_tracker = data.blogs;
 
           setTimeout(() => {
             this.response_is_visible = false;

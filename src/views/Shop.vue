@@ -22,7 +22,7 @@
                 :key="index"
                 class="flex flex-nowrap gap-2 p-2 hover:bg-white category cursor-pointer"
                 style="border-bottom: 1px solid #f4f5f4"
-                @click="filterByMake(make.id)"
+                @click="filterByMake(make?.id)"
               >
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
@@ -43,7 +43,7 @@
               :key="index"
               class="flex flex-nowrap gap-2 py-2 cursor-pointer hover:bg-white"
               style="border-bottom: 1px solid #f4f5f4"
-              @click="filterByModel(model.id)"
+              @click="filterByModel(model.model_id)"
             >
               <span class="font-semibold hover:underline text-sm">
                 {{ model?.make_name }} {{ model?.model_name }}
@@ -89,7 +89,17 @@
                   class="w-[20px] h-[20px] h-fit to-hide"
                 />
                 <span class="font-semibold hover:underline ml-2 text-sm">
-                  {{ price?.price }}
+                  {{
+                    price?.min_price === 0
+                      ? "Less than"
+                      : price?.min_price.toLocaleString()
+                  }}
+                  -
+                  {{
+                    price?.max_price === 0
+                      ? "More than"
+                      : price?.max_price.toLocaleString()
+                  }}
                 </span>
               </div>
             </div>
@@ -125,7 +135,7 @@
                 :key="index"
                 class="flex flex-nowrap gap-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
-                @click="filterByCategory(category.name)"
+                @click="filterByCategory(category?.name)"
               >
                 <img
                   src="/icons/category.png"

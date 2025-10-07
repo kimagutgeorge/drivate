@@ -88,17 +88,15 @@
               :key="index"
               class="p-2 hover:bg-white category"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByMake(make?.id)"
             >
-              <router-link
-                :to="`/vehicles/${is_make}/${slugify(make?.name)}`"
-                class="w-full flex gap-2 flex-nowrap inner-cat"
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="make?.image_url"
                   class="w-[30px] min-w-[30px] h-fit"
                 />
                 <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
-              </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -112,17 +110,15 @@
               :key="index"
               class="p-2 hover:bg-white category"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByBodyType(type?.id)"
             >
-              <router-link
-                :to="`/vehicles/${is_body_type}/${slugify(type?.name)}`"
-                class="w-full flex gap-2 flex-nowrap inner-cat"
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="type?.image_url"
                   class="w-[30px] min-w-[30px] filter grayscale h-fit"
                 />
                 <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
-              </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -136,11 +132,9 @@
               :key="index"
               class="p-2 hover:bg-white category to-third"
               style="border-bottom: 1px solid #f4f5f4"
+              @click="filterByPrice(price)"
             >
-              <router-link
-                to="/vehicles"
-                class="w-full flex gap-2 flex-nowrap inner-cat"
-              >
+              <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   src="/icons/coin.png"
                   class="w-[27px] min-w-[15px] h-fit to-hide"
@@ -148,9 +142,19 @@
                 <p
                   class="font-semibold text-sm cursor-pointer hover:underline ml-2"
                 >
-                  {{ price?.price }}
+                  {{
+                    price?.min_price === 0
+                      ? "Less than"
+                      : price?.min_price.toLocaleString()
+                  }}
+                  -
+                  {{
+                    price?.max_price === 0
+                      ? "More than"
+                      : price?.max_price.toLocaleString()
+                  }}
                 </p>
-              </router-link>
+              </div>
             </div>
           </div>
         </div>
@@ -194,16 +198,11 @@
             :key="index"
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
+            @click="filterByModel(model.model_id)"
           >
-            <router-link
-              :to="`/vehicles/${is_model}/${slugify(model?.model_name)}`"
-            >
-              <span
-                class="font-semibold cursor-pointer hover:underline text-sm"
-              >
-                {{ model?.make_name }} {{ model?.model_name }}
-              </span>
-            </router-link>
+            <span class="font-semibold cursor-pointer hover:underline text-sm">
+              {{ model?.make_name }} {{ model?.model_name }}
+            </span>
           </div>
         </div>
         <div class="w-full mt-8">
@@ -215,13 +214,12 @@
             :key="index"
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
+            @click="filterByLocation(location.location_id)"
           >
-            <router-link to="/vehicles">
-              <span
-                class="font-semibold cursor-pointer hover:underline text-sm"
-                >{{ location?.location_name }}</span
-              >
-            </router-link>
+            <span
+              class="font-semibold cursor-pointer hover:underline text-sm"
+              >{{ location?.location_name }}</span
+            >
           </div>
         </div>
       </div>
@@ -471,6 +469,50 @@ export default {
 
         this.blogs = [];
       }
+    },
+
+    // queries
+    filterByMake(makeId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, make: makeId },
+      });
+    },
+
+    filterByModel(modelId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, model: modelId },
+      });
+    },
+
+    filterByBodyType(bodyId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, body: bodyId },
+      });
+    },
+
+    filterByPrice(priceRange) {
+      // Assuming price_ranges have min_price and max_price properties
+      const query = { ...this.$route.query };
+      if (priceRange.min_price) query.min_price = priceRange.min_price;
+      if (priceRange.max_price) query.max_price = priceRange.max_price;
+      this.$router.push({ path: "/vehicles", query });
+    },
+
+    filterByLocation(locationId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, location: locationId },
+      });
+    },
+
+    filterByCategory(categoryId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, category: categoryId },
+      });
     },
   },
 };

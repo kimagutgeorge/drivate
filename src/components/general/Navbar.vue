@@ -139,10 +139,10 @@
           >
           <h4 class="mt-4 font-bold text-sm theme-blue">SHOP BY MAKE</h4>
           <li v-for="(make, index) in makes" :key="index" class="list-none">
-            <router-link
-              :to="`/vehicles/${is_make}/${slugify(make.name)}`"
-              class="text-sm font-semibold hover:underline hover:text-[#0066ff]"
-              >{{ make.name }}</router-link
+            <span
+              class="text-sm font-semibold hover:underline hover:text-[#0066ff] cursor-pointer"
+              @click="filterByMake(make?.id)"
+              >{{ make.name }}</span
             >
           </li>
         </div>
@@ -154,10 +154,10 @@
             :key="index"
             class="list-none"
           >
-            <router-link
-              :to="`/vehicles/${is_body_type}/${slugify(type.name)}`"
-              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-              >{{ type.name }}</router-link
+            <span
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
+              @click="filterByBodyType(type.id)"
+              >{{ type.name }}</span
             >
           </li>
         </div>
@@ -165,10 +165,21 @@
         <div class="w-[25%]">
           <h4 class="font-bold text-sm theme-blue">SHOP BY PRICE</h4>
           <li v-for="(price, index) in prices" :key="index" class="list-none">
-            <router-link
-              to=""
-              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-              >{{ price.price }}</router-link
+            <span
+              class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
+              @click="filterByPrice(price)"
+            >
+              {{
+                price?.min_price === 0
+                  ? "Less than"
+                  : price?.min_price.toLocaleString()
+              }}
+              -
+              {{
+                price?.max_price === 0
+                  ? "More than"
+                  : price?.max_price.toLocaleString()
+              }}</span
             >
           </li>
         </div>
@@ -179,10 +190,10 @@
             :key="index"
             class="list-none"
           >
-            <router-link
-              to=""
-              class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-              >{{ category.category }}</router-link
+            <span
+              class="cursor-pointer text-sm font-semibold hover:text-[#0066ff] hover:underline"
+              @click="filterByCategory(category?.name)"
+              >{{ category.name }}</span
             >
           </li>
         </div>
@@ -353,7 +364,7 @@ import { slugify } from "../../utils/store";
 export default {
   name: "Navbar",
   props: {
-    categories: Array,
+    // categories: Array,
     contacts: Array,
     has_top_bar: Boolean,
     makes: Array,
@@ -368,12 +379,62 @@ export default {
       filter_is_hidden: false,
       is_make: "make",
       is_body_type: "type",
+      categories: [
+        { name: "Petrol" },
+        { name: "Diesel" },
+        { name: "Hybrid" },
+        { name: "Electric" },
+        { name: "Other" },
+      ],
     };
   },
 
   /* methods */
   methods: {
     slugify,
+    // New filter methods for sidebar clicks
+    filterByMake(makeId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, make: makeId },
+      });
+    },
+
+    filterByModel(modelId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, model: modelId },
+      });
+    },
+
+    filterByBodyType(bodyId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, body: bodyId },
+      });
+    },
+
+    filterByPrice(priceRange) {
+      // Assuming price_ranges have min_price and max_price properties
+      const query = { ...this.$route.query };
+      if (priceRange.min_price) query.min_price = priceRange.min_price;
+      if (priceRange.max_price) query.max_price = priceRange.max_price;
+      this.$router.push({ path: "/vehicles", query });
+    },
+
+    filterByLocation(locationId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, location: locationId },
+      });
+    },
+
+    filterByCategory(categoryId) {
+      this.$router.push({
+        path: "/vehicles",
+        query: { ...this.$route.query, category: categoryId },
+      });
+    },
   },
 };
 </script>
