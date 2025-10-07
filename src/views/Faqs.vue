@@ -14,7 +14,8 @@
         <!-- background -->
         <div class="w-full h-full absolute">
           <img
-            src="/images/car-4.jpg"
+            :src="about_us?.image_1"
+            :alt="about_us?.image_1_alt"
             class="w-full min-w-full max-w-none h-auto min-h-full"
           />
         </div>
@@ -32,10 +33,14 @@
           >
             <input
               type="text"
+              v-model="search_input"
               placeholder="Search"
               class="p-2 w-full bg-[#fffadd] focus:outline-none"
             />
-            <button class="p-2 h-full flex flex-col justify-center">
+            <button
+              @click="search_faq"
+              class="p-2 h-full flex flex-col justify-center"
+            >
               <i class="fa-solid fa-search theme-blue text-xl"></i>
             </button>
           </div>
@@ -95,6 +100,10 @@ import axios from "axios";
 export default {
   name: "Faqs",
   props: {
+    about_us: {
+      type: String,
+      default: null,
+    },
     brands: Array,
     body_styles: Array,
     models: Array,
@@ -110,6 +119,7 @@ export default {
       categories: [],
       faqs: [],
       selected_category: "All",
+      search_input: "",
     };
   },
   /* mounted */
@@ -141,6 +151,21 @@ export default {
         (faq) => faq.category_name === this.selected_category
       );
       this.faqs = this.filtered_faqs;
+    },
+    async search_faq() {
+      try {
+        const response = await axios.get(
+          api + "/search-faq/" + this.search_input
+        );
+        const data = response.data;
+        if (data.success) {
+          this.faqs = data.faqs;
+        } else {
+          console.error(data.error);
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
     async getFaqs() {
       try {

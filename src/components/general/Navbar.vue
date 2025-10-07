@@ -5,14 +5,11 @@
         <img src="/images/advert-image.jpg" class="w-full h-auto" />
       </router-link>
     </div> -->
-    <div
-      class="w-full flex justify-end bg-white bg-theme-gray text-white px-[5%] py-1"
-    >
+    <div class="w-full flex justify-end bg-theme-gray text-white px-[5%] py-1">
       <!-- <div class="w-1/2 flex justify-end"> -->
       <span class="mr-8 text-sm"
         ><span class="text-bold mr-2">Currency</span>
         <select class="bg-theme-gray border border-white">
-          <option>USD</option>
           <option>KES</option>
         </select></span
       >
@@ -281,26 +278,25 @@
                   :key="index"
                   class="list-none"
                 >
-                  <router-link
-                    to=""
-                    class="text-sm font-semibold hover:underline hover:text-[#0066ff]"
-                    >{{ make.make }}</router-link
+                  <span
+                    class="text-sm font-semibold hover:underline hover:text-[#0066ff] cursor-pointer"
+                    @click="filterByMake(make?.id)"
+                    >{{ make.name }}</span
                   >
                 </li>
               </div>
               <!-- body type -->
               <div class="w-full mt-2">
                 <h4 class="font-bold text-sm theme-blue">SHOP BY TYPE</h4>
-                {{ body_styles }}
                 <li
                   v-for="(type, index) in body_styles"
                   :key="index"
                   class="list-none"
                 >
-                  <router-link
-                    to=""
-                    class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-                    >{{ type.type }}</router-link
+                  <span
+                    class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
+                    @click="filterByBodyType(type.id)"
+                    >{{ type.name }}</span
                   >
                 </li>
               </div>
@@ -312,10 +308,21 @@
                   :key="index"
                   class="list-none"
                 >
-                  <router-link
-                    to=""
-                    class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-                    >{{ price.price }}</router-link
+                  <span
+                    class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
+                    @click="filterByPrice(price)"
+                  >
+                    {{
+                      price?.min_price === 0
+                        ? "Less than"
+                        : price?.min_price.toLocaleString()
+                    }}
+                    -
+                    {{
+                      price?.max_price === 0
+                        ? "More than"
+                        : price?.max_price.toLocaleString()
+                    }}</span
                   >
                 </li>
               </div>
@@ -326,10 +333,10 @@
                   :key="index"
                   class="list-none"
                 >
-                  <router-link
-                    to=""
-                    class="text-sm font-semibold hover:text-[#0066ff] hover:underline"
-                    >{{ category.category }}</router-link
+                  <span
+                    class="cursor-pointer text-sm font-semibold hover:text-[#0066ff] hover:underline"
+                    @click="filterByCategory(category?.name)"
+                    >{{ category.name }}</span
                   >
                 </li>
               </div>

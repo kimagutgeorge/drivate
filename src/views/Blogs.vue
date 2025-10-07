@@ -9,11 +9,16 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
+
     <div class="w-[90%] flex flex-wrap">
       <div class="w-full h-[40vh] overflow-hidden mt-6 relative view-car">
         <!-- background -->
         <div class="w-full h-full absolute">
-          <img src="/static/about-us1.jpg" class="w-full h-auto" />
+          <img
+            :src="about_us?.image_1"
+            :alt="about_us?.image_1_alt"
+            class="w-full h-auto"
+          />
         </div>
         <!-- dark panel -->
         <div class="w-full h-full opacity-50 bg-black absolute z-10"></div>
@@ -28,9 +33,13 @@
             <input
               type="text"
               placeholder="Search"
+              v-model="search_input"
               class="p-2 w-full bg-[#fffadd] focus:outline-none"
             />
-            <button class="p-2 h-full flex flex-col justify-center">
+            <button
+              @click="search_blog"
+              class="p-2 h-full flex flex-col justify-center"
+            >
               <i class="fa-solid fa-search theme-blue text-xl"></i>
             </button>
           </div>
@@ -159,6 +168,10 @@ import { api, slugify } from "../utils/store";
 export default {
   name: "Blogs",
   props: {
+    about_us: {
+      type: String,
+      default: null,
+    },
     brands: Array,
     body_styles: Array,
     models: Array,
@@ -177,6 +190,7 @@ export default {
       filtered_blogs: [],
       categories: [],
       selected_category: "All",
+      search_input: "",
 
       //pagination
       currentPage: 0, // start on first page
@@ -209,6 +223,21 @@ export default {
   },
   methods: {
     slugify,
+    async search_blog() {
+      try {
+        const response = await axios.get(
+          api + "/search-blog/" + this.search_input
+        );
+        const data = response.data;
+        if (data.success) {
+          this.blogs = data.blogs;
+        } else {
+          console.error(data.error);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
     filter_category(category) {
       this.blogs = this.all_blogs_tracker;
       this.selected_category = category;

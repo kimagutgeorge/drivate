@@ -1,6 +1,15 @@
 <template>
   <div class="w-full p-4 bg-third h-fit bg-[#E6B800] search">
-    <h4 class="font-bold text-xl theme-blue">Advanced Search</h4>
+    <h4
+      @click="toggleSearch"
+      class="font-bold text-xl theme-blue cursor-pointer flex items-center justify-between"
+    >
+      <span>Advanced Search</span>
+      <i
+        class="fa-solid fa-angle-down toggle-icon"
+        :class="{ 'rotate-180': search_is_visible }"
+      />
+    </h4>
     <div class="w-full flex flex-nowrap mt-4">
       <input
         type="text"
@@ -260,13 +269,44 @@ export default {
         { price: "Above 7000000" },
       ],
       search_is_visible: true,
+      window_width: window.innerWidth,
     };
   },
   mounted() {
     this.models = this.fetched_models;
     this.all_models_tracker = this.fetched_models;
+
+    // Set initial visibility based on screen size
+    this.updateSearchVisibility();
+
+    // Add resize listener
+    window.addEventListener("resize", this.handleResize);
+  },
+  beforeUnmount() {
+    // Clean up resize listener
+    window.removeEventListener("resize", this.handleResize);
   },
   methods: {
+    handleResize() {
+      this.window_width = window.innerWidth;
+      this.updateSearchVisibility();
+    },
+
+    updateSearchVisibility() {
+      if (this.window_width < 850) {
+        this.search_is_visible = false;
+      } else {
+        this.search_is_visible = true;
+      }
+    },
+
+    toggleSearch() {
+      // Only allow toggle on small screens
+      if (this.window_width < 850) {
+        this.search_is_visible = !this.search_is_visible;
+      }
+    },
+
     filterModels() {
       this.models = [];
       this.selected_model = ""; // Reset model selection when make changes
@@ -328,3 +368,20 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.toggle-icon {
+  transition: transform 0.3s ease;
+  display: none;
+}
+
+@media (max-width: 850px) {
+  .toggle-icon {
+    display: inline-block;
+  }
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+</style>
