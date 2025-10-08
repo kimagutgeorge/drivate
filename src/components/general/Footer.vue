@@ -161,7 +161,10 @@
             <!-- logo -->
             <div class="w-full mt-20">
               <router-link to="/"
-                ><img :src="logo" class="w-[200px] h-auto"
+                ><img
+                  :src="logo"
+                  alt="drivate car sellers logo"
+                  class="w-[200px] h-auto"
               /></router-link>
             </div>
           </div>

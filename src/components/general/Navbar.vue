@@ -66,7 +66,7 @@
       <div class="w-[90%] flex py-2">
         <div class="w-fit">
           <router-link to="/"
-            ><img :src="logo" class="w-[150px]"
+            ><img :src="logo" alt="drivate car sellers logo" class="w-[150px]"
           /></router-link>
         </div>
         <div class="w-full flex justify-center">

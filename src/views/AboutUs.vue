@@ -17,6 +17,8 @@
 import Spinner from "../components/general/Spinner.vue";
 import Navbar from "../components/general/Navbar.vue";
 import Footer from "../components/general/Footer.vue";
+import { useHead } from "@vueuse/head";
+
 export default {
   name: "About us",
   components: { Spinner, Navbar, Footer },

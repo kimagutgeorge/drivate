@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <sitemap>
+    <loc>https://www.drivate.co.ke/sitemap-static.xml</loc>
+    <lastmod>2025-10-07</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.drivate.co.ke/sitemap-vehicles.xml</loc>
+    <lastmod>2025-10-07</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>https://www.drivate.co.ke/sitemap-blogs.xml</loc>
+    <lastmod>2025-10-07</lastmod>
+  </sitemap>
+</sitemapindex>

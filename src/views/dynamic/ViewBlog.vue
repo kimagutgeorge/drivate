@@ -26,7 +26,11 @@
                 <p
                   class="group-hover:text-[#0066ff] transition-all duration-300 ease-in-out"
                 >
-                  {{ blog?.title }}
+                  <router-link
+                    :to="`/blogs/view/${blog?.blog_id}/${slugify(blog?.title)}`"
+                  >
+                    {{ blog?.title }}
+                  </router-link>
                 </p>
                 <p class="mt-2 text-sm">{{ format_date(blog?.created_at) }}</p>
               </li>
@@ -71,8 +75,9 @@
 import Footer from "../../components/general/Footer.vue";
 import Navbar from "../../components/general/Navbar.vue";
 import Spinner from "../../components/general/Spinner.vue";
-import { api } from "../../utils/store";
+import { api, slugify } from "../../utils/store";
 import axios from "axios";
+import { useHead } from "@vueuse/head";
 
 export default {
   name: "Blogs",
@@ -94,194 +99,6 @@ export default {
   data() {
     return {
       page_is_loading: true,
-      contacts: [
-        { contact: "0759200998", is_phone: true },
-        { contact: "info@drivate.co.ke", is_email: true },
-        {
-          contact: "facebook.com",
-          is_handle: true,
-          icon: "fa-brands fa-facebook-f",
-        },
-        { contact: "tiktok.com", is_handle: true, icon: "fa-brands fa-tiktok" },
-        {
-          contact: "instagram.com",
-          is_handle: true,
-          icon: "fa-brands fa-instagram",
-        },
-      ],
-      top_stories: [
-        {
-          title: "Tesla Unveils Next-Gen Roadster with Record-Breaking Speed",
-          date: "5 July 2024",
-        },
-        {
-          title: "Toyota Launches Affordable EV Line for African Market",
-          date: "12 June 2024",
-        },
-        {
-          title: "How AI Is Revolutionizing Car Safety Features",
-          date: "28 May 2024",
-        },
-        {
-          title: "The Rise of Hydrogen-Powered Vehicles in 2024",
-          date: "14 April 2024",
-        },
-        {
-          title: "Top 10 Fuel-Efficient Cars to Watch This Year",
-          date: "2 March 2024",
-        },
-      ],
-
-      makes: [
-        { make: "Toyota" },
-        { make: "Suzuki" },
-        { make: "Honda" },
-        { make: "Nissan" },
-        { make: "Mazda" },
-        { make: "Mitsubishi" },
-        { make: "Subaru" },
-        { make: "Ford" },
-        { make: "Chevrolet" },
-        { make: "Volkswagen" },
-        { make: "Hyundai" },
-        { make: "Kia" },
-        { make: "Mercedes-Benz" },
-        { make: "BMW" },
-        { make: "Audi" },
-      ],
-      years: [
-        { year: 2000 },
-        { year: 2001 },
-        { year: 2002 },
-        { year: 2003 },
-        { year: 2004 },
-        { year: 2005 },
-        { year: 2006 },
-        { year: 2007 },
-        { year: 2008 },
-        { year: 2009 },
-        { year: 2010 },
-        { year: 2011 },
-        { year: 2012 },
-        { year: 2013 },
-        { year: 2014 },
-        { year: 2015 },
-        { year: 2016 },
-        { year: 2017 },
-        { year: 2018 },
-        { year: 2019 },
-        { year: 2020 },
-        { year: 2021 },
-        { year: 2022 },
-        { year: 2023 },
-        { year: 2024 },
-        { year: 2025 },
-      ],
-      prices: [
-        { price: "500,000" },
-        { price: "750,000" },
-        { price: "1,000,000" },
-        { price: "1,500,000" },
-        { price: "2,000,000" },
-        { price: "2,500,000" },
-        { price: "3,000,000" },
-        { price: "4,000,000" },
-        { price: "5,000,000" },
-        { price: "6,000,000" },
-        { price: "7,000,000" },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      makes: [
-        { make: "Toyota", icon: "/static/toyota.png" },
-        { make: "Honda", icon: "/static/honda.png" },
-        { make: "Nissan", icon: "/static/mazda.png" },
-        { make: "Mazda", icon: "/static/mazda.png" },
-        { make: "Subaru", icon: "/static/subaru.png" },
-        { make: "Ford", icon: "/static/ford.png" },
-        { make: "Chevrolet", icon: "/static/chevy.png" },
-        { make: "Volkswagen", icon: "/static/vw.png" },
-        { make: "Kia", icon: "/static/kia.png" },
-        { make: "Mercedes-Benz", icon: "/static/mercedes.png" },
-        {
-          make: "BMW",
-          icon: "/static/bmw.png",
-        },
-      ],
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      types: [
-        { type: "Coupe", icon: "static/bodies/coupe.png" },
-        { type: "Sedan", icon: "static/bodies/sedan.png" },
-        { type: "Hatchback", icon: "static/bodies/hatchback.png" },
-        { type: "SUV", icon: "static/bodies/suv.png" },
-        { type: "Crossover", icon: "static/bodies/crossover.png" },
-        { type: "Convertible", icon: "static/bodies/convertible.png" },
-        { type: "Pickup", icon: "static/bodies/pickup.png" },
-        { type: "Van", icon: "static/bodies/van.png" },
-      ],
-      price_ranges: [
-        { price: "Less than 500,000" },
-        { price: "500,001 - 1,000,000" },
-        { price: "1,000,001 - 1,500,000" },
-        { price: "1,500,001 - 2,000,000" },
-        { price: "2,000,001 - 2,500,000" },
-        { price: "2,500,001 - 3,000,000" },
-        { price: "3,000,001 - 4,000,000" },
-        { price: "4,000,001 - 5,000,000" },
-        { price: "5,000,001 - 6,000,000" },
-        { price: "6,000,001 - 7,000,000" },
-        { price: "Above 7,000,000" },
-      ],
-      locations: [
-        { name: "Nairobi" },
-        { name: "Mombasa" },
-        { name: "Japan - Import" },
-        { name: "Import - Dubai" },
-        { name: "Bute" },
-        { name: "Machakos" },
-        { name: "Busia" },
-        { name: "Bura" },
-        { name: "Kiambu" },
-        { name: "Changamwe" },
-      ],
-      most_searched: [
-        { name: "Isuzu D-Max" },
-        { name: "Toyota Land Cruiser 70 Series" },
-        { name: "Toyota Hiace" },
-        { name: "Toyota Hilux" },
-        { name: "Toyota Prado" },
-        { name: "Subaru Forester" },
-        { name: "Toyota Axio" },
-        { name: "Toyota Vitz" },
-        { name: "Nissan X-Trail" },
-        { name: "Mahindra Bolero Pickup" },
-      ],
-      blog_categories: [
-        { name: "Car Reviews" },
-        { name: "Car Maintenance Tips" },
-        { name: "Electric & Hybrid Vehicles" },
-        { name: "Car Buying Guides" },
-        { name: "Motorsport News" },
-        { name: "Classic & Vintage Cars" },
-        { name: "Auto Industry Trends" },
-      ],
 
       // data arrays
       blog: null,
@@ -289,6 +106,7 @@ export default {
     };
   },
   async mounted() {
+    this.setupSEO();
     try {
       await Promise.race([
         Promise.all([this.fetchBlogs(), this.getBlogs()]),
@@ -302,9 +120,34 @@ export default {
       document.title = "Drivate - " + this.blog.title;
       this.page_is_loading = false;
     }
+
+    this.$watch(
+      () => this.$route.params.id,
+      async (newId, oldId) => {
+        if (newId !== oldId) {
+          this.page_is_loading = true; // Add this to show loading state
+
+          try {
+            await Promise.race([
+              Promise.all([this.fetchBlogs(), this.getBlogs()]),
+              new Promise((_, reject) =>
+                setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
+              ),
+            ]);
+          } catch (error) {
+            console.error("Loading failed:", error);
+          } finally {
+            document.title = `Drivate - ${this.name}`;
+
+            this.page_is_loading = false;
+          }
+        }
+      }
+    );
   },
 
   methods: {
+    slugify,
     async fetchBlogs() {
       try {
         const response = await axios.get(`${api}/get-blog/${this.id}`);
@@ -357,6 +200,359 @@ export default {
       const date = new Date(date_to_change);
       const date_options = { month: "long", day: "numeric", year: "numeric" };
       return date.toLocaleDateString("en-US", date_options);
+    },
+
+    /*
+     *
+     * SEO SETUP
+     *
+     *
+     */
+    setupSEO() {
+      // Helper function to get contact by type
+      const getContact = (type) => {
+        return this.contacts?.find((c) => c.type === type)?.value || null;
+      };
+
+      // Get social media links
+      const getSocialLinks = () => {
+        const socials =
+          this.contacts?.filter((c) => c.type === "social" && c.social_link) ||
+          [];
+        return socials.map((s) => s.social_link);
+      };
+
+      // Format phone number for international use
+      const formatPhoneNumber = (phone) => {
+        if (!phone) return "+254-XXX-XXXXXX";
+        const cleanPhone = phone.replace(/^0/, "");
+        return `+254${cleanPhone}`;
+      };
+
+      const phone = getContact("phone");
+      const email = getContact("email");
+      const whatsapp = getContact("whatsapp");
+      const socialLinks = getSocialLinks();
+
+      useHead({
+        title:
+          "Drivate Kenya - Buy & Sell Quality Cars in Kenya | New & Used Vehicles",
+
+        meta: [
+          {
+            name: "description",
+            content:
+              "Drivate is Kenya's premier car marketplace. Browse thousands of quality new and used cars for sale across Kenya. Find your dream car with verified dealers, competitive prices, and flexible financing options. Shop sedans, SUVs, trucks, and more from top brands.",
+          },
+          {
+            name: "keywords",
+            content:
+              "buy cars Kenya, sell cars Kenya, used cars Nairobi, new cars Kenya, car dealership Kenya, vehicles for sale Kenya, affordable cars Kenya, car financing Kenya, Japanese used cars Kenya, SUVs Kenya, sedan Kenya, trucks Kenya, Drivate Kenya, car marketplace Kenya",
+          },
+          {
+            name: "author",
+            content: "Drivate Kenya",
+          },
+          {
+            name: "robots",
+            content:
+              "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+          },
+          {
+            name: "language",
+            content: "English",
+          },
+          {
+            name: "revisit-after",
+            content: "7 days",
+          },
+          {
+            name: "coverage",
+            content: "Kenya",
+          },
+          {
+            name: "distribution",
+            content: "global",
+          },
+          {
+            name: "rating",
+            content: "general",
+          },
+
+          // Open Graph / Facebook Meta Tags
+          {
+            property: "og:type",
+            content: "website",
+          },
+          {
+            property: "og:url",
+            content: "https://www.drivate.co.ke/",
+          },
+          {
+            property: "og:title",
+            content: "Drivate Kenya - Buy & Sell Quality Cars in Kenya",
+          },
+          {
+            property: "og:description",
+            content:
+              "Kenya's trusted car marketplace. Browse thousands of quality new and used vehicles. Find sedans, SUVs, trucks from verified dealers with competitive prices and financing options.",
+          },
+          {
+            property: "og:image",
+            content: "https://www.drivate.co.ke/og-image.jpg",
+          },
+          {
+            property: "og:image:width",
+            content: "1200",
+          },
+          {
+            property: "og:image:height",
+            content: "630",
+          },
+          {
+            property: "og:site_name",
+            content: "Drivate Kenya",
+          },
+          {
+            property: "og:locale",
+            content: "en_KE",
+          },
+
+          // Twitter Card Meta Tags
+          {
+            name: "twitter:card",
+            content: "summary_large_image",
+          },
+          {
+            name: "twitter:url",
+            content: "https://www.drivate.co.ke/",
+          },
+          {
+            name: "twitter:title",
+            content: "Drivate Kenya - Buy & Sell Quality Cars",
+          },
+          {
+            name: "twitter:description",
+            content:
+              "Kenya's premier car marketplace. Browse quality new & used vehicles with verified dealers and flexible financing.",
+          },
+          {
+            name: "twitter:image",
+            content: "https://www.drivate.co.ke/twitter-image.jpg",
+          },
+
+          // Mobile Optimization
+          {
+            name: "viewport",
+            content: "width=device-width, initial-scale=1.0, maximum-scale=5.0",
+          },
+          {
+            name: "theme-color",
+            content: "#E6B800",
+          },
+          {
+            name: "apple-mobile-web-app-capable",
+            content: "yes",
+          },
+          {
+            name: "apple-mobile-web-app-status-bar-style",
+            content: "black-translucent",
+          },
+
+          // Geographic Targeting
+          {
+            name: "geo.region",
+            content: "KE",
+          },
+          {
+            name: "geo.placename",
+            content: "Nairobi",
+          },
+          {
+            name: "geo.position",
+            content: "-1.286389;36.817223",
+          },
+          {
+            name: "ICBM",
+            content: "-1.286389, 36.817223",
+          },
+        ],
+
+        link: [
+          {
+            rel: "canonical",
+            href: "https://www.drivate.co.ke/",
+          },
+          {
+            rel: "icon",
+            type: "image/png",
+            href: "/favicon.png",
+          },
+          {
+            rel: "apple-touch-icon",
+            href: "/apple-touch-icon.png",
+          },
+          {
+            rel: "alternate",
+            hreflang: "en-ke",
+            href: "https://www.drivate.co.ke/",
+          },
+          {
+            rel: "alternate",
+            hreflang: "x-default",
+            href: "https://www.drivate.co.ke/",
+          },
+        ],
+
+        script: [
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "AutoDealer",
+              name: "Drivate Kenya",
+              description:
+                "Kenya's premier car marketplace for buying and selling quality new and used vehicles",
+              url: "https://www.drivate.co.ke",
+              logo: "https://www.drivate.co.ke/logo.png",
+              image: "https://www.drivate.co.ke/og-image.jpg",
+              telephone: phone ? formatPhoneNumber(phone) : "+254759200998",
+              email: email || "geojimagut@gmail.com",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Tom Mboya Street",
+                addressLocality: "Mombasa",
+                addressRegion: "Mombasa County",
+                postalCode: "00100",
+                addressCountry: "KE",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: "4.0435",
+                longitude: "39.6682",
+              },
+              priceRange: "KES 500,000 - KES 20,000,000",
+              areaServed: {
+                "@type": "Country",
+                name: "Kenya",
+              },
+              sameAs:
+                socialLinks.length > 0
+                  ? socialLinks
+                  : [
+                      "https://www.facebook.com/drivate",
+                      "https://www.instagram.com/drivate",
+                      "https://twitter.com/drivate",
+                    ],
+            }),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Drivate Kenya",
+              url: "https://www.drivate.co.ke",
+              potentialAction: {
+                "@type": "SearchAction",
+                target:
+                  "https://www.drivate.co.ke/vehicles?q={search_term_string}",
+                "query-input": "required name=search_term_string",
+              },
+            }),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Drivate Kenya",
+              url: "https://www.drivate.co.ke",
+              logo: "https://www.drivate.co.ke/logo.png",
+              contactPoint: [
+                {
+                  "@type": "ContactPoint",
+                  telephone: phone ? formatPhoneNumber(phone) : "+254759200998",
+                  contactType: "Customer Service",
+                  areaServed: "KE",
+                  availableLanguage: ["English", "Swahili"],
+                },
+                ...(whatsapp
+                  ? [
+                      {
+                        "@type": "ContactPoint",
+                        telephone: formatPhoneNumber(whatsapp),
+                        contactType: "Customer Support",
+                        contactOption: "TollFree",
+                        areaServed: "KE",
+                        availableLanguage: ["English", "Swahili"],
+                      },
+                    ]
+                  : []),
+              ],
+            }),
+          },
+          {
+            type: "application/ld+json",
+            children: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              "@id": "https://www.drivate.co.ke",
+              name: "Drivate Kenya",
+              image: "https://www.drivate.co.ke/logo.png",
+              telephone: phone ? formatPhoneNumber(phone) : "+254759200998",
+              email: email || "geojimagut@gmail.com",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Tom Mboya Street",
+                addressLocality: "Mombasa",
+                addressRegion: "Mombasa County",
+                postalCode: "00100",
+                addressCountry: "KE",
+              },
+              geo: {
+                "@type": "GeoCoordinates",
+                latitude: "4.0435",
+                longitude: "39.6682",
+              },
+              url: "https://www.drivate.co.ke",
+              priceRange: "KES 500,000 - KES 20,000,000",
+              openingHoursSpecification: [
+                {
+                  "@type": "OpeningHoursSpecification",
+                  dayOfWeek: [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                  ],
+                  opens: "08:00",
+                  closes: "18:00",
+                },
+              ],
+              sameAs:
+                socialLinks.length > 0
+                  ? socialLinks
+                  : [
+                      "https://www.facebook.com/drivate",
+                      "https://www.instagram.com/drivate",
+                      "https://twitter.com/drivate",
+                    ],
+            }),
+          },
+        ],
+
+        htmlAttrs: {
+          lang: "en",
+          dir: "ltr",
+        },
+
+        bodyAttrs: {
+          class: "drivate-home",
+        },
+      });
     },
   },
 };
