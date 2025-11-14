@@ -392,6 +392,7 @@ export default {
       body_style: "",
 
       //contact details
+      fetched_contacts: [],
       whatsapp_number: "",
       contact_phone: "",
       contact_email: "",
@@ -412,7 +413,11 @@ export default {
     this.setupSEO();
     try {
       await Promise.race([
-        Promise.all([this.getFeatures(), this.fetchVehicle()]),
+        Promise.all([
+          this.getFeatures(),
+          this.fetchVehicle(),
+          this.getContacts(),
+        ]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
         ),
@@ -423,7 +428,7 @@ export default {
       document.title = `Drivate - ${this.name || "Loading vehicle..."} `;
       this.generate_features();
       this.fetch_simillar_vehicles();
-      this.getContacts();
+
       // this.getMakes();
       // this.getModels();
       // this.getBodyStyles();
@@ -473,7 +478,7 @@ export default {
         const response = await axios.get(`${api}/get-vehicle/${this.id}`);
 
         const data = response.data;
-        console.log("Vehicle details: ", data);
+        // console.log("Vehicle details: ", data);
         // Check if the request was successful
         if (data.success) {
           this.vehicle = data.vehicle;
@@ -527,15 +532,15 @@ export default {
         const response = await axios.get(`${api}/get-makes`);
         const data = response.data;
 
-        console.log("Full response:", data); // Debug log
+        // console.log("Full response:", data); // Debug log
 
         if (data.success) {
           this.brands = data.brands;
         } else {
-          console.log("Error fetching brands");
+          // console.log("Error fetching brands");
         }
 
-        console.log("brands array:", this.brands); // Debug log
+        // console.log("brands array:", this.brands); // Debug log
       } catch (error) {
         console.error("Error fetching brands:", error);
       }
@@ -546,7 +551,7 @@ export default {
         const response = await axios.get(`${api}/get-body-styles`);
         const data = response.data;
 
-        console.log("Full response:", data); // Debug log
+        // console.log("Full response:", data); // Debug log
 
         if (data.success) {
           this.body_styles = data.body_styles; // Extract the array
@@ -578,11 +583,11 @@ export default {
         const response = await axios.get(`${api}/get-features`);
         const data = response.data;
 
-        console.log("features response:", data); // Debug log
+        // console.log("features response:", data); // Debug log
 
         if (data.success && data.features) {
           this.features = data.features; // Extract the array
-          console.log("Feature zimekam ni: ", this.features);
+          // console.log("Feature zimekam ni: ", this.features);
         } else {
           this.features = []; // Fallback to empty array
           console.warn("No features found in response");
@@ -597,13 +602,13 @@ export default {
       const features_ids = new Set(
         this.car_features.map((item) => item.feature_id)
       );
-      console.log("Featured ids: ", features_ids);
+      // console.log("Featured ids: ", features_ids);
       this.generated_features = this.features.map((item) => ({
         ...item,
         exists: features_ids.has(item.feature_id),
       }));
 
-      console.log("Features ni: ", this.generated_features);
+      // console.log("Features ni: ", this.generated_features);
     },
     // get contacts
     async getContacts() {
@@ -611,20 +616,29 @@ export default {
         const response = await axios.get(`${api}/get-contacts`);
         const data = response.data;
 
-        console.log("contacts response:", data);
+        // console.log("contacts response:", data);
 
         if (data.success && data.contacts) {
-          this.contacts = data.contacts;
+          this.fetched_contacts = data.contacts;
+          // console.log("Mapped contacts", this.fetched_contacts)
 
           //set phone number
-          const phone = this.contacts.find((item) => item.type === "phone");
-          this.contact_phone = phone.value;
+          const phone = this.fetched_contacts.find(
+            (item) => item.type === "phone"
+          );
+          if (phone) {
+            this.contact_phone = phone.value;
+          }
 
           // set email
-          const email = this.contacts.find((item) => item.type === "email");
-          this.contact_email = email.value;
+          const email = this.fetched_contacts.find(
+            (item) => item.type === "email"
+          );
+          if (email) {
+            this.contact_email = email.value;
+          }
 
-          const whatsapp = this.contacts.find(
+          const whatsapp = this.fetched_contacts.find(
             (item) => item.type === "whatsapp"
           );
 
@@ -645,7 +659,7 @@ export default {
             this.whatsapp_number = cleanNumber;
           }
         } else {
-          this.contacts = [];
+          this.fetched_contacts = [];
         }
       } catch (error) {
         console.error("Error fetching contacts:", error);
@@ -1080,7 +1094,7 @@ Address: ${client_address}`;
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               priceRange: "KES 500,000 - KES 20,000,000",
@@ -1164,7 +1178,7 @@ Address: ${client_address}`;
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               url: "https://www.drivate.co.ke",

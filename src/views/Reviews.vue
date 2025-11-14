@@ -26,7 +26,7 @@
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="make?.image_url"
-                  class="w-[30px] min-w-[30px] h-fit"
+                  class="w-[30px] min-w-[30px] h-fit max-h-[40px]"
                 />
                 <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
               </div>
@@ -46,7 +46,7 @@
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="type?.image_url"
-                  class="w-[30px] min-w-[30px] filter grayscale h-fit"
+                  class="w-[30px] min-w-[30px] filter grayscale h-fit max-h-[40px]"
                 />
                 <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
               </div>
@@ -64,7 +64,10 @@
               @click="filterByPrice(price)"
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
-                <img src="/icons/coin.png" class="w-[20px] h-[20px] h-fit" />
+                <img
+                  src="/icons/coin.png"
+                  class="w-[20px] h-[20px] h-fit max-h-[40px]"
+                />
                 <span
                   class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
                   >{{
@@ -94,7 +97,10 @@
               @click="filterByCategory(category?.name)"
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
-                <img src="/icons/category.png" class="w-[18px] h-[18px]" />
+                <img
+                  src="/icons/category.png"
+                  class="w-[18px] h-[18px] max-h-[40px]"
+                />
                 <span
                   class="font-semibold cursor-pointer hover:underline ml-2 text-sm"
                   >{{ category?.category }}</span
@@ -1038,7 +1044,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "--4.0435",
                 longitude: "39.6682",
               },
               priceRange: "KES 500,000 - KES 20,000,000",
@@ -1122,7 +1128,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               url: "https://www.drivate.co.ke",

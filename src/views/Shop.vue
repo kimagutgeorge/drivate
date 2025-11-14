@@ -27,7 +27,7 @@
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
                     :src="make?.image_url"
-                    class="w-[30px] min-w-[30px] h-fit"
+                    class="w-[30px] min-w-[30px] h-auto"
                   />
                   <p class="font-semibold">{{ make?.name }}</p>
                 </div>
@@ -65,7 +65,7 @@
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
                     :src="type?.image_url"
-                    class="w-[30px] min-w-[30px] filter grayscale h-fit"
+                    class="w-[30px] min-w-[30px] filter grayscale h-auto"
                   />
                   <p class="font-semibold">{{ type?.name }}</p>
                 </div>
@@ -84,10 +84,7 @@
                 style="border-bottom: 1px solid #f4f5f4"
                 @click="filterByPrice(price)"
               >
-                <img
-                  src="/icons/coin.png"
-                  class="w-[20px] h-[20px] h-fit to-hide"
-                />
+                <img src="/icons/coin.png" class="w-[20px] h-[20px] to-hide" />
                 <span class="font-semibold hover:underline ml-2 text-sm">
                   {{
                     price?.min_price === 0
@@ -113,7 +110,7 @@
               <div
                 v-for="(location, index) in locations"
                 :key="index"
-                class="flex flex-nowrap gap-2 py-2 category cursor-pointer hover:bg-white"
+                class="flex flex-nowrap gap-2 p-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
                 @click="filterByLocation(location.location_id)"
               >
@@ -133,14 +130,11 @@
               <div
                 v-for="(category, index) in categories"
                 :key="index"
-                class="flex flex-nowrap gap-2 py-2 category cursor-pointer hover:bg-white"
+                class="flex flex-nowrap gap-2 p-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
                 @click="filterByCategory(category?.name)"
               >
-                <img
-                  src="/icons/category.png"
-                  class="w-[18px] h-[18px] h-fit"
-                />
+                <img src="/icons/category.png" class="w-[18px] h-[18px]" />
                 <span class="font-semibold hover:underline ml-2 text-sm">
                   {{ category?.name }}
                 </span>
@@ -266,7 +260,6 @@
                   class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
                 >
                   <i class="fa-solid fa-angle-left"></i>
-                  Prev
                 </button>
                 <!-- numbering pages -->
                 <button
@@ -288,7 +281,6 @@
                   :disabled="current_grid_page >= total_grid_pages - 1"
                   class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
                 >
-                  Next
                   <i class="fa-solid fa-angle-right"></i>
                 </button>
               </div>
@@ -620,7 +612,7 @@ export default {
 
         if (data.success) {
           this.all_vehicles = data.vehicles;
-          console.log("Filtered vehicles:", data.vehicles);
+          // console.log("Filtered vehicles:", data.vehicles);
 
           // Reset to first page when new results come in
           this.current_grid_page = 0;
@@ -926,7 +918,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               priceRange: "KES 500,000 - KES 20,000,000",
@@ -1010,7 +1002,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               url: "https://www.drivate.co.ke",

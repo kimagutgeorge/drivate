@@ -37,7 +37,7 @@ const mapContainer = ref(null);
 // Define markers locally
 const markers = [
   {
-    position: [-1.3406616986466275, 36.754291975215125],
+    position: [-4.0435, 39.6682],
     popupText: "<span class='text-white'>Tom Mboya, Mombasa</span>",
   },
 ];

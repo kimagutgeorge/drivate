@@ -89,7 +89,7 @@
                 <div class="w-ful0 flex theme-yellow">
                   <div class="w-1/2">
                     <p
-                      class="text-sm text-[#0166ff] p-2 py-0 w-fit rounded border border-[#0166ff]"
+                      class="text-sm text-[#0166ff] p-2 py-0 w-fit border border-[#0166ff]"
                     >
                       {{ blog?.category }}
                     </p>
@@ -119,7 +119,6 @@
                 class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
               >
                 <i class="fa-solid fa-angle-left"></i>
-                Prev
               </button>
               <!-- numbering pages -->
               <button
@@ -139,7 +138,6 @@
                 :disabled="currentPage >= totalPages - 1"
                 class="px-3 py-1 border border-[#4d4d4d] disabled:opacity-50"
               >
-                Next
                 <i class="fa-solid fa-angle-right"></i>
               </button>
             </div>
@@ -530,7 +528,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               priceRange: "KES 500,000 - KES 20,000,000",
@@ -614,7 +612,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               url: "https://www.drivate.co.ke",

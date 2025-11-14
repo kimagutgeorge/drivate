@@ -45,7 +45,7 @@
             />
             <label class="text-sm font-bold">Phone Number</label>
             <input
-              type="tel"
+              type="number"
               v-model="form.phone"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="0700000"
@@ -761,10 +761,10 @@ export default {
     },
 
     filteredBodies() {
-      if (!Array.isArray(this.body_types)) return [];
-      if (!this.bodySearchQuery.trim()) return this.body_types.slice(0, 50);
+      if (!Array.isArray(this.body_styles)) return [];
+      if (!this.bodySearchQuery.trim()) return this.body_styles.slice(0, 50);
 
-      return this.body_types
+      return this.body_styles
         .filter((body) =>
           body?.name?.toLowerCase().includes(this.bodySearchQuery.toLowerCase())
         )
@@ -1561,7 +1561,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               priceRange: "KES 500,000 - KES 20,000,000",
@@ -1645,7 +1645,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               url: "https://www.drivate.co.ke",

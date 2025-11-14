@@ -8,6 +8,8 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
+
+    <p>Hii ni test ya kitu nadai kufanya</p>
     <!-- hero section -->
     <div class="w-full h-[45vh] relative overflow-hidden">
       <div class="w-full absolute top-0 h-full">
@@ -93,7 +95,7 @@
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="make?.image_url"
-                  class="w-[30px] min-w-[30px] h-fit"
+                  class="w-[30px] min-w-[30px] h-auto"
                 />
                 <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
               </div>
@@ -115,7 +117,7 @@
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
                   :src="type?.image_url"
-                  class="w-[30px] min-w-[30px] filter grayscale h-fit"
+                  class="w-[30px] min-w-[30px] filter grayscale h-auto"
                 />
                 <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
               </div>
@@ -435,7 +437,7 @@ export default {
         const response = await axios.get(`${api}/get-carousels`);
         const data = response.data;
 
-        console.log("Full response:", data); // Debug log
+        // console.log("Full response:", data); // Debug log
 
         if (data.success && data.carousels) {
           this.carousels = data.carousels; // Extract the array
@@ -445,7 +447,7 @@ export default {
           console.warn("No carousels found in response");
         }
 
-        console.log("Carousels array:", this.carousels); // Debug log
+        // console.log("Carousels array:", this.carousels); // Debug log
       } catch (error) {
         console.error("Error fetching carousels:", error);
       }
@@ -742,7 +744,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               priceRange: "KES 500,000 - KES 20,000,000",
@@ -826,7 +828,7 @@ export default {
               },
               geo: {
                 "@type": "GeoCoordinates",
-                latitude: "4.0435",
+                latitude: "-4.0435",
                 longitude: "39.6682",
               },
               url: "https://www.drivate.co.ke",

@@ -8,11 +8,11 @@
     <div class="w-full flex justify-end bg-theme-gray text-white px-[5%] py-1">
       <!-- <div class="w-1/2 flex justify-end"> -->
       <span class="mr-8 text-sm"
-        ><span class="text-bold mr-2">Currency</span>
-        <select class="bg-theme-gray border border-white">
+        ><span class="text-bold mr-2">Currency kes</span>
+        <!-- <select class="bg-theme-gray border border-white">
           <option>KES</option>
-        </select></span
-      >
+        </select> -->
+      </span>
       <a
         v-for="(contact, index) in contacts"
         :key="index"

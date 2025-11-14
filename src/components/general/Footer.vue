@@ -174,7 +174,7 @@
     <div class="w-full flex justify-center p-2 bg-[#4d4d4d] mt-6">
       <div class="w-1/2">
         <p class="text-white text-sm">
-          &copy; Drivate 2025. All rigts reserved
+          &copy; Drivate 2025. All rights reserved.
         </p>
       </div>
       <div class="w-1/2 flex justify-end pr-10">

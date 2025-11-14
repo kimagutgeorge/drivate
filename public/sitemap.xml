@@ -1,15 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <sitemap>
-    <loc>https://www.drivate.co.ke/sitemap-static.xml</loc>
-    <lastmod>2025-10-07</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://www.drivate.co.ke/sitemap-vehicles.xml</loc>
-    <lastmod>2025-10-07</lastmod>
-  </sitemap>
-  <sitemap>
-    <loc>https://www.drivate.co.ke/sitemap-blogs.xml</loc>
-    <lastmod>2025-10-07</lastmod>
-  </sitemap>
-</sitemapindex>
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <url>
+    <loc>https://drivate.co.ke/</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/vehicles</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/sell-car</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/contact-us</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/about-us</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/faqs</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/blogs</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/reviews</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/terms-of-use</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/privacy-policy</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/leave-review</loc>
+  </url>
+
+  <url>
+    <loc>https://drivate.co.ke/import-vehicle</loc>
+  </url>
+
+</urlset>
