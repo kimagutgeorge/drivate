@@ -1,4 +1,5 @@
 <template>
+  <p>Hii ni test ya kitu nadai kufanya</p>
   <Spinner logo="/logo.png" v-if="page_is_loading" />
   <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
     <Navbar
@@ -9,7 +10,6 @@
       :prices="price_ranges"
     />
 
-    <p>Hii ni test ya kitu nadai kufanya</p>
     <!-- hero section -->
     <div class="w-full h-[45vh] relative overflow-hidden">
       <div class="w-full absolute top-0 h-full">
