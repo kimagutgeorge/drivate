@@ -171,15 +171,16 @@
         </div>
       </div>
     </div>
-    <div class="w-full flex justify-center p-2 bg-[#4d4d4d] mt-6">
-      <div class="w-1/2">
+    <div class="w-full flex flex-wrap justify-center p-2 bg-[#4d4d4d] mt-6">
+      <div class="w-full md:w-1/2">
         <p class="text-white text-sm">
           &copy; Drivate 2025. All rights reserved.
         </p>
       </div>
-      <div class="w-1/2 flex justify-end pr-10">
+
+      <div class="w-full md:w-1/2 flex justify-end pr-10">
         <button @click="back_to_top">
-          <i class="fa-solid fa-angle-up left-[95%] theme-yellow text-2xl"></i>
+          <i class="fa-solid fa-angle-up theme-yellow text-2xl"></i>
         </button>
       </div>
     </div>

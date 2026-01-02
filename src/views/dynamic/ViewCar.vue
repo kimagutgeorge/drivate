@@ -41,13 +41,10 @@
               <div
                 v-for="(img, index) in fetched_images"
                 :key="index"
-                class="w-full h-fit transition-transform duration-500 ease-in-out snap-center flex-shrink-0"
+                class="w-full aspect-[4/3] transition-transform duration-500 ease-in-out snap-center flex-shrink-0"
                 :style="{ transform: `translateX(-${current_image * 100}%)` }"
               >
-                <img
-                  :src="img?.image_url"
-                  class="w-full h-auto max-h-[60vh] object-cover"
-                />
+                <img :src="img?.image_url" class="w-full h-full object-fit" />
               </div>
             </div>
           </div>

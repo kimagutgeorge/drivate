@@ -21,7 +21,7 @@ export default {
   name: "Spinner",
   data() {
     return {
-      logo: "/logo.png",
+      logo: "/logo-sm.png",
     };
   },
 };

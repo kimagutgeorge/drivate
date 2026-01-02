@@ -11,25 +11,21 @@
       :to="`/vehicles/view/${car?.car_id}/${slugify(car?.name)}`"
       class="w-full"
     >
-      <div class="w-full h-[20vh] overflow-hidden relative">
+      <div class="w-full aspect-[4/3] overflow-hidden relative">
         <div
-          class="w-[30px] h-[30px] absolute z-10 cursor-pointer hover:bg-[#ffcd00]"
+          class="w-[30px] h-[30px] absolute top-2 left-2 z-10 cursor-pointer hover:bg-[#ffcd00] transition-colors"
         >
-          <div class="w-full h-full flex justify-center relative">
+          <div class="w-full h-full flex justify-center items-center relative">
             <div
               class="w-full h-full bg-theme-yellow opacity-40 absolute"
             ></div>
-            <div class="w-full h-full flex justify-center absolute z-20">
-              <div class="h-full flex-col justify-center">
-                <i class="fa-regular fa-heart p-1 rounded-full"></i>
-              </div>
-            </div>
+            <i class="fa-regular fa-heart z-20"></i>
           </div>
         </div>
 
         <img
           :src="car?.primary_image_url"
-          class="w-full h-auto max-h-none min-h-full object-cover hover:scale-110 duration-300 ease-in-out"
+          class="w-full h-full object-fit hover:scale-110 duration-300 ease-in-out"
         />
       </div>
       <div class="w-full p-2 mt-2 mb-2 group">
@@ -79,11 +75,11 @@
       :to="`/blogs/view/${blog.blog_id}/${slugify(blog.title)}`"
       class="w-full"
     >
-      <div class="w-full max-h-[25vh] overflow-hidden">
+      <div class="w-full aspect-[4/3] overflow-hidden">
         <img
           :src="blog.image_url"
           :alt="blog.image_alt"
-          class="w-full h-auto"
+          class="w-full h-full object-fit"
         />
       </div>
       <div class="w-full mt-4">
@@ -106,10 +102,10 @@
       :to="`vehicles/view/${car?.car_id}/${slugify(car?.name)}`"
       class="w-full flex flex-nowrap"
     >
-      <div class="w-[30%] h-full overflow-hidden">
+      <div class="w-[30%] aspect-[4/3] overflow-hidden">
         <img
           :src="car?.primary_image_url"
-          class="h-full w-auto max-w-none object-cover"
+          class="w-full aspect-[4/3] object-fit"
         />
       </div>
       <div class="w-[70%] h-full ml-2 flex">
