@@ -29,7 +29,7 @@
               <img
                 :src="carousel_item?.image_url"
                 :alt="carousel_item?.image_alt"
-                class="w-full h-auto max-h-none min-h-full max-w-none object-cover"
+                class="w-auto max-h-none h-full min-w-full max-w-none object-cover"
               />
             </div>
             <!-- content side -->
