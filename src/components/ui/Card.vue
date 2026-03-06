@@ -72,19 +72,37 @@
     :class="class"
   >
     <router-link
-      :to="`/blogs/view/${blog.blog_id}/${slugify(blog.title)}`"
+      :to="`/blogs/view/${blog?.blog_id}/${slugify(blog?.Title)}`"
       class="w-full"
     >
       <div class="w-full aspect-[4/3] overflow-hidden">
-        <img
-          :src="blog.image_url"
-          :alt="blog.image_alt"
-          class="w-full h-full object-fit"
-        />
+        <picture>
+          <source
+            media="(max-width: 234px)"
+            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.thumbnail?.url}`"
+          />
+          <source
+            media="(max-width: 500px)"
+            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.small?.url}`"
+          />
+          <source
+            media="(max-width: 750px)"
+            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.medium?.url}`"
+          />
+          <source
+            media="(min-width: 751px)"
+            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.large?.url}`"
+          />
+          <img
+            :src="`${STRAPI_BASE_URL}${blog?.Blog_Image?.url}`"
+            :alt="blog?.Blog_Image?.alternativeText || 'Blog Image'"
+            class="w-full h-full object-cover"
+          />
+        </picture>
       </div>
       <div class="w-full mt-4">
         <h1 class="font-semibold text-xxl">
-          {{ blog.title }}
+          {{ blog?.Title }}
         </h1>
       </div>
     </router-link>
@@ -218,6 +236,7 @@ import { slugify, base_url } from "../../utils/store";
 export default {
   name: "Card",
   props: {
+    STRAPI_BASE_URL:String,
     class: String,
     car_card: Boolean,
     list_card: Boolean,

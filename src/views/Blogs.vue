@@ -9,14 +9,14 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
-
+{{ categories }}
     <div class="w-[90%] flex flex-wrap">
       <div class="w-full h-[40vh] overflow-hidden mt-6 relative view-car">
         <!-- background -->
         <div class="w-full h-full absolute">
           <img
-            :src="about_us?.image_1"
-            :alt="about_us?.image_1_alt"
+            :src="`${STRAPI_BASE_URL}${about_us?.Image_2?.url}`"
+            :alt="about_us?.Image_2?.alternativeText || 'About Us'"
             class="w-full h-auto"
           />
         </div>
@@ -182,6 +182,7 @@ export default {
   components: { Navbar, Spinner, Footer },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
 
       blogs: [],
@@ -253,14 +254,10 @@ export default {
     },
     async getCategories() {
       try {
-        const response = await axios.get(`${api}/get-categories`);
-        const data = response.data;
-        if (data.success) {
-          this.categories = data.categories; // Extract the array
-        } else {
-          this.categories = []; // Fallback to empty array
-          this.show_error(data.error);
-        }
+        const response = await fetch(import.meta.env.VITE_BLOG_CATEGORIES_ENDPOINT);
+        const data = await response.json();
+        this.categories = data.data; // Extract the array
+        
       } catch (error) {
         this.show_error(error);
         this.categories = []; // Set to empty array on error
@@ -268,19 +265,16 @@ export default {
     },
     async getBlogs() {
       try {
-        const response = await axios.get(`${api}/get-blogs`);
-        const data = response.data;
-        if (data.success) {
-          this.blogs = data.blogs;
-          this.all_blogs_tracker = data.blogs;
+        const response = await fetch(import.meta.env.VITE_HOME_BLOGS_ENDPOINT);
+        const data = await response.json();
+        
+          /* console.log("Full blogs response:", data); // Debug log */
+          this.blogs = data.data;
 
           setTimeout(() => {
             this.response_is_visible = false;
           }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch blogs");
-        }
+        
       } catch (error) {
         console.error("Error fetching blogs:", error);
 

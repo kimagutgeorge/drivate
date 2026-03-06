@@ -34,7 +34,7 @@
         >
           <option value="">Any Make</option>
           <option v-for="(make, index) in makes" :key="index" :value="make.id">
-            {{ make.name }}
+            {{ make.Make_Name }}
           </option>
         </select>
       </div>
@@ -50,7 +50,7 @@
             :key="index"
             :value="model.id"
           >
-            {{ model.model_name }}
+            {{ model.Model_Name }}
           </option>
         </select>
       </div>

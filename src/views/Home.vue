@@ -8,9 +8,9 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
-
     <!-- hero section -->
     <div class="w-full h-[60vh] relative overflow-hidden">
+      
       <div class="w-full absolute top-0 h-full">
         <!-- carousel -->
         <div
@@ -26,11 +26,25 @@
               <div
                 class="w-full absolute h-full bg-black opacity-50 z-10"
               ></div>
-              <img
-                :src="carousel_item?.image_url"
-                :alt="carousel_item?.image_alt"
-                class="w-auto max-h-none h-full min-w-full max-w-none object-cover"
-              />
+              <picture>
+                <source
+                  media="(max-width: 500px)"
+                  :srcset="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.small?.url}`"
+                />
+                <source
+                  media="(max-width: 750px)"
+                  :srcset="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.medium?.url}`"
+                />
+                <source
+                  media="(min-width: 751px)"
+                  :srcset="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.large?.url}`"
+                />
+                <img
+                  :src="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.large?.url}`"
+                  :alt="carousel_item?.Background_Image?.alternativeText || 'Carousel Image'"
+                  class="w-auto max-h-none h-full min-w-full max-w-none object-cover"
+                />
+              </picture>
             </div>
             <!-- content side -->
             <div
@@ -41,12 +55,12 @@
                   <h1
                     class="text-4xl font-extrabold uppercase bg-theme-yellow w-fit px-4"
                   >
-                    {{ carousel_item?.heading_1 }}
+                    {{ carousel_item?.Title }}
                   </h1>
                   <h2
                     class="text-3xl font-extrabold uppercase bg-theme-yellow w-fit px-4 mt-2"
                   >
-                    {{ carousel_item?.heading_2 }}
+                    {{ carousel_item?.Description }}
                   </h2>
                 </div>
               </div>
@@ -93,10 +107,11 @@
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
-                  :src="make?.image_url"
+                  :src="`${STRAPI_BASE_URL}${make?.Make_Logo?.formats?.thumbnail?.url}`"
+                  :alt="make?.Make_Logo?.alternativeText || 'Make Logo'"
                   class="w-[30px] min-w-[30px] h-auto"
                 />
-                <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
+                <p class="font-semibold cursor-pointer">{{ make?.Make_Name }}</p>
               </div>
             </div>
           </div>
@@ -115,10 +130,10 @@
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
-                  :src="type?.image_url"
+                  :src="`${STRAPI_BASE_URL}${type?.Body_Style_Logo?.formats?.thumbnail?.url}`"
                   class="w-[30px] min-w-[30px] filter grayscale h-auto"
                 />
-                <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
+                <p class="font-semibold cursor-pointer">{{ type?.Body_style }}</p>
               </div>
             </div>
           </div>
@@ -202,7 +217,7 @@
             @click="filterByModel(model.model_id)"
           >
             <span class="font-semibold cursor-pointer hover:underline text-sm">
-              {{ model?.make_name }} {{ model?.model_name }}
+              {{ model?.make?.Make_Name }} {{ model?.Model_Name }}
             </span>
           </div>
         </div>
@@ -219,7 +234,7 @@
           >
             <span
               class="font-semibold cursor-pointer hover:underline text-sm"
-              >{{ location?.location_name }}</span
+              >{{ location?.Location_Name }}</span
             >
           </div>
         </div>
@@ -235,26 +250,32 @@
           <h1 class="font-extrabold text-2xl">About us</h1>
           <!-- {{ about_us }} -->
           <p class="mt-4">
-            {{ about_us?.statement }}
+            {{ about_us?.About_Us_Statement }}
           </p>
         </div>
         <div class="w-1/2 h-[70vh] p-4 flex justify-center relative">
           <div class="h-full relative">
-            <div
-              class="mt-10 ml-[-15%] h-full bg-transparent w-[80%] absolute flex flex-col justify-end overflow-hidden"
-            >
+            <div class="mt-10 ml-[-15%] h-full bg-transparent w-[80%] absolute flex flex-col justify-end overflow-hidden">
               <div class="h-[60%] bg-[#fffadd] p-[15px]">
-                <img :src="about_us?.image_1" class="w-full h-auto" />
+                <img
+                  :src="`${STRAPI_BASE_URL}${about_us?.Image_1?.url}`"
+                  :alt="about_us?.Image_1?.alternativeText || 'About Us'"
+                  class="w-full h-auto"
+                />
               </div>
             </div>
             <!-- 2nd image -->
-            <img :src="about_us?.image_2" class="w-auto h-full" />
+            <img
+              :src="`${STRAPI_BASE_URL}${about_us?.Image_2?.url}`"
+              :alt="about_us?.Image_2?.alternativeText || 'About Us'"
+              class="w-auto h-full"
+            />
           </div>
         </div>
         <div class="w-full p-4 flex gap-[1%] flex-wrap mb-4 mt-[15vh] why-us">
           <h1 class="font-extrabold text-2xl w-full mb-8">Why Choose Us?</h1>
           <div
-            v-for="(why, index) in about_us?.why_choose_us"
+            v-for="(why, index) in about_us?.why_choose_us_sections"
             :key="index"
             class="w-[31%] mt-4 why-inner"
           >
@@ -262,17 +283,17 @@
               <div>
                 <i
                   class="text-[#E6B800] text-2xl p-2 border border-[#E6B800]"
-                  :class="why?.icon"
+                  :class="why?.FontAwesone_Text"
                 ></i>
               </div>
 
               <div class="w-full h-full flex flex-col justify-end">
-                <h2 class="text-xl font-bold">{{ why?.heading }}</h2>
+                <h2 class="text-xl font-bold">{{ why?.Title }}</h2>
               </div>
             </div>
 
             <!-- description -->
-            <p class="mt-2">{{ why?.description }}</p>
+            <p class="mt-2">{{ why?.Description }}</p>
           </div>
         </div>
       </div>
@@ -281,7 +302,7 @@
     <div class="w-[90%] mt-24">
       <h4 class="font-bold text-3xl theme-blue">Latest News & Insights</h4>
       <div class="w-full flex flex-wrap gap-2 mt-8 blog-holder no-scrollbar">
-        <Card blog_card class="w-[24%]" :blogs="blogs" />
+        <Card blog_card class="w-[24%]" :blogs="blogs" :STRAPI_BASE_URL="STRAPI_BASE_URL" />
       </div>
     </div>
     <!-- footer -->
@@ -323,6 +344,7 @@ export default {
   components: { Navbar, Card, Footer, Spinner, Search },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       /* variables */
       current_slide: 0,
       total_slides: "",
@@ -338,6 +360,9 @@ export default {
       is_brand: "brand",
       is_body_type: "body",
       is_model: "model",
+
+      //new env variables
+     /*  carousel_endpoint: import.meta.env.CAROUSEL_ENDPOINT, */
     };
   },
   /* mounted */
@@ -433,39 +458,29 @@ export default {
     //get carousels
     async getCarousels() {
       try {
-        const response = await axios.get(`${api}/get-carousels`);
-        const data = response.data;
-
-        // console.log("Full response:", data); // Debug log
-
-        if (data.success && data.carousels) {
-          this.carousels = data.carousels; // Extract the array
-          this.total_slides = this.carousels.length;
-        } else {
-          this.carousels = []; // Fallback to empty array
-          console.warn("No carousels found in response");
-        }
-
-        // console.log("Carousels array:", this.carousels); // Debug log
+        const response = await fetch(import.meta.env.VITE_CAROUSEL_ENDPOINT);
+        const data = await response.json();
+        
+        this.carousels = data.data; 
+        this.total_slides = data.data.length; 
       } catch (error) {
         console.error("Error fetching carousels:", error);
+        this.carousels = [];
       }
     },
 
     async getBlogs() {
       try {
-        const response = await axios.get(`${api}/get-blogs`);
-        const data = response.data;
-        if (data.success) {
-          this.blogs = data.blogs;
+        const response = await fetch(import.meta.env.VITE_HOME_BLOGS_ENDPOINT);
+        const data = await response.json();
+        
+          /* console.log("Full blogs response:", data); // Debug log */
+          this.blogs = data.data;
 
           setTimeout(() => {
             this.response_is_visible = false;
           }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch blogs");
-        }
+        
       } catch (error) {
         console.error("Error fetching blogs:", error);
 

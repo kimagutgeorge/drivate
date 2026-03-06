@@ -120,18 +120,13 @@ export default {
     // get makes
     async getMakes() {
       try {
-        const response = await axios.get(`${api}/get-makes`);
-        const data = response.data;
+        const response = await fetch(import.meta.env.VITE_MAKES_ENDPOINT);
+        const data = await response.json();
 
         console.log("Full response:", data); // Debug log
+          this.brands = data.data;
+        
 
-        if (data.success) {
-          this.brands = data.brands;
-        } else {
-          console.log("Error fetching brands");
-        }
-
-        console.log("brands array:", this.brands); // Debug log
       } catch (error) {
         console.error("Error fetching brands:", error);
       }
@@ -154,14 +149,10 @@ export default {
     },
     async getLocations() {
       try {
-        const response = await axios.get(`${api}/get-locations`);
-        const data = response.data;
-
-        if (data.success && data.locations) {
-          this.locations = data.locations;
-        } else {
-          this.locations = [];
-        }
+        const response = await fetch(import.meta.env.VITE_LOCATIONS_ENDPOINT);
+        
+        const data = await response.json();
+          this.locations = data.data;
       } catch (error) {
         console.error("Error fetching locations:", error);
         this.locations = [];
@@ -171,31 +162,24 @@ export default {
     //get body styles
     async getBodyStyles() {
       try {
-        const response = await axios.get(`${api}/get-body-styles`);
-        const data = response.data;
+        const reponse = await fetch(import.meta.env.VITE_BODY_STYLES_ENDPOINT);
+        const data = await reponse.json();
 
         console.log("Full response:", data); // Debug log
-
-        if (data.success) {
-          this.body_styles = data.body_styles; // Extract the array
-        } else {
-          this.body_styles = []; // Fallback to empty array
-        }
+          this.body_styles = data.data; // Extract the array
+        
       } catch (error) {
         console.error("Error fetching body styles:", error);
       }
     },
     async getModels() {
       try {
-        const response = await axios.get(`${api}/get-models`);
-        const data = response.data;
+        const response = await fetch(import.meta.env.VITE_MODELS_ENDPOINT);
+        const data = await response.json();
 
-        if (data.success) {
-          this.models = data.models; // Extract the array
-        } else {
-          this.models = []; // Fallback to empty array
-          console.warn("No models found in response");
-        }
+        this.models = data.data;
+        console.log("Models: ", data);
+      
       } catch (error) {
         console.error("Error fetching models:", error);
       }
@@ -203,10 +187,11 @@ export default {
     // get about us
     async get_about_us() {
       try {
-        const response = await axios.get(`${api}/get-about-us`);
-        const data = response.data;
+        /* const response = await axios.get(`${api}/get-about-us`); */
+        const response = await fetch(import.meta.env.VITE_ABOUT_US_ENDPOINT);
+        const data = await response.json();
 
-        this.about_us = data.about_us;
+        this.about_us = data.data[0];
         console.log("About us: ", data);
 
         if (!data.success) {

@@ -139,7 +139,7 @@
             <span
               class="text-sm font-semibold hover:underline hover:text-[#0066ff] cursor-pointer"
               @click="filterByMake(make?.id)"
-              >{{ make.name }}</span
+              >{{ make.Make_Name }}</span
             >
           </li>
         </div>
@@ -153,8 +153,8 @@
           >
             <span
               class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
-              @click="filterByBodyType(type.id)"
-              >{{ type.name }}</span
+              @click="filterByBodyType(type?.id)"
+              >{{ type?.Body_style }}</span
             >
           </li>
         </div>
@@ -281,7 +281,7 @@
                   <span
                     class="text-sm font-semibold hover:underline hover:text-[#0066ff] cursor-pointer"
                     @click="filterByMake(make?.id)"
-                    >{{ make.name }}</span
+                    >{{ make.Make_Name }}</span
                   >
                 </li>
               </div>
@@ -296,7 +296,7 @@
                   <span
                     class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
                     @click="filterByBodyType(type.id)"
-                    >{{ type.name }}</span
+                    >{{ type.Body_style }}</span
                   >
                 </li>
               </div>
