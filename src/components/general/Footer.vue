@@ -15,7 +15,7 @@
               @click="filterByMake(make?.id)"
             >
               <span>
-                {{ make.name }}
+                {{ make.Make_Name }}
               </span>
             </p>
           </div>
@@ -48,7 +48,7 @@
               <span
                 class="text-sm font-semibold hover:text-[#0066ff] hover:underline cursor-pointer"
                 @click="filterByBodyType(type.id)"
-                >{{ type.name }}</span
+                >{{ type.Body_style }}</span
               >
             </p>
           </div>
@@ -67,9 +67,9 @@
               v-for="(location, index) in locations"
               :key="index"
               class="cursor-pointer hover:underline hover:text-[#0066ff] font-semibold w-fit text-sm text-gray-600"
-              @click="filterByLocation(location.location_id)"
+              @click="filterByLocation(location.id)"
             >
-              {{ location?.location_name }}
+              {{ location?.Location_Name }}
             </p>
           </div>
         </div>
@@ -122,33 +122,33 @@
                 <div class="h-full flex flex-col justify-center">
                   <a
                     :href="
-                      contact.type === 'phone'
-                        ? `tel:${contact.value}`
-                        : contact.type === 'email'
-                        ? `mailto:${contact.value}`
-                        : contact.type === 'whatsapp'
-                        ? `https://wa.me/${contact.value}`
-                          ? contact.type === 'social'
-                          : contact.value
-                        : contact.social_link
+                      contact.Type === 'Phone'
+                        ? `tel:${contact.Contact}`
+                        : contact.Type === 'Email'
+                        ? `mailto:${contact.Contact}`
+                        : contact.Type === 'Whatsapp'
+                        ? `https://wa.me/${contact.Contact}`
+                        : contact.Type === 'Social'
+                        ? contact.Social_Link
+                        : contact.Contact
                     "
                     :target="
-                      contact.type === 'social'
+                      contact.Type === 'Social'
                         ? '_blank'
-                        : contact.type === 'whatsapp'
+                        : contact.Type === 'Whatsapp'
                         ? '_blank'
                         : ''
                     "
                   >
                     <i
                       :class="
-                        contact.icon
-                          ? contact.icon
-                          : contact.type === 'email'
+                        contact.Type === 'Social'
+                          ? contact.Fontawesome_Icon
+                          : contact.Type === 'Email'
                           ? 'fa-regular fa-envelope'
-                          : contact.type === 'phone'
+                          : contact.Type === 'Phone'
                           ? 'fa-solid fa-phone'
-                          : contact.type === 'whatsapp'
+                          : contact.Type === 'Whatsapp'
                           ? 'fa-brands fa-whatsapp'
                           : ''
                       "

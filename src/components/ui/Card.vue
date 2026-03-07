@@ -8,7 +8,7 @@
     :class="class"
   >
     <router-link
-      :to="`/vehicles/view/${car?.car_id}/${slugify(car?.name)}`"
+      :to="`/vehicles/view/${car?.id}/${slugify(car?.Name)}`"
       class="w-full"
     >
       <div class="w-full aspect-[4/3] overflow-hidden relative">
@@ -23,24 +23,47 @@
           </div>
         </div>
 
-        <img
-          :src="car?.primary_image_url"
-          class="w-full h-full object-fit hover:scale-110 duration-300 ease-in-out"
-        />
+        <picture>
+          <source
+            v-if="car?.Images?.[0]?.formats?.thumbnail"
+            media="(max-width: 208px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.thumbnail?.url}`"
+          />
+          <source
+            v-if="car?.Images?.[0]?.formats?.small"
+            media="(max-width: 500px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.small?.url}`"
+          />
+          <source
+            v-if="car?.Images?.[0]?.formats?.medium"
+            media="(max-width: 750px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.medium?.url}`"
+          />
+          <source
+            v-if="car?.Images?.[0]?.formats?.large"
+            media="(min-width: 751px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.large?.url}`"
+          />
+          <img
+            :src="`${STRAPI_BASE_URL}${car?.Images?.[0]?.url}`"
+            :alt="car?.Images?.[0]?.alternativeText || car?.title || 'Car Image'"
+            class="w-full h-full object-cover hover:scale-110 duration-300 ease-in-out"
+          />
+        </picture>
       </div>
       <div class="w-full p-2 mt-2 mb-2 group">
         <h1
           class="font-semibold text-gray-600 hover:text-[#0066ff] hover:underline"
         >
-          {{ car?.name }}
+          {{ car?.Name }}
         </h1>
         <div class="w-full">
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
             <i class="fa-solid fa-location-pin"></i>
-            {{ car?.location?.location_name }}
+            {{ car?.location?.Location_Name }}
           </p>
           <p class="text-muted font-semibold mt-2 text-sm text-gray-600">
-            {{ car?.price?.toLocaleString() }} kes
+            {{ car?.Price?.toLocaleString() }} kes
           </p>
         </div>
         <div class="w-full flex flex-wrap mt-2 to-flex">
@@ -72,7 +95,7 @@
     :class="class"
   >
     <router-link
-      :to="`/blogs/view/${blog?.blog_id}/${slugify(blog?.Title)}`"
+      :to="`/blogs/view/${blog?.id}/${slugify(blog?.Title)}`"
       class="w-full"
     >
       <div class="w-full aspect-[4/3] overflow-hidden">
@@ -117,54 +140,82 @@
     :class="class"
   >
     <router-link
-      :to="`vehicles/view/${car?.car_id}/${slugify(car?.name)}`"
+      :to="`vehicles/view/${car?.id}/${slugify(car?.Name)}`"
       class="w-full flex flex-nowrap"
     >
       <div class="w-[30%] aspect-[4/3] overflow-hidden">
-        <img
+       <!--  <img
           :src="car?.primary_image_url"
           class="w-full aspect-[4/3] object-fit"
-        />
+        /> -->
+        
+        <picture>
+          <source
+            v-if="car?.Images?.[0]?.formats?.thumbnail"
+            media="(max-width: 208px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.thumbnail?.url}`"
+          />
+          <source
+            v-if="car?.Images?.[0]?.formats?.small"
+            media="(max-width: 500px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.small?.url}`"
+          />
+          <source
+            v-if="car?.Images?.[0]?.formats?.medium"
+            media="(max-width: 750px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.medium?.url}`"
+          />
+          <source
+            v-if="car?.Images?.[0]?.formats?.large"
+            media="(min-width: 751px)"
+            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.large?.url}`"
+          />
+          <img
+            :src="`${STRAPI_BASE_URL}${car?.Images?.[0]?.url}`"
+            :alt="car?.Images?.[0]?.alternativeText || car?.title || 'Car Image'"
+            class="w-full h-full object-cover hover:scale-110 duration-300 ease-in-out w-full aspect-[4/3] object-fit" 
+          />
+        </picture>
       </div>
       <div class="w-[70%] h-full ml-2 flex">
         <div class="w-[80%] flex flex-wrap">
           <h2 class="w-full text-gray-800 text-2xl font-bold mb-4">
-            {{ car?.name }}
+            {{ car?.Name }}
           </h2>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Mileage</p>
             <p class="w-full font-semibold">
-              {{ car?.mileage?.toLocaleString() }} km
+              {{ car?.Mileage?.toLocaleString() }} km
             </p>
           </div>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Year</p>
-            <p class="w-full font-semibold">{{ car?.year }}</p>
+            <p class="w-full font-semibold">{{ car?.Registration_Year }}</p>
           </div>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Engine</p>
             <p class="w-full font-semibold">
-              {{ car?.engine?.toLocaleString() }} cc
+              {{ car?.Engine_Size?.toLocaleString() }} cc
             </p>
           </div>
           <div class="w-1/4 text-sm">
             <p class="w-full text-gray-500">Location</p>
             <p class="w-full font-semibold">
-              {{ car?.location?.location_name }}
+              {{ car?.location?.Location_Name }}
             </p>
           </div>
           <!-- second row -->
           <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Steering</p>
-            <p class="w-full font-semibold">{{ car?.steering }}</p>
+            <p class="w-full font-semibold">{{ car?.steering_wheel?.Steering_Type }}</p>
           </div>
           <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Fuel</p>
-            <p class="w-full font-semibold">{{ car?.fuel }}</p>
+            <p class="w-full font-semibold">{{ car?.fuel?.Fuel_Type }}</p>
           </div>
           <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Transmission</p>
-            <p class="w-full font-semibold">{{ car?.transmission }}</p>
+            <p class="w-full font-semibold">{{ car?.transmission?.Transmission_Type }}</p>
           </div>
           <!-- <div class="w-1/4 text-sm mt-2">
             <p class="w-full text-gray-500">Engine</p>
@@ -174,7 +225,7 @@
         <!-- pricing -->
         <div class="w-[20%]">
           <p class="text-xl font-bold theme-blue">
-            Ksh. {{ car?.price.toLocaleString() }}
+            Ksh. {{ car?.Price.toLocaleString() }}
           </p>
           <button class="py-1 px-4 bg-[#E6B800] rounded-sm mt-4 w-full">
             ENQUIRE <i class="fa-regular fa-envelope"></i>
@@ -236,7 +287,6 @@ import { slugify, base_url } from "../../utils/store";
 export default {
   name: "Card",
   props: {
-    STRAPI_BASE_URL:String,
     class: String,
     car_card: Boolean,
     list_card: Boolean,
@@ -263,7 +313,11 @@ export default {
     reviews: Array,
   },
   components: { Link, IconButton },
-
+  data(){
+    return{
+      STRAPI_BASE_URL:import.meta.env.VITE_STRAPI_BASE_URL || base_url,
+    }
+  },
   /* methods */
   methods: {
     slugify,

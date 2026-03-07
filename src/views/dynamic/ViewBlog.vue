@@ -27,9 +27,9 @@
                   class="group-hover:text-[#0066ff] transition-all duration-300 ease-in-out"
                 >
                   <router-link
-                    :to="`/blogs/view/${blog?.blog_id}/${slugify(blog?.title)}`"
+                    :to="`/blogs/view/${blog?.id}/${slugify(blog?.Title)}`"
                   >
-                    {{ blog?.title }}
+                    {{ blog?.Title }}
                   </router-link>
                 </p>
                 <p class="mt-2 text-sm">{{ format_date(blog?.created_at) }}</p>
@@ -40,7 +40,30 @@
         <div class="w-[60%] to-full-smaller">
           <div class="w-full border-b border-gray-300 py-4">
             <div class="w-full max-h-[50vh] overflow-hidden">
-              <img :src="blog?.image_url" class="w-full h-auto" />
+              <!-- <img :src="blog?.image_url" class="w-full h-auto" /> -->
+               <picture>
+                  <source
+                    media="(max-width: 234px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.thumbnail?.url}`"
+                  />
+                  <source
+                    media="(max-width: 500px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.small?.url}`"
+                  />
+                  <source
+                    media="(max-width: 750px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.medium?.url}`"
+                  />
+                  <source
+                    media="(min-width: 751px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.large?.url}`"
+                  />
+                  <img
+                    :src="`${STRAPI_BASE_URL}${blog?.Blog_Image?.url}`"
+                    :alt="blog?.Blog_Image?.alternativeText || 'Blog Image'"
+                    class="w-full h-full object-cover"
+                  />
+                </picture>
             </div>
             <div class="w-full mt-4">
               <div class="w-ful0 flex justify-end gap-2 theme-yellow">
@@ -49,12 +72,12 @@
                 <i class="fa-brands fa-x-twitter"></i>
               </div>
               <h1 class="font-extrabold text-3xl">
-                {{ blog?.title }}
+                {{ blog?.Title }}
               </h1>
               <div
-                class="w-full mt-2 blog-content-holder overflow-x-hidden"
-                v-html="blog?.content"
-              ></div>
+              class="w-full mt-2 blog-content-holder overflow-x-hidden prose max-w-none"
+              v-html="marked(blog?.Content || '')"
+            ></div>
             </div>
           </div>
         </div>
@@ -75,8 +98,8 @@
 import Footer from "../../components/general/Footer.vue";
 import Navbar from "../../components/general/Navbar.vue";
 import Spinner from "../../components/general/Spinner.vue";
-import { api, slugify } from "../../utils/store";
-import axios from "axios";
+import { slugify } from "../../utils/store";
+import { marked } from "marked";
 import { useHead } from "@vueuse/head";
 
 export default {
@@ -98,6 +121,7 @@ export default {
   // props: ["id", "title"],
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
 
       // data arrays
@@ -117,7 +141,7 @@ export default {
     } catch (error) {
       console.error("Loading failed:", error);
     } finally {
-      document.title = "Drivate - " + this.blog.title;
+      document.title = "Drivate - " + (this.blog?.Title || "Blog");
       this.page_is_loading = false;
     }
 
@@ -148,25 +172,15 @@ export default {
 
   methods: {
     slugify,
+    marked,
     async fetchBlogs() {
       try {
-        const response = await axios.get(`${api}/get-blog/${this.id}`);
-
-        const data = response.data;
-
-        // Check if the request was successful
-        // console.log("Blogs is: ", this.blog);
-        if (data.success) {
-          this.blog = data.blog;
-          this.content = this.blog.content;
-
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch blog");
-        }
+        const response = await fetch(`${this.STRAPI_BASE_URL}/api/blogs?filters[id][$eq]=${this.id}&populate=*`);
+        const data = await response.json();
+        this.blog = data.data[0];
+          /* this.content = this.blog.content; */
+         /*  console.log("Fetched Blog:", data); */
+       
       } catch (error) {
         console.error("Error fetching blogs:", error);
 
@@ -177,21 +191,14 @@ export default {
     },
     async getBlogs() {
       try {
-        const response = await axios.get(`${api}/get-blogs`);
-        const data = response.data;
-        if (data.success) {
-          this.blogs = data.blogs;
+       /*  const response = await axios.get(`${api}/get-blogs`); */
+        const response = await fetch(`${this.STRAPI_BASE_URL}/api/blogs?fields[0]=id&fields[1]=Title&pagination[limit]=5`);
+        const data = await response.json();
+          this.blogs = data.data;
+          /* console.log("Fetched Blogs:", this.blogs); */
 
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch blogs");
-        }
       } catch (error) {
         console.error("Error fetching blogs:", error);
-
         this.blogs = [];
       }
     },

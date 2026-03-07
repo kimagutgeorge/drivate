@@ -8,14 +8,13 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
-
     <div class="w-[90%] flex flex-wrap mt-8">
       <div class="w-full h-[40vh] overflow-hidden mt-6 relative view-car">
         <!-- background -->
         <div class="w-full h-full absolute">
           <img
-            :src="about_us?.image_1"
-            :alt="about_us?.image_1_alt"
+            :src="`${STRAPI_BASE_URL}${about_us?.Image_1?.url}`"
+            :alt="about_us?.Image_1?.alternativeText || 'About Us'"
             class="w-full min-w-full max-w-none h-auto min-h-full"
           />
         </div>
@@ -64,13 +63,13 @@
             :key="index"
             class="py-1 px-4 full cursor-pointer border w-fit mb-1 hover:bg-[#FFF199] hover:font-bold hover:border-[#FFF199]"
             :class="
-              selected_category == category.category_name
+              selected_category == category.Category_Name
                 ? 'bg-[#FFF199] font-bold border-[#FFF199]'
                 : 'border-gray-300'
             "
-            @click="filter_category(category?.category_name)"
+            @click="filter_category(category?.Category_Name)"
           >
-            {{ category?.category_name }}
+            {{ category?.Category_Name }}
           </p>
         </div>
         <div class="w-[70%] view-car">
@@ -116,6 +115,7 @@ export default {
   components: { Accordion, Spinner, Footer, Navbar },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
       categories: [],
       faqs: [],
@@ -144,13 +144,14 @@ export default {
   methods: {
     filter_category(category) {
       this.selected_category = category;
-      this.faqs = this.all_faqs_tracker;
+      /* this.faqs = this.all_faqs_tracker; */
       if (this.selected_category == "All") {
+        this.faqs = this.all_faqs_tracker;
         return;
       }
 
-      this.filtered_faqs = this.faqs.filter(
-        (faq) => faq.category_name === this.selected_category
+      this.filtered_faqs = this.all_faqs_tracker.filter(
+        (faq) => faq?.faq_category?.Category_Name === this.selected_category
       );
       this.faqs = this.filtered_faqs;
     },
@@ -171,29 +172,20 @@ export default {
     },
     async getFaqs() {
       try {
-        const response = await axios.get(`${api}/get-faqs`);
-        const data = response.data;
-        if (data.success && data.faqs) {
-          this.faqs = data.faqs;
-          this.all_faqs_tracker = data.faqs;
-        } else {
-          this.faqs = [];
-          this.show_success("No faqs found in response");
-        }
+        const response = await fetch(import.meta.env.VITE_FAQS_ENDPOINT);
+        const data = await response.json();
+          this.faqs = data.data;
+          this.all_faqs_tracker = data.data;
+         /*  console.log("Fetched FAQs:", this.faqs); */
       } catch (error) {
         this.show_error(error);
       }
     },
     async getCategories() {
       try {
-        const response = await axios.get(`${api}/get-faq-categories`);
-        const data = response.data;
-        if (data.success) {
-          this.categories = data.categories; // Extract the array
-        } else {
-          this.categories = []; // Fallback to empty array
-          this.show_error(data.error);
-        }
+        const response = await fetch(import.meta.env.VITE_FAQ_CATEGORIES_ENDPOINT);
+        const data = await response.json();
+          this.categories = data.data; // Extract the array
       } catch (error) {
         this.show_error(error);
         this.categories = []; // Set to empty array on error

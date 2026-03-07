@@ -26,10 +26,11 @@
               >
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
-                    :src="make?.image_url"
+                   :src="`${STRAPI_BASE_URL}${make?.Make_Logo?.formats?.thumbnail?.url}`"
+                  :alt="make?.Make_Logo?.alternativeText || 'Make Logo'"
                     class="w-[30px] min-w-[30px] h-auto"
                   />
-                  <p class="font-semibold">{{ make?.name }}</p>
+                  <p class="font-semibold">{{ make?.Make_Name }}</p>
                 </div>
               </div>
             </div>
@@ -43,10 +44,10 @@
               :key="index"
               class="flex flex-nowrap gap-2 py-2 cursor-pointer hover:bg-white"
               style="border-bottom: 1px solid #f4f5f4"
-              @click="filterByModel(model.model_id)"
+              @click="filterByModel(model.id)"
             >
               <span class="font-semibold hover:underline text-sm">
-                {{ model?.make_name }} {{ model?.model_name }}
+                {{ model?.make?.Make_Name }} {{ model?.Model_Name }}
               </span>
             </div>
           </div>
@@ -64,10 +65,10 @@
               >
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
-                    :src="type?.image_url"
+                    :src="`${STRAPI_BASE_URL}${type?.Body_Style_Logo?.formats?.thumbnail?.url}`"
                     class="w-[30px] min-w-[30px] filter grayscale h-auto"
                   />
-                  <p class="font-semibold">{{ type?.name }}</p>
+                  <p class="font-semibold">{{ type?.Body_style }}</p>
                 </div>
               </div>
             </div>
@@ -112,11 +113,11 @@
                 :key="index"
                 class="flex flex-nowrap gap-2 p-2 py-2 category cursor-pointer hover:bg-white"
                 style="border-bottom: 1px solid #f4f5f4"
-                @click="filterByLocation(location.location_id)"
+                @click="filterByLocation(location.id)"
               >
                 <i class="fa-solid fa-location-dot text-gray-600"></i>
                 <span class="font-semibold hover:underline ml-2 text-sm">
-                  {{ location?.location_name }}
+                  {{ location?.Location_Name }}
                 </span>
               </div>
             </div>
@@ -378,6 +379,7 @@ export default {
   components: { Navbar, Card, Spinner, Footer, Search },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
       is_grid_view: true,
       sort_option: "",
@@ -478,11 +480,11 @@ export default {
       if (params.keywords) filters.push(`Keywords: ${params.keywords}`);
       if (params.make) {
         const make = this.brands.find((b) => b.id == params.make);
-        if (make) filters.push(`Make: ${make.name}`);
+        if (make) filters.push(`Make: ${make.Make_Name}`);
       }
       if (params.model) {
         const model = this.models.find((m) => m.id == params.model);
-        if (model) filters.push(`Model: ${model.model_name}`);
+        if (model) filters.push(`Model: ${model.Model_Name}`);
       }
       if (params.condition) filters.push(`Condition: ${params.condition}`);
       if (params.fuel) filters.push(`Fuel: ${params.fuel}`);
@@ -498,13 +500,13 @@ export default {
       }
       if (params.body) {
         const body = this.body_styles.find((b) => b.id == params.body);
-        if (body) filters.push(`Body: ${body.name}`);
+        if (body) filters.push(`Body: ${body.Body_style}`);
       }
       if (params.transmission)
         filters.push(`Transmission: ${params.transmission}`);
       if (params.location) {
         const location = this.locations.find((l) => l.id == params.location);
-        if (location) filters.push(`Location: ${location.location_name}`);
+        if (location) filters.push(`Location: ${location.Location_Name}`);
       }
       if (params.category) {
         const category = this.other_categories.find(
@@ -568,59 +570,73 @@ export default {
       try {
         this.page_is_loading = true;
 
-        // Create FormData with search parameters
-        const formData = new FormData();
+        const url = new URL(`${import.meta.env.VITE_STRAPI_BASE_URL}/api/vehicles`);
+        const p = url.searchParams;
 
-        // Add all search parameters from URL query
+        // Populate all relations and images
+        p.set('populate[Images]', 'true');
+        p.set('populate[make]', 'true');
+        p.set('populate[model]', 'true');
+        p.set('populate[body_style]', 'true');
+        p.set('populate[fuel]', 'true');
+        p.set('populate[transmission]', 'true');
+        p.set('populate[condition]', 'true');
+        p.set('populate[location]', 'true');
+        p.set('populate[drive]', 'true');
+        p.set('populate[steering_wheel]', 'true');
+        p.set('populate[features]', 'true');
+
+        // Keyword search on Name field
         if (this.search_params.keywords)
-          formData.append("keywords", this.search_params.keywords);
+          p.set('filters[Name][$containsi]', this.search_params.keywords);
+
+        // Relation filters
         if (this.search_params.make)
-          formData.append("make", this.search_params.make);
+          p.set('filters[make][id][$eq]', this.search_params.make);
+
         if (this.search_params.model)
-          formData.append("model", this.search_params.model);
-        if (this.search_params.condition)
-          formData.append("condition", this.search_params.condition);
-        if (this.search_params.fuel)
-          formData.append("fuel", this.search_params.fuel);
-        if (this.search_params.min_year)
-          formData.append("min_year", this.search_params.min_year);
-        if (this.search_params.max_year)
-          formData.append("max_year", this.search_params.max_year);
-        if (this.search_params.min_price)
-          formData.append("min_price", this.search_params.min_price);
-        if (this.search_params.max_price)
-          formData.append("max_price", this.search_params.max_price);
+          p.set('filters[model][id][$eq]', this.search_params.model);
+
         if (this.search_params.body)
-          formData.append("body", this.search_params.body);
+          p.set('filters[body_style][id][$eq]', this.search_params.body);
+
+        if (this.search_params.fuel)
+          p.set('filters[fuel][id][$eq]', this.search_params.fuel);
+
         if (this.search_params.transmission)
-          formData.append("transmission", this.search_params.transmission);
+          p.set('filters[transmission][id][$eq]', this.search_params.transmission);
+
+        if (this.search_params.condition)
+          p.set('filters[condition][id][$eq]', this.search_params.condition);
+
         if (this.search_params.location)
-          formData.append("location", this.search_params.location);
-        else formData.append("location", "");
-        if (this.search_params.category)
-          formData.append("category", this.search_params.category);
+          p.set('filters[location][id][$eq]', this.search_params.location);
 
-        formData.append("status", "");
+        // Price range
+        if (this.search_params.min_price)
+          p.set('filters[Price][$gte]', this.search_params.min_price);
 
-        const response = await axios.post(`${api}/filter-vehicles`, formData, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        });
+        if (this.search_params.max_price)
+          p.set('filters[Price][$lte]', this.search_params.max_price);
 
-        const data = response.data;
+        // Year range (assuming you have a Year field)
+        if (this.search_params.min_year)
+          p.set('filters[Year][$gte]', this.search_params.min_year);
 
-        if (data.success) {
-          this.all_vehicles = data.vehicles;
-          // console.log("Filtered vehicles:", data.vehicles);
+        if (this.search_params.max_year)
+          p.set('filters[Year][$lte]', this.search_params.max_year);
 
-          // Reset to first page when new results come in
-          this.current_grid_page = 0;
-          this.current_list_page = 0;
-        } else {
-          console.error("Filter error:", data.error);
-          this.all_vehicles = [];
-        }
+        // Pagination
+        p.set('pagination[pageSize]', 24);
+        p.set('pagination[page]', 1);
+
+        const response = await fetch(url);
+        const data = await response.json();
+
+        this.all_vehicles = data.data;
+        this.current_grid_page = 0;
+        this.current_list_page = 0;
+
       } catch (error) {
         console.error("Error filtering vehicles:", error);
         this.all_vehicles = [];
@@ -628,7 +644,6 @@ export default {
         this.page_is_loading = false;
       }
     },
-
     clearAllFilters() {
       // Navigate to /vehicles without any query parameters
       this.$router.push("/vehicles");

@@ -144,7 +144,7 @@
               :key="index"
               :value="type.id"
             >
-              {{ type.name }}
+              {{ type.Body_style }}
             </option>
           </select>
         </div>

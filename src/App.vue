@@ -133,16 +133,11 @@ export default {
     },
     async getContacts() {
       try {
-        const response = await axios.get(`${api}/get-contacts`);
-        const data = response.data;
-
-        console.log("contacts response:", data);
-
-        if (data.success && data.contacts) {
-          this.contacts = data.contacts;
-        } else {
-          this.contacts = [];
-        }
+        const response = await fetch(import.meta.env.VITE_CONTACTS_ENDPOINT);
+        const data = await response.json();
+        this.contacts = data.data;
+        console.log("Contacts: ", this.contacts);
+        
       } catch (error) {
         console.error("Error fetching contacts:", error);
       }
@@ -165,7 +160,7 @@ export default {
         const reponse = await fetch(import.meta.env.VITE_BODY_STYLES_ENDPOINT);
         const data = await reponse.json();
 
-        console.log("Full response:", data); // Debug log
+        /* console.log("Full response:", data); // Debug log */
           this.body_styles = data.data; // Extract the array
         
       } catch (error) {
@@ -178,7 +173,7 @@ export default {
         const data = await response.json();
 
         this.models = data.data;
-        console.log("Models: ", data);
+        /* console.log("Models: ", data); */
       
       } catch (error) {
         console.error("Error fetching models:", error);
@@ -192,13 +187,13 @@ export default {
         const data = await response.json();
 
         this.about_us = data.data[0];
-        console.log("About us: ", data);
+        /* console.log("About us: ", data); */
 
         if (!data.success) {
-          console.log(data.error);
+         /*  console.log(data.error); */
         }
       } catch (error) {
-        console.log("Error: ", error);
+        console.error("Error: ", error);
       }
     },
   },

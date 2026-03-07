@@ -33,7 +33,7 @@
               />
               <label class="text-sm font-bold">Phone Number</label>
               <input
-                type="number"
+                type="text"
                 class="p-2 w-full border mb-4 mt-1"
                 placeholder="0700000"
                 required
@@ -133,29 +133,33 @@ export default {
   methods: {
     async contactUs() {
       try {
-        const formData = new FormData();
-        formData.append("name", this.name);
-        formData.append("phone", this.phone);
-        formData.append("email", this.email);
-        formData.append("message", this.message);
-
-        const response = await axios.post(`${api}/add-contact-us`, formData, {
+        const response = await fetch(import.meta.env.VITE_CONTACT_US_REQUEST, {
+          method: 'POST',
           headers: {
-            "Content-Type": "multipart/form-data",
+            'Content-Type': 'application/json',
           },
+          body: JSON.stringify({
+            data: {
+              Name: this.name,
+              Email: this.email,
+              Phone: this.phone,
+              Message: this.message,
+            }
+          })
         });
 
-        const data = response.data;
-        if (data.success) {
-          this.response_message = data.message;
+        const data = await response.json();
+
+        if (response.ok) {
+          this.response_message = 'Message sent successfully!';
           setTimeout(() => {
             this.clear_form();
           }, 1500);
         } else {
-          this.response_message = data.error;
+          this.response_message = data?.error?.message || 'Failed. Please try again later!';
         }
       } catch (error) {
-        this.response_message = "Failed. Please try again later!";
+        this.response_message = 'Failed. Please try again later!';
       }
     },
 

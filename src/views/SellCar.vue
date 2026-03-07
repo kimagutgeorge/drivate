@@ -45,7 +45,7 @@
             />
             <label class="text-sm font-bold">Phone Number</label>
             <input
-              type="number"
+              type="text"
               v-model="form.phone"
               class="p-2 w-full border mb-4 mt-1"
               placeholder="0700000"
@@ -89,7 +89,7 @@
               >
                 <div
                   v-for="(location, index) in filteredLocations"
-                  :key="location?.location_id || location?.id"
+                  :key="location?.id"
                   :class="[
                     'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
                     locationSelectedIndex === index ? 'bg-blue-100' : '',
@@ -98,7 +98,7 @@
                   @mouseenter="locationSelectedIndex = index"
                 >
                   <div class="font-medium text-gray-900">
-                    {{ location?.location_name }}
+                    {{ location?.Location_Name }}
                   </div>
                 </div>
               </div>
@@ -161,7 +161,7 @@
               >
                 <div
                   v-for="(brand, index) in filteredBrands"
-                  :key="brand?.make_id || brand?.id"
+                  :key="brand?.id"
                   :class="[
                     'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
                     brandSelectedIndex === index ? 'bg-blue-100' : '',
@@ -170,7 +170,7 @@
                   @mouseenter="brandSelectedIndex = index"
                 >
                   <div class="font-medium text-gray-900">
-                    {{ brand?.name }}
+                    {{ brand?.Make_Name }}
                   </div>
                 </div>
               </div>
@@ -220,7 +220,7 @@
               >
                 <div
                   v-for="(model, index) in filteredModels"
-                  :key="model?.model_id || model?.id"
+                  :key="model?.id"
                   :class="[
                     'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
                     modelSelectedIndex === index ? 'bg-blue-100' : '',
@@ -229,7 +229,7 @@
                   @mouseenter="modelSelectedIndex = index"
                 >
                   <div class="font-medium text-gray-900">
-                    {{ model?.model_name || model?.name }}
+                    {{ model?.Model_Name || model?.name }}
                   </div>
                 </div>
               </div>
@@ -274,6 +274,9 @@
           </div>
           <div class="w-1/2 border p-4 half-to-full to-flex">
             <h1 class="font-bold text-xl">Fill in basic car details</h1>
+            <!-- Debug: show selected make and available models -->
+            <!-- <p class="text-xs text-gray-400 mt-2">Selected make_id: {{ form.make_id }}</p>
+            <p class="text-xs text-gray-400">Models available: {{ filteredModels.length }}</p> -->
           </div>
           <div class="w-full flex justify-end mt-4 gap-2">
             <button class="bg-[#E6B800] p-2 px-4" @click="tab_in_view--">
@@ -406,7 +409,7 @@
                 >
                   <div
                     v-for="(body, index) in filteredBodies"
-                    :key="body?.body_id || body?.id"
+                    :key="body?.id"
                     :class="[
                       'p-2 cursor-pointer hover:bg-blue-50 border-b border-gray-100 last:border-b-0',
                       bodySelectedIndex === index ? 'bg-blue-100' : '',
@@ -415,7 +418,7 @@
                     @mouseenter="bodySelectedIndex = index"
                   >
                     <div class="font-medium text-gray-900">
-                      {{ body?.name }}
+                      {{ body?.Body_style }}
                     </div>
                   </div>
                 </div>
@@ -513,10 +516,10 @@
               <input
                 type="checkbox"
                 class="w-fit"
-                :checked="isFeatureSelected(feature.feature_id || feature.id)"
-                @change="toggleFeature(feature.feature_id || feature.id)"
+                :checked="isFeatureSelected(feature.id)"
+                @change="toggleFeature(feature.id)"
               />
-              <span class="ml-2">{{ feature.name }}</span>
+              <span class="ml-2">{{ feature.Feature_Name }}</span>
             </div>
           </div>
           <div class="w-full flex justify-end mt-4 gap-2">
@@ -547,31 +550,33 @@
 import Footer from "../components/general/Footer.vue";
 import Navbar from "../components/general/Navbar.vue";
 import Spinner from "../components/general/Spinner.vue";
-import { api } from "../utils/store";
-import axios from "axios";
 import { useHead } from "@vueuse/head";
 
 export default {
   name: "SellCar",
   props: {
-    brands: Array,
+    /* brands: Array,
     body_styles: Array,
-    models: Array,
+    models: Array, */
     other_categories: Array,
     price_ranges: Array,
-    locations: Array,
+    /* locations: Array, */
     contacts: Array,
   },
   components: { Navbar, Footer, Spinner },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
       tab_in_view: 0,
       imagePreviews: [],
       imageFiles: [],
       response_message: "",
+      brands: [],
+      body_styles: [],
+      models: [],
+      locations: [],
 
-      // Form data
       form: {
         full_name: "",
         phone: "",
@@ -591,7 +596,6 @@ export default {
         description: "",
       },
 
-      // Feature selection
       selectedFeatures: new Set(),
 
       fuel_types: [
@@ -633,7 +637,6 @@ export default {
         { name: "Tiptronic" },
         { name: "Other" },
       ],
-      body_types: [],
       features: [],
       years: [],
       navigation: [
@@ -642,11 +645,6 @@ export default {
         { name: "Upload Pictures" },
         { name: "Car Details" },
       ],
-
-      // API Data
-      // brands: [],
-      // models: [],
-      // locations: [],
 
       // Brand dropdown
       brandSearchQuery: "",
@@ -668,61 +666,39 @@ export default {
       showLocationDropdown: false,
       locationSelectedIndex: -1,
 
-      // Timeout refs for cleanup
       dropdownTimeouts: [],
-
-      categories: [
-        { category: "Manual" },
-        { category: "Automatic" },
-        { category: "New" },
-        { category: "Used" },
-        { category: "Diesel" },
-        { category: "Petrol" },
-        { category: "Electric" },
-        { category: "Hybrid" },
-      ],
-      contacts: [
-        { contact: "0759200998", is_phone: true },
-        { contact: "info@drivate.co.ke", is_email: true },
-        {
-          contact: "facebook.com",
-          is_handle: true,
-          icon: "fa-brands fa-facebook-f",
-        },
-        { contact: "tiktok.com", is_handle: true, icon: "fa-brands fa-tiktok" },
-        {
-          contact: "instagram.com",
-          is_handle: true,
-          icon: "fa-brands fa-instagram",
-        },
-      ],
     };
   },
 
   async mounted() {
     this.setupSEO();
-    document.title = "Sparkle wave - Sell Vehicle";
     this.generateYears();
     this.page_is_loading = true;
 
     try {
       await Promise.race([
-        Promise.all([this.getFeatures()]),
+        Promise.all([this.getFeatures(), this.getBodyStyles(), this.getMakes(), this.getModels(), this.getLocations()]),
         new Promise((_, reject) =>
           setTimeout(() => reject(new Error("Timeout after 8s")), 8000)
         ),
       ]);
     } catch (error) {
       console.error("Loading failed:", error);
-      this.response_message =
-        "Failed to load some data. Please refresh the page.";
+      this.response_message = "Failed to load some data. Please refresh the page.";
     } finally {
       this.page_is_loading = false;
+    }
+
+    // Debug: log the first model to understand the structure
+    if (this.models && this.models.length > 0) {
+      /* console.log("Sample model structure:", JSON.stringify(this.models[0], null, 2)); */
+    }
+    if (this.brands && this.brands.length > 0) {
+      /* console.log("Sample brand structure:", JSON.stringify(this.brands[0], null, 2)); */
     }
   },
 
   beforeUnmount() {
-    // Clean up any pending timeouts
     this.dropdownTimeouts.forEach((timeout) => clearTimeout(timeout));
   },
 
@@ -730,12 +706,9 @@ export default {
     filteredBrands() {
       if (!Array.isArray(this.brands)) return [];
       if (!this.brandSearchQuery.trim()) return this.brands.slice(0, 50);
-
       return this.brands
         .filter((brand) =>
-          brand?.name
-            ?.toLowerCase()
-            .includes(this.brandSearchQuery.toLowerCase())
+          brand?.Make_Name?.toLowerCase().includes(this.brandSearchQuery.toLowerCase())
         )
         .slice(0, 50);
     },
@@ -743,30 +716,36 @@ export default {
     filteredModels() {
       if (!Array.isArray(this.models) || !this.form.make_id) return [];
 
-      let brandModels = this.models.filter(
-        (model) =>
-          model.make_id === this.form.make_id ||
-          model.brand_id === this.form.make_id
-      );
+      const makeId = this.form.make_id;
+
+      const brandModels = this.models.filter((model) => {
+        // Try all common Strapi relation structures
+        return (
+          model?.make?.id === makeId ||           // populated relation: { make: { id: X } }
+          model?.make_id === makeId ||             // flat foreign key
+          model?.Make?.id === makeId ||            // capitalised relation name
+          model?.make?.data?.id === makeId         // Strapi v4 style: { make: { data: { id: X } } }
+        );
+      });
 
       if (!this.modelSearchQuery.trim()) return brandModels.slice(0, 50);
 
       return brandModels
         .filter((model) =>
-          (model?.model_name || model?.name)
+          (model?.Model_Name || model?.name)
             ?.toLowerCase()
             .includes(this.modelSearchQuery.toLowerCase())
         )
         .slice(0, 50);
     },
 
+    // ✅ Fixed: search by Body_style (Strapi field) not name
     filteredBodies() {
       if (!Array.isArray(this.body_styles)) return [];
       if (!this.bodySearchQuery.trim()) return this.body_styles.slice(0, 50);
-
       return this.body_styles
         .filter((body) =>
-          body?.name?.toLowerCase().includes(this.bodySearchQuery.toLowerCase())
+          body?.Body_style?.toLowerCase().includes(this.bodySearchQuery.toLowerCase())
         )
         .slice(0, 50);
     },
@@ -774,39 +753,77 @@ export default {
     filteredLocations() {
       if (!Array.isArray(this.locations)) return [];
       if (!this.locationSearchQuery.trim()) return this.locations.slice(0, 50);
-
       return this.locations
         .filter((location) =>
-          location?.location_name
-            ?.toLowerCase()
-            .includes(this.locationSearchQuery.toLowerCase())
+          location?.Location_Name?.toLowerCase().includes(this.locationSearchQuery.toLowerCase())
         )
         .slice(0, 50);
     },
   },
 
   methods: {
+    async getMakes() {
+      try {
+        const response = await fetch(import.meta.env.VITE_MAKES_ENDPOINT);
+        const data = await response.json();
+
+          this.brands = data.data;
+        
+
+      } catch (error) {
+        console.error("Error fetching brands:", error);
+      }
+    },
+    async getLocations() {
+      try {
+        const response = await fetch(import.meta.env.VITE_LOCATIONS_ENDPOINT);
+        
+        const data = await response.json();
+          this.locations = data.data;
+      } catch (error) {
+        console.error("Error fetching locations:", error);
+        this.locations = [];
+        throw error;
+      }
+    },
+     async getBodyStyles() {
+      try {
+        const reponse = await fetch(import.meta.env.VITE_BODY_STYLES_ENDPOINT);
+        const data = await reponse.json();
+
+          this.body_styles = data.data; // Extract the array
+        
+      } catch (error) {
+        console.error("Error fetching body styles:", error);
+      }
+    },
+    async getModels() {
+      try {
+        const response = await fetch(import.meta.env.VITE_MODELS_ENDPOINT);
+        const data = await response.json();
+
+        this.models = data.data;
+      
+      } catch (error) {
+        console.error("Error fetching models:", error);
+      }
+    },
     generateYears() {
       const currentYear = new Date().getFullYear();
-      const startYear = 2000;
       this.years = [];
-      for (let year = currentYear; year >= startYear; year--) {
+      for (let year = currentYear; year >= 2000; year--) {
         this.years.push(year);
       }
     },
 
-    // Image handling with validation
     handleImageUpload(event) {
       const files = Array.from(event.target.files);
-
       if (files.length > 6) {
         this.response_message = "You can only upload up to 6 images.";
         event.target.value = "";
         return;
       }
-
-      // Validate file sizes
-      const maxSize = 3 * 1024 * 1024; // 3MB
+      const maxSize = 3 * 1024 * 1024;
       for (let i = 0; i < files.length; i++) {
         if (!files[i].type.startsWith("image/")) {
           this.response_message = `File ${i + 1} is not a valid image.`;
@@ -814,17 +831,13 @@ export default {
           return;
         }
         if (files[i].size > maxSize) {
-          this.response_message = `Image ${
-            i + 1
-          } exceeds the 3MB size limit. Please compress or choose a smaller image.`;
+          this.response_message = `Image ${i + 1} exceeds the 3MB size limit.`;
           event.target.value = "";
           return;
         }
       }
-
       this.imagePreviews = [];
       this.imageFiles = files;
-
       files.forEach((file) => {
         const reader = new FileReader();
         reader.onload = (e) => {
@@ -836,7 +849,6 @@ export default {
 
     removeImage(index) {
       this.imagePreviews.splice(index, 1);
-      // Update imageFiles array
       const dt = new DataTransfer();
       this.imageFiles.forEach((file, i) => {
         if (i !== index) dt.items.add(file);
@@ -847,64 +859,31 @@ export default {
       this.imageFiles = Array.from(dt.files);
     },
 
-    // Validation for tab navigation
     validateTab(tabIndex) {
       switch (tabIndex) {
         case 0:
-          if (!this.form.full_name.trim()) {
-            this.response_message = "Please enter your full name.";
-            return false;
-          }
-          if (!this.form.phone.trim()) {
-            this.response_message = "Please enter your phone number.";
-            return false;
-          }
-          if (!this.form.email.trim()) {
-            this.response_message = "Please enter your email.";
-            return false;
-          }
-          if (!this.form.location) {
-            this.response_message = "Please select a location.";
-            return false;
-          }
+          if (!this.form.full_name.trim()) { this.response_message = "Please enter your full name."; return false; }
+          if (!this.form.phone.trim()) { this.response_message = "Please enter your phone number."; return false; }
+          if (!this.form.email.trim()) { this.response_message = "Please enter your email."; return false; }
+          if (!this.form.location) { this.response_message = "Please select a location."; return false; }
           return true;
-
         case 1:
-          if (!this.form.make_id) {
-            this.response_message = "Please select a make.";
-            return false;
-          }
-          if (!this.form.model_id) {
-            this.response_message = "Please select a model.";
-            return false;
-          }
-          if (!this.form.year) {
-            this.response_message = "Please select a year.";
-            return false;
-          }
-          if (!this.form.mileage) {
-            this.response_message = "Please enter mileage.";
-            return false;
-          }
-          if (!this.form.price) {
-            this.response_message = "Please enter selling price.";
-            return false;
-          }
+          if (!this.form.make_id) { this.response_message = "Please select a make."; return false; }
+          if (!this.form.model_id) { this.response_message = "Please select a model."; return false; }
+          if (!this.form.year) { this.response_message = "Please select a year."; return false; }
+          if (!this.form.mileage) { this.response_message = "Please enter mileage."; return false; }
+          if (!this.form.price) { this.response_message = "Please enter selling price."; return false; }
           return true;
-
         case 2:
-          if (this.imagePreviews.length === 0) {
-            this.response_message = "Please upload at least one image.";
-            return false;
-          }
+          if (this.imagePreviews.length === 0) { this.response_message = "Please upload at least one image."; return false; }
           return true;
-
         default:
           return true;
       }
     },
 
     goToNextTab() {
+      this.response_message = "";
       if (this.validateTab(this.tab_in_view)) {
         this.tab_in_view++;
       }
@@ -912,29 +891,24 @@ export default {
 
     async getFeatures() {
       try {
-        const response = await axios.get(`${api}/get-features`);
-        const data = response.data;
-
-        if (data.success && data.features) {
-          this.features = data.features;
-        } else {
-          this.features = [];
-        }
+        const response = await fetch(
+          `${this.STRAPI_BASE_URL}/api/features?fields[0]=id&fields[1]=Feature_Name`
+        );
+        const data = await response.json();
+        this.features = data.data;
       } catch (error) {
-        console.error("Error fetching features:", error);
+        console.error("Failed to load features:", error);
         this.features = [];
-        throw error;
       }
     },
 
-    // Brand selection
+    // ── Brand ──────────────────────────────────────────
     selectBrand(brand) {
-      this.form.make_id = brand.make_id || brand.id;
-      this.brandSearchQuery = brand.name;
+      this.form.make_id = brand.id;
+      this.brandSearchQuery = brand.Make_Name;
       this.showDropdown = false;
       this.brandSelectedIndex = -1;
-
-      // Reset model when brand changes
+      // Reset model when make changes
       this.form.model_id = "";
       this.modelSearchQuery = "";
     },
@@ -942,11 +916,10 @@ export default {
     onBrandSearchInput() {
       this.showDropdown = true;
       this.brandSelectedIndex = -1;
-      if (this.form.make_id && this.brandSearchQuery) {
-        const selectedBrand = this.brands.find(
-          (b) => (b.make_id || b.id) === this.form.make_id
-        );
-        if (!selectedBrand || selectedBrand.name !== this.brandSearchQuery) {
+      // Clear make_id if user edits the field manually
+      if (this.form.make_id) {
+        const selected = this.brands.find((b) => b.id === this.form.make_id);
+        if (!selected || selected.Make_Name !== this.brandSearchQuery) {
           this.form.make_id = "";
           this.form.model_id = "";
           this.modelSearchQuery = "";
@@ -955,122 +928,60 @@ export default {
     },
 
     handleBlur() {
-      const timeout = setTimeout(() => {
-        this.showDropdown = false;
-        this.brandSelectedIndex = -1;
-      }, 200);
-      this.dropdownTimeouts.push(timeout);
+      const t = setTimeout(() => { this.showDropdown = false; this.brandSelectedIndex = -1; }, 200);
+      this.dropdownTimeouts.push(t);
     },
 
     handleKeydown(event) {
-      if (!this.showDropdown) {
-        this.showDropdown = true;
-        return;
-      }
-
+      if (!this.showDropdown) { this.showDropdown = true; return; }
       switch (event.key) {
-        case "ArrowDown":
-          event.preventDefault();
-          this.brandSelectedIndex = Math.min(
-            this.brandSelectedIndex + 1,
-            this.filteredBrands.length - 1
-          );
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          this.brandSelectedIndex = Math.max(this.brandSelectedIndex - 1, -1);
-          break;
-        case "Enter":
-          event.preventDefault();
-          if (
-            this.brandSelectedIndex >= 0 &&
-            this.filteredBrands[this.brandSelectedIndex]
-          ) {
-            this.selectBrand(this.filteredBrands[this.brandSelectedIndex]);
-          }
-          break;
-        case "Escape":
-          this.showDropdown = false;
-          this.brandSelectedIndex = -1;
-          break;
+        case "ArrowDown": event.preventDefault(); this.brandSelectedIndex = Math.min(this.brandSelectedIndex + 1, this.filteredBrands.length - 1); break;
+        case "ArrowUp": event.preventDefault(); this.brandSelectedIndex = Math.max(this.brandSelectedIndex - 1, -1); break;
+        case "Enter": event.preventDefault(); if (this.brandSelectedIndex >= 0 && this.filteredBrands[this.brandSelectedIndex]) { this.selectBrand(this.filteredBrands[this.brandSelectedIndex]); } break;
+        case "Escape": this.showDropdown = false; this.brandSelectedIndex = -1; break;
       }
     },
 
-    // Model selection
+    // ── Model ──────────────────────────────────────────
     selectModel(model) {
-      this.form.model_id = model.model_id || model.id;
-      this.modelSearchQuery = model.model_name || model.name;
+      this.form.model_id = model.id;
+      this.modelSearchQuery = model.Model_Name || model.name;
       this.showModelDropdown = false;
       this.modelSelectedIndex = -1;
     },
 
     onModelSearchInput() {
-      if (this.form.make_id) {
-        this.showModelDropdown = true;
-        this.modelSelectedIndex = -1;
-        if (this.form.model_id && this.modelSearchQuery) {
-          const selectedModel = this.models.find(
-            (m) => (m.model_id || m.id) === this.form.model_id
-          );
-          if (
-            !selectedModel ||
-            (selectedModel.model_name || selectedModel.name) !==
-              this.modelSearchQuery
-          ) {
-            this.form.model_id = "";
-          }
+      if (!this.form.make_id) return;
+      this.showModelDropdown = true;
+      this.modelSelectedIndex = -1;
+      if (this.form.model_id) {
+        const selected = this.models.find((m) => m.id === this.form.model_id);
+        if (!selected || (selected.Model_Name || selected.name) !== this.modelSearchQuery) {
+          this.form.model_id = "";
         }
       }
     },
 
     handleModelBlur() {
-      const timeout = setTimeout(() => {
-        this.showModelDropdown = false;
-        this.modelSelectedIndex = -1;
-      }, 200);
-      this.dropdownTimeouts.push(timeout);
+      const t = setTimeout(() => { this.showModelDropdown = false; this.modelSelectedIndex = -1; }, 200);
+      this.dropdownTimeouts.push(t);
     },
 
     handleModelKeydown(event) {
       if (!this.form.make_id) return;
-
-      if (!this.showModelDropdown) {
-        this.showModelDropdown = true;
-        return;
-      }
-
+      if (!this.showModelDropdown) { this.showModelDropdown = true; return; }
       switch (event.key) {
-        case "ArrowDown":
-          event.preventDefault();
-          this.modelSelectedIndex = Math.min(
-            this.modelSelectedIndex + 1,
-            this.filteredModels.length - 1
-          );
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          this.modelSelectedIndex = Math.max(this.modelSelectedIndex - 1, -1);
-          break;
-        case "Enter":
-          event.preventDefault();
-          if (
-            this.modelSelectedIndex >= 0 &&
-            this.filteredModels[this.modelSelectedIndex]
-          ) {
-            this.selectModel(this.filteredModels[this.modelSelectedIndex]);
-          }
-          break;
-        case "Escape":
-          this.showModelDropdown = false;
-          this.modelSelectedIndex = -1;
-          break;
+        case "ArrowDown": event.preventDefault(); this.modelSelectedIndex = Math.min(this.modelSelectedIndex + 1, this.filteredModels.length - 1); break;
+        case "ArrowUp": event.preventDefault(); this.modelSelectedIndex = Math.max(this.modelSelectedIndex - 1, -1); break;
+        case "Enter": event.preventDefault(); if (this.modelSelectedIndex >= 0 && this.filteredModels[this.modelSelectedIndex]) { this.selectModel(this.filteredModels[this.modelSelectedIndex]); } break;
+        case "Escape": this.showModelDropdown = false; this.modelSelectedIndex = -1; break;
       }
     },
 
-    // Body type selection
+    // ── Body ──────────────────────────────────────────
     selectBody(body) {
-      this.form.body_id = body.body_id || body.id;
-      this.bodySearchQuery = body.name;
+      this.form.body_id = body.id;
+      this.bodySearchQuery = body.Body_style;
       this.showBodyDropdown = false;
       this.bodySelectedIndex = -1;
     },
@@ -1078,62 +989,33 @@ export default {
     onBodySearchInput() {
       this.showBodyDropdown = true;
       this.bodySelectedIndex = -1;
-      if (this.form.body_id && this.bodySearchQuery) {
-        const selectedBody = this.body_types.find(
-          (b) => (b.body_id || b.id) === this.form.body_id
-        );
-        if (!selectedBody || selectedBody.name !== this.bodySearchQuery) {
+      if (this.form.body_id) {
+        const selected = this.body_styles.find((b) => b.id === this.form.body_id);
+        if (!selected || selected.Body_style !== this.bodySearchQuery) {
           this.form.body_id = "";
         }
       }
     },
 
     handleBodyBlur() {
-      const timeout = setTimeout(() => {
-        this.showBodyDropdown = false;
-        this.bodySelectedIndex = -1;
-      }, 200);
-      this.dropdownTimeouts.push(timeout);
+      const t = setTimeout(() => { this.showBodyDropdown = false; this.bodySelectedIndex = -1; }, 200);
+      this.dropdownTimeouts.push(t);
     },
 
     handleBodyKeydown(event) {
-      if (!this.showBodyDropdown) {
-        this.showBodyDropdown = true;
-        return;
-      }
-
+      if (!this.showBodyDropdown) { this.showBodyDropdown = true; return; }
       switch (event.key) {
-        case "ArrowDown":
-          event.preventDefault();
-          this.bodySelectedIndex = Math.min(
-            this.bodySelectedIndex + 1,
-            this.filteredBodies.length - 1
-          );
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          this.bodySelectedIndex = Math.max(this.bodySelectedIndex - 1, -1);
-          break;
-        case "Enter":
-          event.preventDefault();
-          if (
-            this.bodySelectedIndex >= 0 &&
-            this.filteredBodies[this.bodySelectedIndex]
-          ) {
-            this.selectBody(this.filteredBodies[this.bodySelectedIndex]);
-          }
-          break;
-        case "Escape":
-          this.showBodyDropdown = false;
-          this.bodySelectedIndex = -1;
-          break;
+        case "ArrowDown": event.preventDefault(); this.bodySelectedIndex = Math.min(this.bodySelectedIndex + 1, this.filteredBodies.length - 1); break;
+        case "ArrowUp": event.preventDefault(); this.bodySelectedIndex = Math.max(this.bodySelectedIndex - 1, -1); break;
+        case "Enter": event.preventDefault(); if (this.bodySelectedIndex >= 0 && this.filteredBodies[this.bodySelectedIndex]) { this.selectBody(this.filteredBodies[this.bodySelectedIndex]); } break;
+        case "Escape": this.showBodyDropdown = false; this.bodySelectedIndex = -1; break;
       }
     },
 
-    // Location selection
+    // ── Location ──────────────────────────────────────
     selectLocation(location) {
-      this.form.location = location.location_id || location.id;
-      this.locationSearchQuery = location.location_name;
+      this.form.location = location.id;
+      this.locationSearchQuery = location.Location_Name;
       this.showLocationDropdown = false;
       this.locationSelectedIndex = -1;
     },
@@ -1141,67 +1023,30 @@ export default {
     onLocationSearchInput() {
       this.showLocationDropdown = true;
       this.locationSelectedIndex = -1;
-      if (this.form.location && this.locationSearchQuery) {
-        const selectedLocation = this.locations.find(
-          (l) => (l.location_id || l.id) === this.form.location
-        );
-        if (
-          !selectedLocation ||
-          selectedLocation.location_name !== this.locationSearchQuery
-        ) {
+      if (this.form.location) {
+        const selected = this.locations.find((l) => l.id === this.form.location);
+        if (!selected || selected.Location_Name !== this.locationSearchQuery) {
           this.form.location = "";
         }
       }
     },
 
     handleLocationBlur() {
-      const timeout = setTimeout(() => {
-        this.showLocationDropdown = false;
-        this.locationSelectedIndex = -1;
-      }, 200);
-      this.dropdownTimeouts.push(timeout);
+      const t = setTimeout(() => { this.showLocationDropdown = false; this.locationSelectedIndex = -1; }, 200);
+      this.dropdownTimeouts.push(t);
     },
 
     handleLocationKeydown(event) {
-      if (!this.showLocationDropdown) {
-        this.showLocationDropdown = true;
-        return;
-      }
-
+      if (!this.showLocationDropdown) { this.showLocationDropdown = true; return; }
       switch (event.key) {
-        case "ArrowDown":
-          event.preventDefault();
-          this.locationSelectedIndex = Math.min(
-            this.locationSelectedIndex + 1,
-            this.filteredLocations.length - 1
-          );
-          break;
-        case "ArrowUp":
-          event.preventDefault();
-          this.locationSelectedIndex = Math.max(
-            this.locationSelectedIndex - 1,
-            -1
-          );
-          break;
-        case "Enter":
-          event.preventDefault();
-          if (
-            this.locationSelectedIndex >= 0 &&
-            this.filteredLocations[this.locationSelectedIndex]
-          ) {
-            this.selectLocation(
-              this.filteredLocations[this.locationSelectedIndex]
-            );
-          }
-          break;
-        case "Escape":
-          this.showLocationDropdown = false;
-          this.locationSelectedIndex = -1;
-          break;
+        case "ArrowDown": event.preventDefault(); this.locationSelectedIndex = Math.min(this.locationSelectedIndex + 1, this.filteredLocations.length - 1); break;
+        case "ArrowUp": event.preventDefault(); this.locationSelectedIndex = Math.max(this.locationSelectedIndex - 1, -1); break;
+        case "Enter": event.preventDefault(); if (this.locationSelectedIndex >= 0 && this.filteredLocations[this.locationSelectedIndex]) { this.selectLocation(this.filteredLocations[this.locationSelectedIndex]); } break;
+        case "Escape": this.showLocationDropdown = false; this.locationSelectedIndex = -1; break;
       }
     },
 
-    // Feature selection
+    // ── Features ──────────────────────────────────────
     isFeatureSelected(featureId) {
       return this.selectedFeatures.has(featureId);
     },
@@ -1214,9 +1059,8 @@ export default {
       }
     },
 
-    // Add vehicle
+    // ── Submit ────────────────────────────────────────
     async add_vehicle() {
-      // Validate all required fields
       const requiredFields = {
         full_name: "Full Name",
         phone: "Phone Number",
@@ -1235,7 +1079,6 @@ export default {
         drive_type: "Drive Type",
       };
 
-      // Check for empty required fields
       for (const [field, label] of Object.entries(requiredFields)) {
         if (!this.form[field]) {
           this.response_message = `Please fill in the ${label} field.`;
@@ -1243,85 +1086,76 @@ export default {
         }
       }
 
-      // Validate images
       if (this.imageFiles.length === 0) {
         this.response_message = "Please upload at least one image.";
         return;
       }
 
       try {
-        // Prepare FormData for multipart/form-data submission
-        const formData = new FormData();
-
-        // Add all form fields
-        Object.keys(this.form).forEach((key) => {
-          formData.append(key, this.form[key] || "");
-        });
-
-        // Add selected features as JSON string
-        const featuresArray = Array.from(this.selectedFeatures);
-        formData.append("features", JSON.stringify(featuresArray));
-
-        // Add images
-        this.imageFiles.forEach((file) => {
-          formData.append("images", file);
-        });
-
-        // Show loading state
         this.page_is_loading = true;
 
-        // Send to API
-        const response = await axios.post(
-          `${api}/add-vehicle-to-sell`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-            },
-          }
-        );
+        // Step 1: Upload images
+        const imageFormData = new FormData();
+        this.imageFiles.forEach((file) => {
+          imageFormData.append("files", file);
+        });
 
-        // Handle success
-        if (response.data.success) {
+        const uploadResponse = await fetch(
+          `${import.meta.env.VITE_STRAPI_BASE_URL}/api/upload`,
+          { method: "POST", body: imageFormData }
+        );
+        const uploadedImages = await uploadResponse.json();
+        const imageIds = uploadedImages.map((img) => img.id);
+
+        // Step 2: Submit vehicle data
+        const response = await fetch(import.meta.env.VITE_SELLING_REQUEST_ENDPOINT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            data: {
+              Seller_Name: this.form.full_name,
+              Selling_Price: String(this.form.price),
+              Mileage: String(this.form.mileage),
+              Steering_Wheel: this.form.steering,
+              Fuel: this.form.fuel_type,
+              Color: this.form.color,
+              Location: this.locationSearchQuery,
+              Drive: this.form.drive_type,
+              Transmission: this.form.transmission,
+              Registration_Year: String(this.form.year),
+              Body_Style: this.bodySearchQuery,
+              Make: this.brandSearchQuery,
+              Model: this.modelSearchQuery,
+              Features: Array.from(this.selectedFeatures).join(", "),
+              Images: imageIds,
+            },
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
           this.response_message = "Vehicle submitted successfully!";
           this.resetForm();
           this.tab_in_view = 0;
         } else {
-          this.response_message =
-            response.data.message ||
-            "Failed to submit vehicle. Please try again.";
+          this.response_message = data?.error?.message || "Failed to submit. Please try again.";
         }
       } catch (error) {
         console.error("Error submitting vehicle:", error);
-        this.response_message =
-          error.response?.data?.message ||
-          "An error occurred while submitting the vehicle. Please try again.";
+        this.response_message = "An error occurred. Please try again.";
       } finally {
         this.page_is_loading = false;
       }
     },
 
-    // Helper method to reset the form
     resetForm() {
       this.form = {
-        full_name: "",
-        phone: "",
-        email: "",
-        location: "",
-        make_id: "",
-        model_id: "",
-        year: "",
-        mileage: "",
-        price: "",
-        fuel_type: "",
-        body_id: "",
-        transmission: "",
-        color: "",
-        steering: "",
-        drive_type: "",
-        description: "",
+        full_name: "", phone: "", email: "", location: "",
+        make_id: "", model_id: "", year: "", mileage: "", price: "",
+        fuel_type: "", body_id: "", transmission: "", color: "",
+        steering: "", drive_type: "", description: "",
       };
-
       this.selectedFeatures = new Set();
       this.imagePreviews = [];
       this.imageFiles = [];
@@ -1329,38 +1163,13 @@ export default {
       this.modelSearchQuery = "";
       this.bodySearchQuery = "";
       this.locationSearchQuery = "";
-
-      // Clear file input
-      if (this.$refs.fileInput) {
-        this.$refs.fileInput.value = "";
-      }
+      if (this.$refs.fileInput) this.$refs.fileInput.value = "";
     },
-    /*
-     *
-     * SEO SETUP
-     *
-     *
-     */
+
     setupSEO() {
-      // Helper function to get contact by type
-      const getContact = (type) => {
-        return this.contacts?.find((c) => c.type === type)?.value || null;
-      };
-
-      // Get social media links
-      const getSocialLinks = () => {
-        const socials =
-          this.contacts?.filter((c) => c.type === "social" && c.social_link) ||
-          [];
-        return socials.map((s) => s.social_link);
-      };
-
-      // Format phone number for international use
-      const formatPhoneNumber = (phone) => {
-        if (!phone) return "+254-XXX-XXXXXX";
-        const cleanPhone = phone.replace(/^0/, "");
-        return `+254${cleanPhone}`;
-      };
+      const getContact = (type) => this.contacts?.find((c) => c.type === type)?.value || null;
+      const getSocialLinks = () => (this.contacts?.filter((c) => c.type === "social" && c.social_link) || []).map((s) => s.social_link);
+      const formatPhoneNumber = (phone) => { if (!phone) return "+254-XXX-XXXXXX"; return `+254${phone.replace(/^0/, "")}`; };
 
       const phone = getContact("phone");
       const email = getContact("email");
@@ -1368,175 +1177,22 @@ export default {
       const socialLinks = getSocialLinks();
 
       useHead({
-        title:
-          "Drivate Kenya - Buy & Sell Quality Cars in Kenya | New & Used Vehicles",
-
+        title: "Drivate Kenya - Sell Your Car | Get the Best Price",
         meta: [
-          {
-            name: "description",
-            content:
-              "Drivate is Kenya's premier car marketplace. Browse thousands of quality new and used cars for sale across Kenya. Find your dream car with verified dealers, competitive prices, and flexible financing options. Shop sedans, SUVs, trucks, and more from top brands.",
-          },
-          {
-            name: "keywords",
-            content:
-              "buy cars Kenya, sell cars Kenya, used cars Nairobi, new cars Kenya, car dealership Kenya, vehicles for sale Kenya, affordable cars Kenya, car financing Kenya, Japanese used cars Kenya, SUVs Kenya, sedan Kenya, trucks Kenya, Drivate Kenya, car marketplace Kenya",
-          },
-          {
-            name: "author",
-            content: "Drivate Kenya",
-          },
-          {
-            name: "robots",
-            content:
-              "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
-          },
-          {
-            name: "language",
-            content: "English",
-          },
-          {
-            name: "revisit-after",
-            content: "7 days",
-          },
-          {
-            name: "coverage",
-            content: "Kenya",
-          },
-          {
-            name: "distribution",
-            content: "global",
-          },
-          {
-            name: "rating",
-            content: "general",
-          },
-
-          // Open Graph / Facebook Meta Tags
-          {
-            property: "og:type",
-            content: "website",
-          },
-          {
-            property: "og:url",
-            content: "https://www.drivate.co.ke/",
-          },
-          {
-            property: "og:title",
-            content: "Drivate Kenya - Buy & Sell Quality Cars in Kenya",
-          },
-          {
-            property: "og:description",
-            content:
-              "Kenya's trusted car marketplace. Browse thousands of quality new and used vehicles. Find sedans, SUVs, trucks from verified dealers with competitive prices and financing options.",
-          },
-          {
-            property: "og:image",
-            content: "https://www.drivate.co.ke/og-image.jpg",
-          },
-          {
-            property: "og:image:width",
-            content: "1200",
-          },
-          {
-            property: "og:image:height",
-            content: "630",
-          },
-          {
-            property: "og:site_name",
-            content: "Drivate Kenya",
-          },
-          {
-            property: "og:locale",
-            content: "en_KE",
-          },
-
-          // Twitter Card Meta Tags
-          {
-            name: "twitter:card",
-            content: "summary_large_image",
-          },
-          {
-            name: "twitter:url",
-            content: "https://www.drivate.co.ke/",
-          },
-          {
-            name: "twitter:title",
-            content: "Drivate Kenya - Buy & Sell Quality Cars",
-          },
-          {
-            name: "twitter:description",
-            content:
-              "Kenya's premier car marketplace. Browse quality new & used vehicles with verified dealers and flexible financing.",
-          },
-          {
-            name: "twitter:image",
-            content: "https://www.drivate.co.ke/twitter-image.jpg",
-          },
-
-          // Mobile Optimization
-          {
-            name: "viewport",
-            content: "width=device-width, initial-scale=1.0, maximum-scale=5.0",
-          },
-          {
-            name: "theme-color",
-            content: "#E6B800",
-          },
-          {
-            name: "apple-mobile-web-app-capable",
-            content: "yes",
-          },
-          {
-            name: "apple-mobile-web-app-status-bar-style",
-            content: "black-translucent",
-          },
-
-          // Geographic Targeting
-          {
-            name: "geo.region",
-            content: "KE",
-          },
-          {
-            name: "geo.placename",
-            content: "Nairobi",
-          },
-          {
-            name: "geo.position",
-            content: "-1.286389;36.817223",
-          },
-          {
-            name: "ICBM",
-            content: "-1.286389, 36.817223",
-          },
+          { name: "description", content: "Sell your car on Drivate Kenya. List your vehicle easily and reach thousands of buyers across Kenya." },
+          { name: "robots", content: "index, follow" },
+          { property: "og:type", content: "website" },
+          { property: "og:url", content: "https://www.drivate.co.ke/sell" },
+          { property: "og:title", content: "Sell Your Car - Drivate Kenya" },
+          { property: "og:site_name", content: "Drivate Kenya" },
+          { name: "theme-color", content: "#E6B800" },
+          { name: "geo.region", content: "KE" },
+          { name: "geo.placename", content: "Nairobi" },
         ],
-
         link: [
-          {
-            rel: "canonical",
-            href: "https://www.drivate.co.ke/",
-          },
-          {
-            rel: "icon",
-            type: "image/png",
-            href: "/favicon.png",
-          },
-          {
-            rel: "apple-touch-icon",
-            href: "/apple-touch-icon.png",
-          },
-          {
-            rel: "alternate",
-            hreflang: "en-ke",
-            href: "https://www.drivate.co.ke/",
-          },
-          {
-            rel: "alternate",
-            hreflang: "x-default",
-            href: "https://www.drivate.co.ke/",
-          },
+          { rel: "canonical", href: "https://www.drivate.co.ke/sell" },
+          { rel: "icon", type: "image/png", href: "/favicon.png" },
         ],
-
         script: [
           {
             type: "application/ld+json",
@@ -1544,168 +1200,23 @@ export default {
               "@context": "https://schema.org",
               "@type": "AutoDealer",
               name: "Drivate Kenya",
-              description:
-                "Kenya's premier car marketplace for buying and selling quality new and used vehicles",
               url: "https://www.drivate.co.ke",
-              logo: "https://www.drivate.co.ke/logo.png",
-              image: "https://www.drivate.co.ke/og-image.jpg",
               telephone: phone ? formatPhoneNumber(phone) : "+254759200998",
-              email: email || "geojimagut@gmail.com",
-              address: {
-                "@type": "PostalAddress",
-                streetAddress: "Tom Mboya Street",
-                addressLocality: "Mombasa",
-                addressRegion: "Mombasa County",
-                postalCode: "00100",
-                addressCountry: "KE",
-              },
-              geo: {
-                "@type": "GeoCoordinates",
-                latitude: "-4.0435",
-                longitude: "39.6682",
-              },
-              priceRange: "KES 500,000 - KES 20,000,000",
-              areaServed: {
-                "@type": "Country",
-                name: "Kenya",
-              },
-              sameAs:
-                socialLinks.length > 0
-                  ? socialLinks
-                  : [
-                      "https://www.facebook.com/drivate",
-                      "https://www.instagram.com/drivate",
-                      "https://twitter.com/drivate",
-                    ],
-            }),
-          },
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "WebSite",
-              name: "Drivate Kenya",
-              url: "https://www.drivate.co.ke",
-              potentialAction: {
-                "@type": "SearchAction",
-                target:
-                  "https://www.drivate.co.ke/vehicles?q={search_term_string}",
-                "query-input": "required name=search_term_string",
-              },
-            }),
-          },
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "Organization",
-              name: "Drivate Kenya",
-              url: "https://www.drivate.co.ke",
-              logo: "https://www.drivate.co.ke/logo.png",
-              contactPoint: [
-                {
-                  "@type": "ContactPoint",
-                  telephone: phone ? formatPhoneNumber(phone) : "+254759200998",
-                  contactType: "Customer Service",
-                  areaServed: "KE",
-                  availableLanguage: ["English", "Swahili"],
-                },
-                ...(whatsapp
-                  ? [
-                      {
-                        "@type": "ContactPoint",
-                        telephone: formatPhoneNumber(whatsapp),
-                        contactType: "Customer Support",
-                        contactOption: "TollFree",
-                        areaServed: "KE",
-                        availableLanguage: ["English", "Swahili"],
-                      },
-                    ]
-                  : []),
-              ],
-            }),
-          },
-          {
-            type: "application/ld+json",
-            children: JSON.stringify({
-              "@context": "https://schema.org",
-              "@type": "LocalBusiness",
-              "@id": "https://www.drivate.co.ke",
-              name: "Drivate Kenya",
-              image: "https://www.drivate.co.ke/logo.png",
-              telephone: phone ? formatPhoneNumber(phone) : "+254759200998",
-              email: email || "geojimagut@gmail.com",
-              address: {
-                "@type": "PostalAddress",
-                streetAddress: "Tom Mboya Street",
-                addressLocality: "Mombasa",
-                addressRegion: "Mombasa County",
-                postalCode: "00100",
-                addressCountry: "KE",
-              },
-              geo: {
-                "@type": "GeoCoordinates",
-                latitude: "-4.0435",
-                longitude: "39.6682",
-              },
-              url: "https://www.drivate.co.ke",
-              priceRange: "KES 500,000 - KES 20,000,000",
-              openingHoursSpecification: [
-                {
-                  "@type": "OpeningHoursSpecification",
-                  dayOfWeek: [
-                    "Monday",
-                    "Tuesday",
-                    "Wednesday",
-                    "Thursday",
-                    "Friday",
-                    "Saturday",
-                  ],
-                  opens: "08:00",
-                  closes: "18:00",
-                },
-              ],
-              sameAs:
-                socialLinks.length > 0
-                  ? socialLinks
-                  : [
-                      "https://www.facebook.com/drivate",
-                      "https://www.instagram.com/drivate",
-                      "https://twitter.com/drivate",
-                    ],
+              email: email || "info@drivate.co.ke",
+              sameAs: socialLinks.length > 0 ? socialLinks : ["https://www.facebook.com/drivate"],
             }),
           },
         ],
-
-        htmlAttrs: {
-          lang: "en",
-          dir: "ltr",
-        },
-
-        bodyAttrs: {
-          class: "drivate-home",
-        },
+        htmlAttrs: { lang: "en", dir: "ltr" },
       });
     },
   },
 };
 </script>
 
-<style scoped>
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: #f1f1f1;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #555;
-}
-</style>
+<!-- <style scoped>
+.custom-scrollbar::-webkit-scrollbar { width: 8px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #888; border-radius: 4px; }
+.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+</style> -->

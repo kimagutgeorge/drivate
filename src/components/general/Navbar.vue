@@ -8,7 +8,7 @@
     <div class="w-full flex justify-end bg-theme-gray text-white px-[5%] py-1">
       <!-- <div class="w-1/2 flex justify-end"> -->
       <span class="mr-8 text-sm"
-        ><span class="text-bold mr-2">Currency kes</span>
+        ><span class="text-bold mr-2 uppercase">Currency kes</span>
         <!-- <select class="bg-theme-gray border border-white">
           <option>KES</option>
         </select> -->
@@ -17,20 +17,20 @@
         v-for="(contact, index) in contacts"
         :key="index"
         :href="
-          contact.type === 'phone'
-            ? `tel:${contact.value}`
-            : contact.type === 'email'
-            ? `mailto:${contact.value}`
-            : contact.type === 'whatsapp'
-            ? `https://wa.me/${contact.value}`
-              ? contact.type === 'social'
-              : contact.value
-            : contact.social_link
-        "
+        contact.Type === 'Phone'
+          ? `tel:${contact.Contact}`
+          : contact.Type === 'Email'
+          ? `mailto:${contact.Contact}`
+          : contact.Type === 'Whatsapp'
+          ? `https://wa.me/${contact.Contact}`
+          : contact.Type === 'Social'
+          ? contact.Social_Link
+          : contact.Contact
+      "
         :target="
-          contact.type === 'social'
+          contact.Type === 'Social'
             ? '_blank'
-            : contact.type === 'whatsapp'
+            : contact.Type === 'Whatsapp'
             ? '_blank'
             : ''
         "
@@ -41,20 +41,20 @@
         <!-- <div class="h-full flex flex-col justify-center roll-over"> -->
         <i
           :class="
-            contact.icon
-              ? contact.icon
-              : contact.type === 'email'
+            contact.FontAwesome_Icon
+              ? contact.FontAwesome_Icon
+              : contact.Type === 'Email'
               ? 'fa-regular fa-envelope'
-              : contact.type === 'phone'
+              : contact.Type === 'Phone'
               ? 'fa-solid fa-phone'
-              : contact.type === 'whatsapp'
+              : contact.Type === 'Whatsapp'
               ? 'fa-brands fa-whatsapp'
               : ''
           "
           class="theme-black ml-2 cursor-pointer text-sm icon text-[#E6B800] hover:text-[#0066ff] transition 0.3s ease-in-out"
         ></i>
-        <!-- </div> -->
-        <!-- </div> -->
+        
+        {{ contact.Type === 'Phone' || contact.Type === 'Whatsapp' ? contact.Contact : '' }}
       </a>
       <!-- </div> -->
     </div>

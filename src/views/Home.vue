@@ -1,6 +1,7 @@
 <template>
-  <Spinner logo="/logo.png" v-if="page_is_loading" />
-  <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center">
+  <!-- <Spinner logo="/logo.png" v-if="page_is_loading" /> -->
+  <!-- <div v-if="!page_is_loading" class="w-full flex flex-wrap justify-center"> -->
+    <div  class="w-full flex flex-wrap justify-center">
     <Navbar
       :categories="other_categories"
       :contacts="contacts"
@@ -214,7 +215,7 @@
             :key="index"
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
-            @click="filterByModel(model.model_id)"
+            @click="filterByModel(model.id)"
           >
             <span class="font-semibold cursor-pointer hover:underline text-sm">
               {{ model?.make?.Make_Name }} {{ model?.Model_Name }}
@@ -230,7 +231,7 @@
             :key="index"
             class="flex flex-nowrap gap-2 py-2"
             style="border-bottom: 1px solid #f4f5f4"
-            @click="filterByLocation(location.location_id)"
+            @click="filterByLocation(location.id)"
           >
             <span
               class="font-semibold cursor-pointer hover:underline text-sm"
@@ -404,69 +405,48 @@ export default {
     },
     async fetchVehicles() {
       try {
-        const response = await axios.get(`${api}/get-vehicles`);
+        const url = new URL(`${import.meta.env.VITE_STRAPI_BASE_URL}/api/vehicles`);
+        url.searchParams.set('populate', '*');
+        url.searchParams.set('pagination[limit]', 6);
 
-        const data = response.data;
+        const response = await fetch(url);
+        const data = await response.json();
 
-        // Check if the request was successful
-        if (data.success) {
-          this.all_vehicles = data.vehicles;
-
-          // this.all_loan_tracker = data.vehicles;
-
-          // Hide message after 3 seconds
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch vehicles");
-        }
+        this.all_vehicles = data.data;
       } catch (error) {
         console.error("Error fetching vehicles:", error);
-        // Initialize empty array on error
         this.all_vehicles = [];
       }
     },
     // get popular vehicles
     async fetch_popular_vehicles() {
       try {
-        const response = await axios.get(`${api}/get-popular-vehicles`);
+          const url = new URL(`${import.meta.env.VITE_STRAPI_BASE_URL}/api/vehicles`);
+          url.searchParams.set('populate', '*');
+          url.searchParams.set('filters[Is_Popular][$eq]', 'true');
+          url.searchParams.set('pagination[limit]', 6);
 
-        const data = response.data;
+          const response = await fetch(url);
+          const data = await response.json();
 
-        // Check if the request was successful
-        if (data.success) {
-          this.popular_vehicles = data.vehicles;
-
-          // this.all_loan_tracker = data.vehicles;
-
-          // Hide message after 3 seconds
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch vehicles");
+          this.popular_vehicles = data.data;
+        } catch (error) {
+          console.error("Error fetching popular vehicles:", error);
+          this.popular_vehicles = [];
         }
-      } catch (error) {
-        console.error("Error fetching vehicles:", error);
-        // Initialize empty array on error
-        this.popular_vehicles = [];
-      }
-    },
-    //get carousels
-    async getCarousels() {
-      try {
-        const response = await fetch(import.meta.env.VITE_CAROUSEL_ENDPOINT);
-        const data = await response.json();
-        
-        this.carousels = data.data; 
-        this.total_slides = data.data.length; 
-      } catch (error) {
-        console.error("Error fetching carousels:", error);
-        this.carousels = [];
-      }
+      },
+      //get carousels
+      async getCarousels() {
+        try {
+          const response = await fetch(import.meta.env.VITE_CAROUSEL_ENDPOINT);
+          const data = await response.json();
+          
+          this.carousels = data.data; 
+          this.total_slides = data.data.length; 
+        } catch (error) {
+          console.error("Error fetching carousels:", error);
+          this.carousels = [];
+        }
     },
 
     async getBlogs() {

@@ -16,7 +16,7 @@
           class="w-[85%] font-semibold transition-all duration-300 ease-in-out"
           :class="faq.accordion_is_hidden ? 'theme-blue' : ''"
         >
-          {{ faq.faq_question }}
+          {{ faq.Question}}
         </div>
         <div class="w-[15%] flex justify-center">
           <div class="h-full flex-col justify-center">
@@ -33,7 +33,7 @@
         class="accordion-body w-full flex flex-nowrap gap-2 justify-center"
       >
         <div class="w-full pt-4 pb-4">
-          {{ faq.faq_answer }}
+          {{ faq.Answer }}
         </div>
       </div>
     </div>

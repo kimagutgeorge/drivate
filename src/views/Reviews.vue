@@ -25,10 +25,11 @@
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
-                  :src="make?.image_url"
+                  :src="`${STRAPI_BASE_URL}${make?.Make_Logo?.formats?.thumbnail?.url}`"
+                  :alt="make?.Make_Logo?.alternativeText || 'Make Logo'"
                   class="w-[30px] min-w-[30px] h-fit max-h-[40px]"
                 />
-                <p class="font-semibold cursor-pointer">{{ make?.name }}</p>
+                <p class="font-semibold cursor-pointer">{{ make?.Make_Name }}</p>
               </div>
             </div>
           </div>
@@ -45,10 +46,10 @@
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
-                  :src="type?.image_url"
+                  :src="`${STRAPI_BASE_URL}${type?.Body_Style_Logo?.formats?.thumbnail?.url}`"
                   class="w-[30px] min-w-[30px] filter grayscale h-fit max-h-[40px]"
                 />
-                <p class="font-semibold cursor-pointer">{{ type?.name }}</p>
+                <p class="font-semibold cursor-pointer">{{ type?.Body_style }}</p>
               </div>
             </div>
           </div>
@@ -94,7 +95,7 @@
               :key="index"
               class="flex flex-nowrap gap-2 py-2"
               style="border-bottom: 1px solid #f4f5f4"
-              @click="filterByCategory(category?.name)"
+              @click="filterByCategory(category?.category)"
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
@@ -425,6 +426,7 @@ export default {
   components: { Navbar, Card, Spinner, Footer, Search },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
       review_status: "Active",
 
@@ -588,7 +590,7 @@ export default {
           `${api}/get-reviews/${this.review_status}`
         );
         const data = response.data;
-        console.log(data);
+        /* console.log(data); */
         if (data.success) {
           this.reviews = data.reviews; // Extract the array
           this.average_rating = Math.round(data.average_rating);

@@ -38,13 +38,41 @@
             <div
               class="w-full h-fit flex overflow-x-scroll snap-x snap-mandatory no-scrollbar"
             >
-              <div
-                v-for="(img, index) in fetched_images"
-                :key="index"
-                class="w-full aspect-[4/3] transition-transform duration-500 ease-in-out snap-center flex-shrink-0"
-                :style="{ transform: `translateX(-${current_image * 100}%)` }"
-              >
-                <img :src="img?.image_url" class="w-full h-full object-fit" />
+              <div class="w-full h-fit flex overflow-x-scroll snap-x snap-mandatory no-scrollbar">
+                <div
+                  v-for="(img, index) in fetched_images"
+                  :key="index"
+                  class="w-full aspect-[4/3] transition-transform duration-500 ease-in-out snap-center flex-shrink-0"
+                  :style="{ transform: `translateX(-${current_image * 100}%)` }"
+                >
+                  <picture>
+                    <source
+                      v-if="img?.formats?.thumbnail"
+                      media="(max-width: 208px)"
+                      :srcset="`${STRAPI_BASE_URL}${img.formats.thumbnail.url}`"
+                    />
+                    <source
+                      v-if="img?.formats?.small"
+                      media="(max-width: 500px)"
+                      :srcset="`${STRAPI_BASE_URL}${img.formats.small.url}`"
+                    />
+                    <source
+                      v-if="img?.formats?.medium"
+                      media="(max-width: 750px)"
+                      :srcset="`${STRAPI_BASE_URL}${img.formats.medium.url}`"
+                    />
+                    <source
+                      v-if="img?.formats?.large"
+                      media="(min-width: 751px)"
+                      :srcset="`${STRAPI_BASE_URL}${img.formats.large.url}`"
+                    />
+                    <img
+                      :src="`${STRAPI_BASE_URL}${img?.url}`"
+                      :alt="img?.alternativeText || 'Vehicle Image'"
+                      class="w-full h-full object-cover"
+                    />
+                  </picture>
+                </div>
               </div>
             </div>
           </div>
@@ -54,11 +82,10 @@
               v-for="(img, index) in fetched_images"
               :key="index"
               @click="current_image = index"
-              :src="img?.image_url"
+              :src="img?.formats?.thumbnail ? `${STRAPI_BASE_URL}${img.formats.thumbnail.url}` : `${STRAPI_BASE_URL}${img?.url}`"
+              :alt="img?.alternativeText || 'Vehicle Image'"
               class="w-[19%] h-auto object-cover cursor-pointer"
-              :class="
-                current_image === index ? 'border-2 border-[#E6B800]' : ''
-              "
+              :class="current_image === index ? 'border-2 border-[#E6B800]' : ''"
             />
           </div>
         </div>
@@ -204,7 +231,7 @@
                 : 'border-gray-300 text-gray-300'
             "
           >
-            {{ feature?.name }}
+            {{ feature?.Feature_Name }}
           </div>
         </div>
       </div>
@@ -349,6 +376,7 @@ export default {
   components: { Spinner, Footer, Navbar, Card },
   data() {
     return {
+      STRAPI_BASE_URL: import.meta.env.VITE_STRAPI_BASE_URL,
       page_is_loading: true,
       current_image: 0,
       total_images: "",
@@ -472,38 +500,35 @@ export default {
     slugify,
     async fetchVehicle() {
       try {
-        const response = await axios.get(`${api}/get-vehicle/${this.id}`);
-
-        const data = response.data;
-        // console.log("Vehicle details: ", data);
-        // Check if the request was successful
-        if (data.success) {
-          this.vehicle = data.vehicle;
+        const response = await fetch(`${this.STRAPI_BASE_URL}/api/vehicles?filters[id][$eq]=${this.id}&populate=*`);
+        const data = await response.json();
+        this.vehicle = data.data[0];
+        
 
           //map data
-          this.name = this.vehicle?.name;
-          this.price = this.vehicle?.price;
-          this.mileage = this.vehicle?.mileage;
-          this.engine_size = this.vehicle?.engine;
-          this.location = this.vehicle?.location?.location_name;
-          this.ref_number = this.vehicle?.ref_no;
-          this.model_code = this.vehicle?.model_code;
-          this.steering_wheel = this.vehicle?.steering;
-          this.exterior_color = this.vehicle?.exterior_color;
-          this.fuel_type = this.vehicle?.fuel;
-          this.seats = this.vehicle?.seats;
-          this.drive_type = this.vehicle?.drive;
-          this.transmission = this.vehicle?.transmission;
-          this.registration_year = this.vehicle?.year;
-          this.weight = this.vehicle?.weight;
-          this.condition = this.vehicle?.condition;
-          this.make_name = this.vehicle?.make?.name;
-          this.model_name = this.vehicle?.model?.model_name;
-          this.body_style = this.vehicle?.body_style?.name;
-          this.seats_color = this.vehicle?.seats_color;
+          this.name = this.vehicle?.Name;
+          this.price = this.vehicle?.Price;
+          this.mileage = this.vehicle?.Mileage;
+          this.engine_size = this.vehicle?.Engine_Size;
+          this.location = this.vehicle?.location?.Location_Name;
+          this.ref_number = this.vehicle?.Reference_Number;
+          this.model_code = this.vehicle?.Model_Code;
+          this.steering_wheel = this.vehicle?.steering_wheel?.Steering_Type;
+          this.exterior_color = this.vehicle?.Exterior_Color;
+          this.fuel_type = this.vehicle?.fuel?.Fuel_Type;
+          this.seats = this.vehicle?.No_Of_Seats;
+          this.drive_type = this.vehicle?.drive?.Drive_Type;
+          this.transmission = this.vehicle?.transmission?.Transmission_Type;
+          this.registration_year = this.vehicle?.Registration_Year;
+          this.weight = this.vehicle?.Weight;
+          this.condition = this.vehicle?.condition?.Condition;
+          this.make_name = this.vehicle?.make?.Make_Name;
+          this.model_name = this.vehicle?.model?.Model_Name;
+          this.body_style = this.vehicle?.body_style?.Body_style;
+          this.seats_color = this.vehicle?.Seats_Color;
           this.car_features = this.vehicle?.features;
           this.body_id = this.vehicle.body_style?.style_id;
-          this.fetched_images = this.vehicle?.images;
+          this.fetched_images = this.vehicle?.Images;
 
           this.total_images = this.fetched_images.length;
 
@@ -511,10 +536,7 @@ export default {
           setTimeout(() => {
             this.response_is_visible = false;
           }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch vehicles");
-        }
+       
       } catch (error) {
         console.error("Error fetching vehicles:", error);
         this.response_message = "Failed. Check  your connection";
@@ -577,18 +599,11 @@ export default {
     // get featues
     async getFeatures() {
       try {
-        const response = await axios.get(`${api}/get-features`);
-        const data = response.data;
-
-        // console.log("features response:", data); // Debug log
-
-        if (data.success && data.features) {
-          this.features = data.features; // Extract the array
+         const response = await fetch(`${this.STRAPI_BASE_URL}/api/features?fields[0]=id&fields[1]=Feature_Name`);
+        const data = await response.json();
+          this.features = data.data; // Extract the array
           // console.log("Feature zimekam ni: ", this.features);
-        } else {
-          this.features = []; // Fallback to empty array
-          console.warn("No features found in response");
-        }
+          
       } catch (error) {
         this.show_error(error);
         this.features = []; // Set to empty array on error
@@ -597,12 +612,12 @@ export default {
     /* generate features */
     generate_features() {
       const features_ids = new Set(
-        this.car_features.map((item) => item.feature_id)
+        this.car_features.map((item) => item.id)
       );
-      // console.log("Featured ids: ", features_ids);
+      //console.log("Featured ids: ", features_ids);
       this.generated_features = this.features.map((item) => ({
         ...item,
-        exists: features_ids.has(item.feature_id),
+        exists: features_ids.has(item.id),
       }));
 
       // console.log("Features ni: ", this.generated_features);
@@ -610,18 +625,16 @@ export default {
     // get contacts
     async getContacts() {
       try {
-        const response = await axios.get(`${api}/get-contacts`);
-        const data = response.data;
-
+        const response = await fetch(import.meta.env.VITE_CONTACTS_ENDPOINT);
+        const data = await response.json();
+        this.fetched_contacts = data.data;
         // console.log("contacts response:", data);
 
-        if (data.success && data.contacts) {
-          this.fetched_contacts = data.contacts;
           // console.log("Mapped contacts", this.fetched_contacts)
 
           //set phone number
           const phone = this.fetched_contacts.find(
-            (item) => item.type === "phone"
+            (item) => item.Type === "Phone"
           );
           if (phone) {
             this.contact_phone = phone.value;
@@ -629,19 +642,19 @@ export default {
 
           // set email
           const email = this.fetched_contacts.find(
-            (item) => item.type === "email"
+            (item) => item.Type === "Email"
           );
           if (email) {
-            this.contact_email = email.value;
+            this.contact_email = email.Contact;
           }
 
           const whatsapp = this.fetched_contacts.find(
-            (item) => item.type === "whatsapp"
+            (item) => item.Type === "Whatsapp"
           );
 
           if (whatsapp) {
             // Remove all non-numeric characters
-            let cleanNumber = whatsapp.value.replace(/\D/g, "");
+            let cleanNumber = whatsapp.Contact.replace(/\D/g, "");
 
             // Remove leading zero if present
             if (cleanNumber.startsWith("0")) {
@@ -655,9 +668,7 @@ export default {
 
             this.whatsapp_number = cleanNumber;
           }
-        } else {
-          this.fetched_contacts = [];
-        }
+        
       } catch (error) {
         console.error("Error fetching contacts:", error);
       }
@@ -801,33 +812,22 @@ Address: ${client_address}`;
     },
     // fetch similar vehicles
     async fetch_simillar_vehicles() {
-      try {
-        const response = await axios.get(
-          `${api}/get-similar-vehicles/${this.body_id}/${this.id}`
-        );
+        try {
+          const url = new URL(`${this.STRAPI_BASE_URL}/api/vehicles`);
+          url.searchParams.set('populate', '*');
+          url.searchParams.set('filters[body_style][id][$eq]', this.vehicle?.body_style?.id);
+          url.searchParams.set('filters[id][$ne]', this.id); // exclude current vehicle
+          url.searchParams.set('pagination[limit]', 6);
 
-        const data = response.data;
+          const response = await fetch(url);
+          const data = await response.json();
 
-        // Check if the request was successful
-        if (data.success) {
-          this.all_vehicles = data.vehicles;
-
-          // this.all_loan_tracker = data.vehicles;
-
-          // Hide message after 3 seconds
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
-        } else {
-          // Handle API error response
-          throw new Error(data.error || "Failed to fetch vehicles");
+          this.all_vehicles = data.data;
+        } catch (error) {
+          console.error("Error fetching similar vehicles:", error);
+          this.all_vehicles = [];
         }
-      } catch (error) {
-        console.error("Error fetching vehicles:", error);
-        // Initialize empty array on error
-        this.all_vehicles = [];
-      }
-    },
+      },
 
     //save data
     async save_enquiry(

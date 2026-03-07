@@ -9,14 +9,13 @@
       :body_styles="body_styles"
       :prices="price_ranges"
     />
-{{ categories }}
     <div class="w-[90%] flex flex-wrap">
       <div class="w-full h-[40vh] overflow-hidden mt-6 relative view-car">
         <!-- background -->
         <div class="w-full h-full absolute">
           <img
-            :src="`${STRAPI_BASE_URL}${about_us?.Image_2?.url}`"
-            :alt="about_us?.Image_2?.alternativeText || 'About Us'"
+            :src="`${STRAPI_BASE_URL}${about_us?.Image_1?.url}`"
+            :alt="about_us?.Image_1?.alternativeText || 'About Us'"
             class="w-full h-auto"
           />
         </div>
@@ -60,15 +59,15 @@
           <p
             v-for="(category, index) in categories"
             :key="index"
-            @click="filter_category(category.category_name)"
+            @click="filter_category(category.Category_Name)"
             class="w-[60%] px-4 bg-third transition-all duration-300 ease-in-out hover:text-[#0066ff] py-2 cursor-pointer border-b border-gray-300"
             :class="
-              selected_category == category?.category_name
+              selected_category == category?.Category_Name
                 ? 'text-[#0066ff]'
                 : 'text-gray-700'
             "
           >
-            {{ category?.category_name }}
+            {{ category?.Category_Name }}
           </p>
           <!-- top stories -->
         </div>
@@ -79,11 +78,33 @@
             class="w-full border-b border-gray-300 py-4 transition-all duration-300 hover:border-[#ffcd00]"
           >
             <router-link
-              :to="`/blogs/view/${blog?.blog_id}/${slugify(blog?.title)}`"
+              :to="`/blogs/view/${blog?.id}/${slugify(blog?.Title)}`"
               class="w-full"
             >
               <div class="w-full max-h-[50vh] overflow-hidden">
-                <img :src="blog?.image_url" class="w-full h-auto" />
+                <picture>
+                  <source
+                    media="(max-width: 234px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.thumbnail?.url}`"
+                  />
+                  <source
+                    media="(max-width: 500px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.small?.url}`"
+                  />
+                  <source
+                    media="(max-width: 750px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.medium?.url}`"
+                  />
+                  <source
+                    media="(min-width: 751px)"
+                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.large?.url}`"
+                  />
+                  <img
+                    :src="`${STRAPI_BASE_URL}${blog?.Blog_Image?.url}`"
+                    :alt="blog?.Blog_Image?.alternativeText || 'Blog Image'"
+                    class="w-full h-full object-cover"
+                  />
+                </picture>
               </div>
               <div class="w-full mt-4">
                 <div class="w-ful0 flex theme-yellow">
@@ -101,9 +122,9 @@
                   </div>
                 </div>
                 <h1 class="font-extrabold text-3xl">
-                  {{ blog?.title }}
+                  {{ blog?.Title }}
                 </h1>
-                <p class="text-[#333333] mt-4">{{ blog?.excerpt }}</p>
+                <p class="text-[#333333] mt-4">{{ blog?.Blog_Excerpt }}</p>
               </div>
             </router-link>
           </div>
@@ -240,15 +261,16 @@ export default {
       }
     },
     filter_category(category) {
-      this.blogs = this.all_blogs_tracker;
+      /* this.blogs = this.all_blogs_tracker; */
       this.selected_category = category;
 
       if (this.selected_category == "All") {
+        this.blogs = this.all_blogs_tracker;
         return;
       }
 
-      this.filtered_blogs = this.blogs.filter(
-        (blog) => blog.category === this.selected_category
+      this.filtered_blogs = this.all_blogs_tracker.filter(
+        (blog) => blog?.blog_category?.Category_Name === this.selected_category
       );
       this.blogs = this.filtered_blogs;
     },
@@ -257,7 +279,7 @@ export default {
         const response = await fetch(import.meta.env.VITE_BLOG_CATEGORIES_ENDPOINT);
         const data = await response.json();
         this.categories = data.data; // Extract the array
-        
+       
       } catch (error) {
         this.show_error(error);
         this.categories = []; // Set to empty array on error
@@ -265,16 +287,10 @@ export default {
     },
     async getBlogs() {
       try {
-        const response = await fetch(import.meta.env.VITE_HOME_BLOGS_ENDPOINT);
+        const response = await fetch(import.meta.env.VITE_BLOGS_ENDPOINT);  
         const data = await response.json();
-        
-          /* console.log("Full blogs response:", data); // Debug log */
           this.blogs = data.data;
-
-          setTimeout(() => {
-            this.response_is_visible = false;
-          }, 3000);
-        
+          this.all_blogs_tracker = data.data;
       } catch (error) {
         console.error("Error fetching blogs:", error);
 
