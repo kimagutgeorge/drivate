@@ -13,7 +13,7 @@
         <!-- background -->
         <div class="w-full h-full absolute">
           <img
-            :src="`${STRAPI_BASE_URL}${about_us?.Image_1?.url}`"
+            :src="getImageUrl(about_us?.Image_1?.url)"
             :alt="about_us?.Image_1?.alternativeText || 'About Us'"
             class="w-full min-w-full max-w-none h-auto min-h-full"
           />

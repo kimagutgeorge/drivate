@@ -49,25 +49,25 @@
                     <source
                       v-if="img?.formats?.thumbnail"
                       media="(max-width: 208px)"
-                      :srcset="`${STRAPI_BASE_URL}${img.formats.thumbnail.url}`"
+                      :srcset="getImageUrl(img.formats.thumbnail.url)"
                     />
                     <source
                       v-if="img?.formats?.small"
                       media="(max-width: 500px)"
-                      :srcset="`${STRAPI_BASE_URL}${img.formats.small.url}`"
+                      :srcset="getImageUrl(img.formats.small.url)"
                     />
                     <source
                       v-if="img?.formats?.medium"
                       media="(max-width: 750px)"
-                      :srcset="`${STRAPI_BASE_URL}${img.formats.medium.url}`"
+                      :srcset="getImageUrl(img.formats.medium.url)"
                     />
                     <source
                       v-if="img?.formats?.large"
                       media="(min-width: 751px)"
-                      :srcset="`${STRAPI_BASE_URL}${img.formats.large.url}`"
+                      :srcset="getImageUrl(img.formats.large.url)"
                     />
                     <img
-                      :src="`${STRAPI_BASE_URL}${img?.url}`"
+                      :src="getImageUrl(img?.url)"
                       :alt="img?.alternativeText || 'Vehicle Image'"
                       class="w-full h-full object-cover"
                     />
@@ -82,7 +82,7 @@
               v-for="(img, index) in fetched_images"
               :key="index"
               @click="current_image = index"
-              :src="img?.formats?.thumbnail ? `${STRAPI_BASE_URL}${img.formats.thumbnail.url}` : `${STRAPI_BASE_URL}${img?.url}`"
+              :src="getImageUrl(img?.formats?.thumbnail ? img.formats.thumbnail.url : img?.url)"
               :alt="img?.alternativeText || 'Vehicle Image'"
               class="w-[19%] h-auto object-cover cursor-pointer"
               :class="current_image === index ? 'border-2 border-[#E6B800]' : ''"
@@ -355,6 +355,7 @@ import Navbar from "../../components/general/Navbar.vue";
 import Spinner from "../../components/general/Spinner.vue";
 import Card from "../../components/ui/Card.vue";
 import { api, slugify } from "../../utils/store";
+import { getImageUrl } from "../../store/Universal";
 import axios from "axios";
 import { useHead } from "@vueuse/head";
 
@@ -498,6 +499,7 @@ export default {
       }
     },
     slugify,
+    getImageUrl,
     async fetchVehicle() {
       try {
         const response = await fetch(`${this.STRAPI_BASE_URL}/api/vehicles?filters[id][$eq]=${this.id}&populate=*`);
@@ -611,16 +613,24 @@ export default {
     },
     /* generate features */
     generate_features() {
-      const features_ids = new Set(
-        this.car_features.map((item) => item.id)
+      const car_feature_names = new Set(
+        this.car_features.map((item) => item.Feature_Name.toLowerCase().trim())
       );
-      //console.log("Featured ids: ", features_ids);
-      this.generated_features = this.features.map((item) => ({
-        ...item,
-        exists: features_ids.has(item.id),
-      }));
 
-      // console.log("Features ni: ", this.generated_features);
+      // Combine global + vehicle-specific features, deduplicated
+      const all_features = [
+        ...this.features,
+        ...this.car_features.filter(
+          (cf) => !this.features.some(
+            (f) => f.Feature_Name.toLowerCase() === cf.Feature_Name.toLowerCase()
+          )
+        ),
+      ];
+
+      this.generated_features = all_features.map((item) => ({
+        ...item,
+        exists: car_feature_names.has(item.Feature_Name.toLowerCase().trim()),
+      }));
     },
     // get contacts
     async getContacts() {

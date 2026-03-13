@@ -25,28 +25,28 @@
 
         <picture>
           <source
-            v-if="car?.Images?.[0]?.formats?.thumbnail"
+            v-if="car?.Feature_Image?.formats?.thumbnail"
             media="(max-width: 208px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.thumbnail?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.thumbnail?.url)"
           />
           <source
-            v-if="car?.Images?.[0]?.formats?.small"
+            v-if="car?.Feature_Image?.formats?.small"
             media="(max-width: 500px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.small?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.small?.url)"
           />
           <source
-            v-if="car?.Images?.[0]?.formats?.medium"
+            v-if="car?.Feature_Image?.formats?.medium"
             media="(max-width: 750px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.medium?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.medium?.url)"
           />
           <source
-            v-if="car?.Images?.[0]?.formats?.large"
+            v-if="car?.Feature_Image?.formats?.large"
             media="(min-width: 751px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.large?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.large?.url)"
           />
           <img
-            :src="`${STRAPI_BASE_URL}${car?.Images?.[0]?.url}`"
-            :alt="car?.Images?.[0]?.alternativeText || car?.title || 'Car Image'"
+            :src="getImageUrl(car?.Feature_Image?.url)"
+            :alt="car?.Feature_Image?.alternativeText || car?.title || 'Car Image'"
             class="w-full h-full object-cover hover:scale-110 duration-300 ease-in-out"
           />
         </picture>
@@ -102,22 +102,22 @@
         <picture>
           <source
             media="(max-width: 234px)"
-            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.thumbnail?.url}`"
+            :srcset="getImageUrl(blog?.Blog_Image?.formats?.thumbnail?.url)"
           />
           <source
             media="(max-width: 500px)"
-            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.small?.url}`"
+            :srcset="getImageUrl(blog?.Blog_Image?.formats?.small?.url)"
           />
           <source
             media="(max-width: 750px)"
-            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.medium?.url}`"
+            :srcset="getImageUrl(blog?.Blog_Image?.formats?.medium?.url)"
           />
           <source
             media="(min-width: 751px)"
-            :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.large?.url}`"
+            :srcset="getImageUrl(blog?.Blog_Image?.formats?.large?.url)"
           />
           <img
-            :src="`${STRAPI_BASE_URL}${blog?.Blog_Image?.url}`"
+            :src="getImageUrl(blog?.Blog_Image?.url)"
             :alt="blog?.Blog_Image?.alternativeText || 'Blog Image'"
             class="w-full h-full object-cover"
           />
@@ -130,7 +130,6 @@
       </div>
     </router-link>
   </div>
-
   <!-- list card -->
   <div
     v-for="(car, index) in vehicles"
@@ -148,31 +147,30 @@
           :src="car?.primary_image_url"
           class="w-full aspect-[4/3] object-fit"
         /> -->
-        
         <picture>
           <source
-            v-if="car?.Images?.[0]?.formats?.thumbnail"
+            v-if="car?.Feature_Image?.formats?.thumbnail"
             media="(max-width: 208px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.thumbnail?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.thumbnail?.url)"
           />
           <source
-            v-if="car?.Images?.[0]?.formats?.small"
+            v-if="car?.Feature_Image?.formats?.small"
             media="(max-width: 500px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.small?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.small?.url)"
           />
           <source
-            v-if="car?.Images?.[0]?.formats?.medium"
+            v-if="car?.Feature_Image?.formats?.medium"
             media="(max-width: 750px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.medium?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.medium?.url)"
           />
           <source
-            v-if="car?.Images?.[0]?.formats?.large"
+            v-if="car?.Feature_Image?.formats?.large"
             media="(min-width: 751px)"
-            :srcset="`${STRAPI_BASE_URL}${car?.Images?.[0]?.formats?.large?.url}`"
+            :srcset="getImageUrl(car?.Feature_Image?.formats?.large?.url)"
           />
           <img
-            :src="`${STRAPI_BASE_URL}${car?.Images?.[0]?.url}`"
-            :alt="car?.Images?.[0]?.alternativeText || car?.title || 'Car Image'"
+            :src="getImageUrl(car?.Feature_Image?.url)"
+            :alt="car?.Feature_Image?.alternativeText  || car?.title || 'Car Image'"
             class="w-full h-full object-cover hover:scale-110 duration-300 ease-in-out w-full aspect-[4/3] object-fit" 
           />
         </picture>
@@ -284,6 +282,7 @@
 import Link from "./text/Link.vue";
 import IconButton from "./buttons/IconButton.vue";
 import { slugify, base_url } from "../../utils/store";
+import { getImageUrl } from "../../store/Universal";
 export default {
   name: "Card",
   props: {
@@ -321,6 +320,7 @@ export default {
   /* methods */
   methods: {
     slugify,
+    getImageUrl
   },
 };
 </script>

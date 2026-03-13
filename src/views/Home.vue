@@ -30,18 +30,18 @@
               <picture>
                 <source
                   media="(max-width: 500px)"
-                  :srcset="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.small?.url}`"
+                  :srcset="getImageUrl(carousel_item?.Background_Image?.formats?.small?.url)"
                 />
                 <source
                   media="(max-width: 750px)"
-                  :srcset="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.medium?.url}`"
+                  :srcset="getImageUrl(carousel_item?.Background_Image?.formats?.medium?.url)"
                 />
                 <source
                   media="(min-width: 751px)"
-                  :srcset="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.large?.url}`"
+                  :srcset="getImageUrl(carousel_item?.Background_Image?.formats?.large?.url)"
                 />
                 <img
-                  :src="`${STRAPI_BASE_URL}${carousel_item?.Background_Image?.formats?.large?.url}`"
+                  :src="getImageUrl(carousel_item?.Background_Image?.formats?.large?.url)"
                   :alt="carousel_item?.Background_Image?.alternativeText || 'Carousel Image'"
                   class="w-auto max-h-none h-full min-w-full max-w-none object-cover"
                 />
@@ -62,6 +62,7 @@
                     class="text-3xl font-extrabold uppercase bg-theme-yellow w-fit px-4 mt-2"
                   >
                     {{ carousel_item?.Description }}
+                    
                   </h2>
                 </div>
               </div>
@@ -108,7 +109,7 @@
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
-                  :src="`${STRAPI_BASE_URL}${make?.Make_Logo?.formats?.thumbnail?.url}`"
+                  :src="getImageUrl(make?.Make_Logo?.formats?.thumbnail?.url)"
                   :alt="make?.Make_Logo?.alternativeText || 'Make Logo'"
                   class="w-[30px] min-w-[30px] h-auto"
                 />
@@ -131,7 +132,7 @@
             >
               <div class="w-full flex gap-2 flex-nowrap inner-cat">
                 <img
-                  :src="`${STRAPI_BASE_URL}${type?.Body_Style_Logo?.formats?.thumbnail?.url}`"
+                  :src="getImageUrl(type?.Body_Style_Logo?.formats?.thumbnail?.url)"
                   class="w-[30px] min-w-[30px] filter grayscale h-auto"
                 />
                 <p class="font-semibold cursor-pointer">{{ type?.Body_style }}</p>
@@ -259,7 +260,7 @@
             <div class="mt-10 ml-[-15%] h-full bg-transparent w-[80%] absolute flex flex-col justify-end overflow-hidden">
               <div class="h-[60%] bg-[#fffadd] p-[15px]">
                 <img
-                  :src="`${STRAPI_BASE_URL}${about_us?.Image_1?.url}`"
+                  :src="getImageUrl(about_us?.Image_1?.url)"
                   :alt="about_us?.Image_1?.alternativeText || 'About Us'"
                   class="w-full h-auto"
                 />
@@ -267,7 +268,7 @@
             </div>
             <!-- 2nd image -->
             <img
-              :src="`${STRAPI_BASE_URL}${about_us?.Image_2?.url}`"
+              :src="getImageUrl(about_us?.Image_2?.url)"
               :alt="about_us?.Image_2?.alternativeText || 'About Us'"
               class="w-auto h-full"
             />
@@ -324,7 +325,7 @@ import Search from "../components/general/Search.vue";
 import Spinner from "../components/general/Spinner.vue";
 import Card from "../components/ui/Card.vue";
 import { api, slugify } from "../utils/store";
-import axios from "axios";
+import { getImageUrl } from "../store/Universal";
 import { useHead } from "@vueuse/head";
 
 export default {
@@ -390,6 +391,7 @@ export default {
   /* methods */
   methods: {
     slugify,
+    getImageUrl,
     next_slide() {
       if (this.current_slide < this.total_slides - 1) {
         this.current_slide++;

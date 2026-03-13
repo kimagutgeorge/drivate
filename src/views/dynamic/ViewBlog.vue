@@ -44,22 +44,22 @@
                <picture>
                   <source
                     media="(max-width: 234px)"
-                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.thumbnail?.url}`"
+                    :srcset="getImageUrl(blog?.Blog_Image?.formats?.thumbnail?.url)"
                   />
                   <source
                     media="(max-width: 500px)"
-                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.small?.url}`"
+                    :srcset="getImageUrl(blog?.Blog_Image?.formats?.small?.url)"
                   />
                   <source
                     media="(max-width: 750px)"
-                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.medium?.url}`"
+                    :srcset="getImageUrl(blog?.Blog_Image?.formats?.medium?.url)"
                   />
                   <source
                     media="(min-width: 751px)"
-                    :srcset="`${STRAPI_BASE_URL}${blog?.Blog_Image?.formats?.large?.url}`"
+                    :srcset="getImageUrl(blog?.Blog_Image?.formats?.large?.url)"
                   />
                   <img
-                    :src="`${STRAPI_BASE_URL}${blog?.Blog_Image?.url}`"
+                    :src="getImageUrl(blog?.Blog_Image?.url)"
                     :alt="blog?.Blog_Image?.alternativeText || 'Blog Image'"
                     class="w-full h-full object-cover"
                   />
@@ -99,6 +99,7 @@ import Footer from "../../components/general/Footer.vue";
 import Navbar from "../../components/general/Navbar.vue";
 import Spinner from "../../components/general/Spinner.vue";
 import { slugify } from "../../utils/store";
+import { getImageUrl } from "../../store/Universal";
 import { marked } from "marked";
 import { useHead } from "@vueuse/head";
 
@@ -172,6 +173,7 @@ export default {
 
   methods: {
     slugify,
+    getImageUrl,
     marked,
     async fetchBlogs() {
       try {

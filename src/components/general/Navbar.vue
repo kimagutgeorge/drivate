@@ -5,7 +5,7 @@
         <img src="/images/advert-image.jpg" class="w-full h-auto" />
       </router-link>
     </div> -->
-    <div class="w-full flex justify-end bg-theme-gray text-white px-[5%] py-1">
+    <div class="w-full flex justify-end bg-theme-gray text-white px-[5%] py-1 ">
       <!-- <div class="w-1/2 flex justify-end"> -->
       <span class="mr-8 text-sm"
         ><span class="text-bold mr-2 uppercase">Currency kes</span>
@@ -54,7 +54,6 @@
           class="theme-black ml-2 cursor-pointer text-sm icon text-[#E6B800] hover:text-[#0066ff] transition 0.3s ease-in-out"
         ></i>
         
-        {{ contact.Type === 'Phone' || contact.Type === 'Whatsapp' ? contact.Contact : '' }}
       </a>
       <!-- </div> -->
     </div>

@@ -26,7 +26,7 @@
               >
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
-                   :src="`${STRAPI_BASE_URL}${make?.Make_Logo?.formats?.thumbnail?.url}`"
+                   :src="getImageUrl(make?.Make_Logo?.formats?.thumbnail?.url)"
                   :alt="make?.Make_Logo?.alternativeText || 'Make Logo'"
                     class="w-[30px] min-w-[30px] h-auto"
                   />
@@ -65,7 +65,7 @@
               >
                 <div class="w-full flex gap-2 flex-nowrap inner-cat">
                   <img
-                    :src="`${STRAPI_BASE_URL}${type?.Body_Style_Logo?.formats?.thumbnail?.url}`"
+                    :src="getImageUrl(type?.Body_Style_Logo?.formats?.thumbnail?.url)"
                     class="w-[30px] min-w-[30px] filter grayscale h-auto"
                   />
                   <p class="font-semibold">{{ type?.Body_style }}</p>
@@ -362,6 +362,7 @@ import Spinner from "../components/general/Spinner.vue";
 import Footer from "../components/general/Footer.vue";
 import Search from "../components/general/Search.vue";
 import { api, slugify } from "../utils/store";
+import { getImageUrl } from "../store/Universal";
 import axios from "axios";
 import { useHead } from "@vueuse/head";
 
@@ -521,6 +522,7 @@ export default {
   /* methods */
   methods: {
     slugify,
+    getImageUrl,
 
     // New filter methods for sidebar clicks
     filterByMake(makeId) {
@@ -574,7 +576,7 @@ export default {
         const p = url.searchParams;
 
         // Populate all relations and images
-        p.set('populate[Images]', 'true');
+        p.set('populate[Feature_Image]', 'true');
         p.set('populate[make]', 'true');
         p.set('populate[model]', 'true');
         p.set('populate[body_style]', 'true');
